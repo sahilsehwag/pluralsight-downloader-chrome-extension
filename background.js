@@ -2,8 +2,6 @@ flag = false;
 filename = '';
 let listenerInstance = undefined;
 
-console.log('FUCK!!!')
-
 // It's already assumed, that when using this function, we're in sync. download
 // mode, which implies that no more than one download is present, thus no need to
 // to check for the finished download ID
