@@ -104,7 +104,8 @@ const getFilePath = async _ => {
 	const videoIndex = getVideoIndex(videoName)
 	const fileName   = getFileName(videoIndex, videoName)
 
-	const filePath = `${appName}/${courseName} By ${authorName}/${sectionDirectoryName}/${fileName}.${extension}`
+	// const filePath = `${appName}/${courseName} By ${authorName}/${sectionDirectoryName}/${fileName}.${extension}`
+	const filePath = `${appName}/${courseName}/${sectionDirectoryName}/${fileName}.${extension}`
 	return filePath.replace(/(\r\n|\n|\r)/gm, "");
 }
 
