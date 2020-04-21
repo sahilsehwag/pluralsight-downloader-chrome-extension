@@ -22,6 +22,11 @@ Hit the `s` key while watching the video on pluralsight and it'll be downloaded 
 
 Hit the `a` key while watching the video on pluralsight and it'll be downloaded and organized in folder with appropriate file name! Subsequent videos in queue will automatically download after some seconds. **Note:** After pressing `a` don't interupt the course player, the extension will automatically play the next video and start the download and so on.
 
+## Known Issues
+
+* **Not Fixed** When you open a course from the main page, the download will not work because of the URL. This will be fixed in next version(in few days). For now to fix it click the video again, and now `s` and `a` can be used.
+* **Fixed** In some courses(due to lack of author name on top), the filenames of download were not correct. Its been fixed, so take the latest code.
+
 
 ## Contributors
 
