@@ -1,10 +1,18 @@
-# Pluralsight Course Downloader
+# Pluralsight Downloader Chrome Extension
 
-Chrome Extension
+Chrome Extension to download Pluralsight courses
+
+Author: **Sahil Sehwag**
+
+## Inspiration and Why
+
+This chrome extension is a clone of project [**Pluralsight Course Downloader**](https://github.com/vatz88/Pluralsight-Course-Downloader) by [**vatz88**](https://github.com/vatz88). 
+<br><br>
+The old extension stopped working because of the changes in entire Pluralsight strcuture. Along with this there were some issues in that project. So I rewrote the extension, but interface is exactly same (`s`, `a`). Another reason is that I will be maintaing this repository and will probably add more features.
 
 ## Installation
 
-Clone the repository to your system or download it as [.zip](https://github.com/vatz88/Pluralsight-Course-Downloader/zipball/master) or [.tar.gz](https://github.com/vatz88/Pluralsight-Course-Downloader/tarball/master).
+Clone the repository to your system or download it as [.tar.gz](https://github.com/vatz88/Pluralsight-Course-Downloader/tarball/master).
 
 Follow this [guide](https://developer.chrome.com/extensions/getstarted#unpacked) to load extension in developer mode in Chrome browser.
 
@@ -12,17 +20,12 @@ Follow this [guide](https://developer.chrome.com/extensions/getstarted#unpacked)
 
 Hit the `s` key while watching the video on pluralsight and it'll be downloaded and organized in folder with appropriate file name!
 
-Hit the `a` key while watching the video on pluralsight and it'll be downloaded and organized in folder with appropriate file name! Subsequent videos in queue will automatically download after a gap of 30 seconds.
+Hit the `a` key while watching the video on pluralsight and it'll be downloaded and organized in folder with appropriate file name! Subsequent videos in queue will automatically download after some seconds. **Note:** After pressing `a` don't interupt the course player, the extension will automatically play the next video and start the download and so on.
 
-## Why I Build It
-
-I build this extention when I was in college. We had limited WiFi data allowance, it was slow and worked only till 12:30AM. Keeping these things in mind I build this extension.
-
-**I no more use this extension and there is no further development from my side**. Although, anyone willing to do any further development is free to open issues and make PRs. Least I can do is review and merge them.
 
 ## Contributors
 
-Thanks to all the [contributors](https://github.com/vatz88/Pluralsight-Course-Downloader/contributors)!
+Contributors are welcomed to add new features or/and maintain this repository.
 
 ---
 
