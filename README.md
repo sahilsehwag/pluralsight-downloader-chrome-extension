@@ -18,9 +18,7 @@ Follow this [guide](https://developer.chrome.com/extensions/getstarted#unpacked)
 
 ## Usage
 
-Hit the `s` key while watching the video on pluralsight and it'll be downloaded and organized in folder with appropriate file name!
-
-Hit the `a` key while watching the video on pluralsight and it'll be downloaded and organized in folder with appropriate file name! Subsequent videos in queue will automatically download after some seconds. **Note:** After pressing `a` don't interupt the course player, the extension will automatically play the next video and start the download and so on.
+Press `a` key after playing any video from the course to download the entire course with the same directory structure(both video and section names).
 
 ## Changelog
 * 0.1-alpha
