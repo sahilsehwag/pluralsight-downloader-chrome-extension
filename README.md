@@ -12,7 +12,7 @@ The old extension stopped working because of the changes in entire Pluralsight s
 
 ## Installation
 
-You can clone this repository, or download zip/tar.gz/.crx(chrome extension) from [here](https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension/releases/tag/v0.2-alpha)
+You can clone this repository, or download zip/tar.gz/.crx(chrome extension) from [here](https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension/releases/tag/v0.3-alpha)
 
 Follow this [guide](https://developer.chrome.com/extensions/getstarted#unpacked) to load extension in developer mode in Chrome browser.
 
