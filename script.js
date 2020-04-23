@@ -114,7 +114,7 @@ $(() => {
       // keypress `s`
       log("Extracting.... video information", "STATUS");
 
-      await downloadVideo();
+      //await downloadVideo();
     } else if (e.which === 97 || e.which === 65) {
       // keypress `a`
       log("Extracting.... course information", "STATUS");
