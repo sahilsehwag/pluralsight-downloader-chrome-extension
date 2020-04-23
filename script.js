@@ -89,12 +89,12 @@ const downloadCourse = async (courseContent) => {
 
         const link = await getVideoURL(id);
         const filePath = await getFilePath(
-          courseName,
-          authorName,
-          sectionName,
-          sectionIndex,
-          videoName,
-          videoIndex
+          nameToFilename(courseName),
+          nameToFilename(authorName),
+          nameToFilename(sectionName),
+          nameToFilename(sectionIndex),
+          nameToFilename(videoName),
+          nameToFilename(videoIndex)
         );
 
         await downloadVideo(link, filePath);
