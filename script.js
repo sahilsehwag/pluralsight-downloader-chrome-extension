@@ -13,7 +13,7 @@ const DEFAULT_QUALITY    = "1280x720"
 const viewclipURL = "https://app.pluralsight.com/video/clips/v3/viewclip";
 
 // STATE variables
-let EXTENSION_ENABLED = true
+let EXTENSION_ENABLED = false
 let CONTINUE_DOWNLOAD = true
 // =================================================================
 // END:VARIABLES
