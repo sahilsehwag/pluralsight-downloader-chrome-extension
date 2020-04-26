@@ -9,6 +9,8 @@ const DELIMINATOR        = '.'
 const EXTENSION          = 'mp4'
 const DEFAULT_QUALITY    = "1280x720"
 
+const DOWNLOAD_TIMEOUT = 10000
+
 // videoURL to get the actual video URL
 const viewclipURL = "https://app.pluralsight.com/video/clips/v3/viewclip";
 
@@ -85,7 +87,11 @@ const getFilePath = async (
 ) => {
 	try {
 		const rootDirectory    = ROOT_DIRECTORY
-		const courseDirectory  = `${courseName} By ${authorName}`.trim()
+		const courseDirectory  = (
+			authorName !== undefined ?
+			`${courseName} By ${authorName}`.trim() :
+			`${courseName}`.trim()
+		)
 		const sectionDirectory = getDirectoryName(sectionIndex, sectionName);
 		const fileName         = getFileName(videoIndex, videoName);
 
@@ -105,7 +111,7 @@ const downloadVideo = async (videoURL, filePath) => {
 				videoURL: videoURL,
 				filePath: filePath,
 			},
-			(response) => log(response.actionStatus)
+			// (response) => log(response.actionStatus)
 		);
 	} catch (error) {
 		return error;
@@ -148,10 +154,10 @@ const downloadCourse = async (courseJSON) => {
 						removeInvalidCharacters(videoName),
 					);
 
-					log(`Downloading ${filePath} ...`)
+					log(`Downloading... ${sectionName}/${videoName}`)
 
 					await downloadVideo(videoURL, filePath);
-					await sleep(30000);
+					await sleep(DOWNLOAD_TIMEOUT);
 				}else {
 					CONTINUE_DOWNLOAD = !CONTINUE_DOWNLOAD
 					log('Downloading stopped!!!')
