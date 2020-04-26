@@ -59,6 +59,7 @@ Contributors are welcomed.
 	* **NOTE:** Other bindings will only work when extension bindings are enabled, by default they are **disabled**.
 	* Replaced `a` with `c` to download the course.
 	* Added `s` binding to stop the download process
+	* Prevent another parallel downloading of same course in the same tab due to accidental keypress
 
 ---
 
