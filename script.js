@@ -19,6 +19,7 @@ const viewclipURL = "https://app.pluralsight.com/video/clips/v3/viewclip";
 // STATE variables
 let EXTENSION_ENABLED = false
 let CONTINUE_DOWNLOAD = true
+let DOWNLOADING       = false
 // =================================================================
 // END:VARIABLES
 // =================================================================
@@ -165,12 +166,14 @@ const downloadCourse = async (courseJSON) => {
 					await downloadVideo(videoURL, filePath);
 					await sleep(DOWNLOAD_TIMEOUT);
 				}else {
-					CONTINUE_DOWNLOAD = !CONTINUE_DOWNLOAD
+					CONTINUE_DOWNLOAD = false
+					DOWNLOADING = false
 					log('Downloading stopped!!!')
 					return
 				}
 			}
 		}
+		DOWNLOADING = false
 		log('Downloading finished!!!')
 	} catch (error) {
 		log(error, 'ERROR')
@@ -213,6 +216,7 @@ $(() => {
 
 		} else if (
 			EXTENSION_ENABLED &&
+			!DOWNLOADING &&
 			// e.ctrlKey &&
 			(e.which === 99 || e.which === 67)
 		){
@@ -220,6 +224,8 @@ $(() => {
 			// Download the entire course
 			log('Downloading course...')
 			log('Fetching course information...')
+
+			DOWNLOADING = true
 
 			if (EXTENSION_ENABLED) {
 				const courseJSON = JSON
