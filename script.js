@@ -166,9 +166,13 @@ const downloadCourse = async (courseJSON) => {
 // main-function
 $(() => {
 	$(document).keypress(async (e) => {
-		if (e.ctrlKey && (e.which === 101 || e.which === 69)) {
+		if (
+			// e.ctrlKey &&
+			(e.which === 101 || e.which === 69)
+		){
 			// KEYPRESS `CTRL-e`
 			// Enable/Disabled extension bindings
+			e.preventDefault()
 
 			EXTENSION_ENABLED = !EXTENSION_ENABLED
 
@@ -180,7 +184,7 @@ $(() => {
 
 		}else if (
 			EXTENSION_ENABLED &&
-			e.ctrlKey &&
+			// e.ctrlKey &&
 			(e.which === 115 || e.which === 83)
 		 ){
 			// KEYPRESS `CTRL-v`
@@ -188,7 +192,7 @@ $(() => {
 
 		} else if (
 			EXTENSION_ENABLED &&
-			e.ctrlKey &&
+			// e.ctrlKey &&
 			(e.which === 99 || e.which === 67)
 		){
 			// KEYPRESS `CTRL-c`

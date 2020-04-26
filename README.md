@@ -19,16 +19,18 @@ You can clone this repository, or download [**zip/tar.gz/.crx(chrome extension)*
 
 ## Usage
 
-* `CTRL-e` - Enable/Disable the extension keyboard shortcuts(default is disabled). Key bindings mentioned below will worky only when the extension bindings are enabled.
-* `CTRL-c` - Download the currently playing video's entire course.
+<!-- * `CTRL-e` - Enable/Disable the extension keyboard shortcuts(default is disabled). Key bindings mentioned below will worky only when the extension bindings are enabled. -->
+* `e` - Enable/Disable the extension keyboard shortcuts(default is disabled). Key bindings mentioned below will worky only when the extension bindings are enabled.
+<!-- * `CTRL-c` - Download the currently playing video's entire course. -->
+* `c` - Download the currently playing video's entire course.
 
 ## Known Issues
 
-* Some old courses have videos with different resolution than the standad one, due to which right now they are downloaded. Will be fixed in next release.
+* Some old courses have videos with different resolution than the standard one, due to which these particular courses are not downloadable through extension. This issue will be fixed in the next release.
 
 ## Contributors
 
-Contributors are welcomed to add new features or/and maintain this repository.
+Contributors are welcomed.
 
 ---
 
@@ -43,9 +45,9 @@ Contributors are welcomed to add new features or/and maintain this repository.
 	* `a` will download the entire course, no matter the current video
 	* Fixed the errors due to parsing inconsistencies.
 * 0.3-beta (**Under progress...**)
-	* Added `CTRL-e` to enable/disabled the extension bindings.
+	<!-- * Added `CTRL-e` to enable/disabled the extension bindings.
 	* **NOTE:** Other bindings will only work when extension bindings are enabled, by default they are **disabled**.
-	* Replaced `a` with `CTRL-c` to download the course.
+	* Replaced `a` with `CTRL-c` to download the course. -->
 
 ---
 
