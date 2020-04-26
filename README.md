@@ -1,6 +1,6 @@
 # Pluralsight Downloader Chrome Extension
 
-Chrome Extension to download Pluralsight courses
+Chrome Extension to download Pluralsight courses (_**BETA**_).
 
 Author: **Sahil Sehwag**
 
@@ -8,17 +8,29 @@ Author: **Sahil Sehwag**
 
 This chrome extension is a clone of project [**Pluralsight Course Downloader**](https://github.com/vatz88/Pluralsight-Course-Downloader) by [**vatz88**](https://github.com/vatz88). 
 <br><br>
-The old extension stopped working because of the changes in entire Pluralsight strcuture. Along with this there were some issues in that project. So I rewrote the extension, but the interface was initially same (`s`, `a`). In future the interface might change drastically. Another reason is that I will be maintaing this repository and will probably add more features.
+The old extension stopped working because it was not being maintained, so I rewrote the extension. I will be **maintaining** this repository and will be adding more **features**. Currently this extension is in _**BETA**_ stage, so please any report issue that you find. It will help me and other people too.
 
 ## Installation
 
-You can clone this repository, or download zip/tar.gz/.crx(chrome extension) from [here](https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension/releases/tag/v0.3-alpha)
+You can clone this repository, or download [**zip/tar.gz/.crx(chrome extension)**](https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension/releases/tag/v0.3-alpha), and follow one of the ways mentioned below to install the extension.
 
-Follow this [guide](https://developer.chrome.com/extensions/getstarted#unpacked) to load extension in developer mode in Chrome browser.
+* Follow this [guide](https://developer.chrome.com/extensions/getstarted#unpacked) to load extension in developer mode in Chrome browser. 
+* Drag and drop the **.crx** file on chrome extension page (*In some cases this approach might not work*).
 
 ## Usage
 
-Press `a` key after playing any video from the course to download the entire course with the same directory structure(both video and section names).
+* `CTRL-e` - Enable/Disable the extension keyboard shortcuts(default is disabled). Key bindings mentioned below will worky only when the extension bindings are enabled.
+* `CTRL-c` - Download the currently playing video's entire course.
+
+## Known Issues
+
+* Some old courses have videos with different resolution than the standad one, due to which right now they are downloaded. Will be fixed in next release.
+
+## Contributors
+
+Contributors are welcomed to add new features or/and maintain this repository.
+
+---
 
 ## Changelog
 * 0.1-alpha
@@ -29,13 +41,11 @@ Press `a` key after playing any video from the course to download the entire cou
 	* Implemented the logic flow using json structure
 	* Disabled the `s`
 	* `a` will download the entire course, no matter the current video
-	* Fixed the errors due to parsing inconsisitencies.
-
-## Known Issues
-
-## Contributors
-
-Contributors are welcomed to add new features or/and maintain this repository.
+	* Fixed the errors due to parsing inconsistencies.
+* 0.3-beta (**Under progress...**)
+	* Added `CTRL-e` to enable/disabled the extension bindings.
+	* **NOTE:** Other bindings will only work when extension bindings are enabled, by default they are **disabled**.
+	* Replaced `a` with `CTRL-c` to download the course.
 
 ---
 

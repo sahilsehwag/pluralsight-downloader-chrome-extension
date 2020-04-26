@@ -178,18 +178,30 @@ $(() => {
 			// else
 			// 	alert(`${APPNAME} keyboard shortcuts disabled`)
 
-		}else if (e.which === 115 || e.which === 83) {
-			// KEYPRESS ``
+		}else if (
+			EXTENSION_ENABLED &&
+			e.ctrlKey &&
+			(e.which === 115 || e.which === 83)
+		 ){
+			// KEYPRESS `CTRL-v`
+			// Download current video
 
-		} else if (e.which === 97 || e.which === 65) {
-			// KEYPRESS `a`
+		} else if (
+			EXTENSION_ENABLED &&
+			e.ctrlKey &&
+			(e.which === 99 || e.which === 67)
+		){
+			// KEYPRESS `CTRL-c`
+			// Download the entire course
 
-			const courseJSON = JSON
-								.parse($(window.__NEXT_DATA__).text())
-								.props
-								.pageProps
-								.tableOfContents;
-			await downloadCourse(courseJSON);
+			if (EXTENSION_ENABLED) {
+				const courseJSON = JSON
+									.parse($(window.__NEXT_DATA__).text())
+									.props
+									.pageProps
+									.tableOfContents;
+				await downloadCourse(courseJSON);
+			}
 		}
 	});
 });
