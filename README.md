@@ -23,7 +23,7 @@ _**NOTE**_: This README.md is the latest code in repository. The links mentioned
 
 **NOTE**: To start the download open a course on pluralsight and play any video from course. Now press `e` to enable the key bindings of extension and `c` to download the course.
 	* Don't close the tab on which you started the course download
-	* There is a time gap between each download to prevent the pluralsight from blocking the extension or to prevent account blocking/locking. The exact time may change over time, right now its around 30 seconds.
+	* There is a time gap between each download to prevent the pluralsight from blocking the extension or to prevent account blocking/locking. The exact time may change over time, right now its around 3-5 seconds.
 
 <!-- * `CTRL-e` - Enable/Disable the extension keyboard shortcuts(default is disabled). Key bindings mentioned below will worky only when the extension bindings are enabled. -->
 * `e` - Enable/Disable the extension keyboard shortcuts(default is disabled). Key bindings mentioned below will worky only when the extension bindings are enabled.

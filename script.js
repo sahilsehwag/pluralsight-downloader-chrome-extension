@@ -7,9 +7,11 @@ const ROOT_DIRECTORY = 'PluralsightCourseDownloader'
 const INVALID_CHARACTERS = /[\/:?><]/g
 const DELIMINATOR        = '.'
 const EXTENSION          = 'mp4'
-const DEFAULT_QUALITY    = "1280x720"
 
-const DOWNLOAD_TIMEOUT = 10000
+const qualities       = ["1280x720", "1024x768"]
+const DEFAULT_QUALITY = qualities[0]
+
+const DOWNLOAD_TIMEOUT = 3000
 
 // videoURL to get the actual video URL
 const viewclipURL = "https://app.pluralsight.com/video/clips/v3/viewclip";
@@ -130,12 +132,16 @@ const downloadCourse = async (courseJSON) => {
 
 		const authorName = authors[0].displayName;
 
+		log(`#################### "${courseName} By ${authorName}" ####################`, 'INFO')
+
 		for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
 			const {
 				id: sectionId,
 				title: sectionName,
 				contentItems: sectionItems,
 			} = sections[sectionIndex];
+
+			log(`==================== "${sectionName}" ====================`, 'INFO')
 
 			for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
 				if (CONTINUE_DOWNLOAD) {
@@ -154,7 +160,7 @@ const downloadCourse = async (courseJSON) => {
 						removeInvalidCharacters(videoName),
 					);
 
-					log(`Downloading... ${sectionName}/${videoName}`)
+					log(`Downloading... "${videoName}"`, 'DOWNLOAD')
 
 					await downloadVideo(videoURL, filePath);
 					await sleep(DOWNLOAD_TIMEOUT);
@@ -165,7 +171,7 @@ const downloadCourse = async (courseJSON) => {
 				}
 			}
 		}
-		log('Downloading completed!!!')
+		log('Downloading finished!!!')
 	} catch (error) {
 		log(error, 'ERROR')
 		return error;
@@ -213,7 +219,7 @@ $(() => {
 			// KEYPRESS `CTRL-c`
 			// Download the entire course
 			log('Downloading course...')
-			log('Fetiching course information...')
+			log('Fetching course information...')
 
 			if (EXTENSION_ENABLED) {
 				const courseJSON = JSON
