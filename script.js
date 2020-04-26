@@ -11,6 +11,10 @@ const DEFAULT_QUALITY    = "1280x720"
 
 // videoURL to get the actual video URL
 const viewclipURL = "https://app.pluralsight.com/video/clips/v3/viewclip";
+
+// STATE variables
+let EXTENSION_ENABLED = true
+let CONTINUE_DOWNLOAD = true
 // =================================================================
 // END:VARIABLES
 // =================================================================
@@ -162,11 +166,24 @@ const downloadCourse = async (courseJSON) => {
 // main-function
 $(() => {
 	$(document).keypress(async (e) => {
-		if (e.which === 115 || e.which === 83) {
-			// KEYPRESS `s`
+		if (e.ctrlKey && (e.which === 101 || e.which === 69)) {
+			// KEYPRESS `CTRL-e`
+			// Enable/Disabled extension bindings
+
+			EXTENSION_ENABLED = !EXTENSION_ENABLED
+
+			// @TODO:DECIDE
+			// if (EXTENSION_ENABLED)
+			// 	alert(`${APPNAME} keyboard shortcuts enabled`)
+			// else
+			// 	alert(`${APPNAME} keyboard shortcuts disabled`)
+
+		}else if (e.which === 115 || e.which === 83) {
+			// KEYPRESS ``
 
 		} else if (e.which === 97 || e.which === 65) {
 			// KEYPRESS `a`
+
 			const courseJSON = JSON
 								.parse($(window.__NEXT_DATA__).text())
 								.props
