@@ -21,15 +21,15 @@ _**NOTE**_: This README.md is the latest code in repository. The links mentioned
 
 ## Usage
 
-**NOTE**: To start the download open a course on pluralsight and play any video from course. Now press `e` to enable the key bindings of extension and `c` to download the course.
-	* Don't close the tab on which you started the course download
+**NOTE**: To start the download login into your pluralsight account, open a course and play any video from that course. Now press `e` to enable the key bindings of extension and `c` to download the course.
+	* Don't close the tab in which you started the download.
 	* There is a time gap between each download to prevent the pluralsight from blocking the extension or to prevent account blocking/locking. The exact time may change over time, right now its around 3-5 seconds.
 
 <!-- * `CTRL-e` - Enable/Disable the extension keyboard shortcuts(default is disabled). Key bindings mentioned below will worky only when the extension bindings are enabled. -->
 * `e` - Enable/Disable the extension keyboard shortcuts(default is disabled). Key bindings mentioned below will worky only when the extension bindings are enabled.
 <!-- * `CTRL-c` - Download the currently playing video's entire course. -->
 * `c` - Download the currently playing video's entire course.
-* `s` Stops the download process. **NOTE:** This will not stop the active downloads, instead further videos in the course will not be downloaded
+* `s` - Stops the download process. **NOTE:** This will not stop the active downloads, instead further videos in the course will not be downloaded
 
 ## Known Issues
 
