@@ -132,28 +132,34 @@ const downloadCourse = async (courseJSON) => {
 			} = sections[sectionIndex];
 
 			for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
-				const {
-					id: videoId,
-					title: videoName,
-				} = sectionItems[videoIndex];
+				if (CONTINUE_DOWNLOAD) {
+					const {
+						id: videoId,
+						title: videoName,
+					} = sectionItems[videoIndex];
 
-				const videoURL = await getVideoURL(videoId);
-				const filePath = await getFilePath(
-					removeInvalidCharacters(courseName),
-					removeInvalidCharacters(authorName),
-					sectionIndex,
-					removeInvalidCharacters(sectionName),
-					videoIndex,
-					removeInvalidCharacters(videoName),
-				);
+					const videoURL = await getVideoURL(videoId);
+					const filePath = await getFilePath(
+						removeInvalidCharacters(courseName),
+						removeInvalidCharacters(authorName),
+						sectionIndex,
+						removeInvalidCharacters(sectionName),
+						videoIndex,
+						removeInvalidCharacters(videoName),
+					);
 
-				console.log(filePath)
-				log(`Downloading ${filePath}`)
+					log(`Downloading ${filePath} ...`)
 
-				await downloadVideo(videoURL, filePath);
-				await sleep(30000);
+					await downloadVideo(videoURL, filePath);
+					await sleep(30000);
+				}else {
+					CONTINUE_DOWNLOAD = !CONTINUE_DOWNLOAD
+					log('Downloading stopped!!!')
+					return
+				}
 			}
 		}
+		log('Downloading completed!!!')
 	} catch (error) {
 		log(error, 'ERROR')
 		return error;
@@ -172,20 +178,23 @@ $(() => {
 		){
 			// KEYPRESS `CTRL-e`
 			// Enable/Disabled extension bindings
-			e.preventDefault()
-
+			!EXTENSION_ENABLED ? log('Enabled the extension bindings.') : log('Disabled the extension bindings.')
 			EXTENSION_ENABLED = !EXTENSION_ENABLED
-
-			// @TODO:DECIDE
-			// if (EXTENSION_ENABLED)
-			// 	alert(`${APPNAME} keyboard shortcuts enabled`)
-			// else
-			// 	alert(`${APPNAME} keyboard shortcuts disabled`)
 
 		}else if (
 			EXTENSION_ENABLED &&
 			// e.ctrlKey &&
 			(e.which === 115 || e.which === 83)
+		){
+			// KEYPRESS `s`
+			// Stops the download the process, it won't stop the current download, it will abort the download of further videos
+			log('Stopping the download process...')
+			CONTINUE_DOWNLOAD = false
+
+		}else if (
+			EXTENSION_ENABLED &&
+			// e.ctrlKey &&
+			(e.which === 118 || e.which === 86)
 		 ){
 			// KEYPRESS `CTRL-v`
 			// Download current video
@@ -197,6 +206,8 @@ $(() => {
 		){
 			// KEYPRESS `CTRL-c`
 			// Download the entire course
+			log('Downloading course...')
+			log('Fetiching course information...')
 
 			if (EXTENSION_ENABLED) {
 				const courseJSON = JSON
