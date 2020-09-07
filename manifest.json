@@ -1,10 +1,10 @@
 {
   "manifest_version": 2,
-  "name": "Pluralsight Course Downloader",
-  "description": "Easily download course video from pluralsight.",
+  "name": "PluralsightCourseDownloaderExtension",
+  "description": "Download entire course from Pluralsight easilty",
   "version": "0.6",
-  "author": "Vatsal Joshi",
-  "homepage_url": "https://github.com/vatz88/Pluralsight-Course-Downloader",
+  "author": "Sahil Sehwag",
+  "homepage_url": "https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension",
   "content_scripts": [{
     "matches": ["https://app.pluralsight.com/*"],
     "js": ["jquery.slim.min.js", "script.js"],
