@@ -15,10 +15,11 @@ var onChangeFactory = responseCb => ({ state }) => {
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.action === 'download' || request.action === 'download-sync') {
     filePath = request.filePath;
+
     flag = true;
     try {
       chrome.downloads.download({
-        url: request.videoURL,
+        url: request.link,
       });
 
       if (request.action === "download-sync") {
@@ -46,3 +47,21 @@ chrome.downloads.onDeterminingFilename.addListener(function (item, suggest) {
     });
   }
 });
+
+chrome.runtime.onInstalled.addListener(function() {
+
+  chrome.storage.sync.set({speedPercent: '80'}, undefined);
+	chrome.storage.sync.set({Completion_Module: `${0}/${0}`}, undefined);
+	chrome.storage.sync.set({Completion_Video: `${0}/${0}`}, undefined);
+
+  chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
+    chrome.declarativeContent.onPageChanged.addRules(
+      [{
+       conditions: [new chrome.declarativeContent.PageStateMatcher({
+         pageUrl: {hostContains: 'pluralsight.com'},
+       })],
+      actions: [new chrome.declarativeContent.ShowPageAction()]
+    }]);
+  });
+});
+
