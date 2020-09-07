@@ -14,7 +14,7 @@ var onChangeFactory = responseCb => ({ state }) => {
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.action === 'download' || request.action === 'download-sync') {
-    filename = request.filePath;
+    filePath = request.filePath;
 
     flag = true;
     try {
