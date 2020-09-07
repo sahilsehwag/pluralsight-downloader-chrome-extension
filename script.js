@@ -249,7 +249,6 @@ const downloadCourse = async (courseJSON) => {
 
 	} catch (error) {
 		log(error, 'ERROR')
-		chrome.storage.sync.set({Status: "Stopped"}, undefined);
 		return error;
 	}
 };
