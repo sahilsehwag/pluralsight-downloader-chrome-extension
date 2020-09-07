@@ -19,7 +19,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     flag = true;
     try {
       chrome.downloads.download({
-        url: request.videoURL,
+        url: request.link,
       });
 
       if (request.action === "download-sync") {
