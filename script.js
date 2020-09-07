@@ -121,7 +121,7 @@ const downloadVideo = async (videoURL, filePath) => {
 	try {
 		chrome.runtime.sendMessage({
 			action: "download-sync",
-			videoURL: videoURL,
+			link: videoURL,
 			filePath: filePath,
 		},
 			(response) => log(response.actionStatus)
@@ -136,7 +136,7 @@ const downloadSubs = async (subsURL, filePath) => {
 	try {
 		chrome.runtime.sendMessage({
 			action: "download-sync",
-			videoURL: subsURL,
+			link: subsURL,
 			filePath: filePath,
 		},
 			(response) => log(response.actionStatus)
