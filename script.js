@@ -1,6 +1,7 @@
 // =================================================================
 // START:VARIABLES
 // =================================================================
+
 const APPNAME = 'PluralsightCourseDownloader'
 const ROOT_DIRECTORY = 'PluralsightCourseDownloader'
 
@@ -15,15 +16,16 @@ const DEFAULT_QUALITY = qualities[0]
 const DOWNLOAD_TIMEOUT = 5000
 let DURATION_PERCENT = 10		// percent max 100
 
+
 // videoURL to get the actual video URL
 const viewclipURL = "https://app.pluralsight.com/video/clips/v3/viewclip";
-
 const subsURL = "https://app.pluralsight.com/transcript/api/v1/caption/webvtt"
 
 // STATE variables
 let EXTENSION_ENABLED = false
 let CONTINUE_DOWNLOAD = true
 let DOWNLOADING = false
+
 // =================================================================
 // END:VARIABLES
 // =================================================================
@@ -37,6 +39,7 @@ let DOWNLOADING = false
 const sleep = ms =>
 	new Promise((resolve) => setTimeout(resolve, ms));
 
+
 const log = (message, type = "STATUS") =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`);
 
@@ -44,6 +47,7 @@ const log = (message, type = "STATUS") =>
 const removeInvalidCharacters = name => 
 		name.replace(INVALID_CHARACTERS, " ")
 			.trim();
+
 
 // ====================================================================
 // END:UTILITIES
@@ -88,7 +92,6 @@ const getSubtitleURL = async (videoId, versionId) => {
 	return subsURL + "/" + videoId + "/" + versionId + "/en/";
 }
 
-
 const getFilePath = async (
 	courseName,
 	authorName,
@@ -109,6 +112,7 @@ const getFilePath = async (
 		const fileName = getFileName(videoIndex, videoName);
 
 		const filePath = `${rootDirectory}\\${courseDirectory}\\${sectionDirectory}\\${fileName}.${extension}`;
+
 
 		return filePath.replace(/(\r\n|\n|\r)/gm, "");
 	} catch (error) {
@@ -141,7 +145,6 @@ const downloadSubs = async (subsURL, filePath) => {
 		},
 			(response) => log(response.actionStatus)
 		);
-
 	} catch (error) {
 		return error;
 	}
@@ -163,9 +166,6 @@ const downloadCourse = async (courseJSON) => {
 			modules: sections,
 		} = courseJSON;
 
-
-		
-		
 		const authorName = authors[0].displayName != undefined ? authors[0].displayName : authors[0].authorHandle;
 		if(authorName == undefined)
 			authorName = "noName";
@@ -192,6 +192,7 @@ const downloadCourse = async (courseJSON) => {
 
 					const videoURL = await getVideoURL(videoId);
 					const subsURL = await getSubtitleURL(videoId, versionId);
+
 					const filePath = await getFilePath(
 						removeInvalidCharacters(courseName),
 						removeInvalidCharacters(authorName),
@@ -253,7 +254,6 @@ const downloadCourse = async (courseJSON) => {
 	}
 };
 
-
 // main-function
 $(() => {
 	$(document).keypress(async (e) => {
@@ -261,6 +261,7 @@ $(() => {
 			// e.ctrlKey &&
 			(e.which === 101 || e.which === 69)
 		) {
+
 			// KEYPRESS `CTRL-e`
 			// Enable/Disabled extension bindings
 			!EXTENSION_ENABLED ? log('Enabled the extension bindings.') : log('Disabled the extension bindings.')
@@ -271,6 +272,7 @@ $(() => {
 			// e.ctrlKey &&
 			(e.which === 115 || e.which === 83)
 		) {
+
 			// KEYPRESS `s`
 			// Stops the download the process, it won't stop the current download, it will abort the download of further videos
 			log('Stopping the download process...')
@@ -281,6 +283,7 @@ $(() => {
 			// e.ctrlKey &&
 			(e.which === 118 || e.which === 86)
 		) {
+
 			// KEYPRESS `CTRL-v`
 			// Download current video
 
@@ -303,6 +306,7 @@ $(() => {
 					.props
 					.pageProps
 					.tableOfContents;
+
 				await downloadCourse(courseJSON);
 			}
 		}

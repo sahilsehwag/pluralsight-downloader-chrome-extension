@@ -1,5 +1,5 @@
 flag = false;
-filename = '';
+filePath = '';
 let listenerInstance = undefined;
 
 // It's already assumed, that when using this function, we're in sync. download
@@ -14,7 +14,8 @@ var onChangeFactory = responseCb => ({ state }) => {
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.action === 'download' || request.action === 'download-sync') {
-    filename = request.filePath;
+    filePath = request.filePath;
+
     flag = true;
     try {
       chrome.downloads.download({
@@ -29,7 +30,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         return true;
       } else {
         sendResponse({
-          actionStatus: 'File: ' + filename + ' downloaded'
+          actionStatus: `${filePath} DOWNLOADED!!!`
         });
       }
     } catch (err) {
@@ -42,7 +43,7 @@ chrome.downloads.onDeterminingFilename.addListener(function (item, suggest) {
   if (flag) {
     flag = false;
     suggest({
-      filename: filename
+      filename: filePath
     });
   }
 });
