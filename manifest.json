@@ -11,7 +11,7 @@
     "run_at": "document_end"
   }],
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["background.js", "hot-reload.js"],
     "persistent": false
   },
 
