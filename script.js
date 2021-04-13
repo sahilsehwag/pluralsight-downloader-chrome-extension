@@ -280,12 +280,12 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 $(() => {
 	$(document).keypress(async (e) => {
 
-		const toggleEnableKeyPressed = (e.which === 101 || e.which === 69);
+		const cmdToggleEnabled = (e.which === 101 || e.which === 69);
 		const cmdStopDownload = e.which === 115 || e.which === 83;
 		const cmdDownloadAll = e.which === 99 || e.which === 67; // Download the entire course | key: c
 		const cmdDownloadFromNowOn = e.which === 86 || e.which === 118; //key: v
 
-		if (toggleEnableKeyPressed) {
+		if (cmdToggleEnabled) {
 
 			// KEYPRESS `CTRL-e`
 			// Enable/Disabled extension bindings
