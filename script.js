@@ -44,10 +44,14 @@ const log = (message, type = "STATUS") =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`);
 
 
-const removeInvalidCharacters = name => 
-		name.replace(INVALID_CHARACTERS, " ")
-			.trim();
+const removeInvalidCharacters = name =>
+	name.replace(INVALID_CHARACTERS, " ")
+		.trim();
 
+const getCurrentVideoId = () => {
+	const vIdMatch = location.search.match("clipId=?([0-9a-f-]*)");
+	return vIdMatch ? vIdMatch[1] : null;
+}
 
 // ====================================================================
 // END:UTILITIES
@@ -151,13 +155,13 @@ const downloadSubs = async (subsURL, filePath) => {
 };
 
 
-const getStorageValue = ()=>{
-	chrome.storage.sync.get('speedPercent', function(data) {
+const getStorageValue = () => {
+	chrome.storage.sync.get('speedPercent', function (data) {
 		DURATION_PERCENT = data.speedPercent;
-  });
+	});
 };
 
-const downloadCourse = async (courseJSON) => {
+const downloadCourse = async (courseJSON, startingVideoId) => {
 	try {
 		const {
 			id: courseId,
@@ -167,8 +171,11 @@ const downloadCourse = async (courseJSON) => {
 		} = courseJSON;
 
 		const authorName = authors[0].displayName != undefined ? authors[0].displayName : authors[0].authorHandle;
-		if(authorName == undefined)
+		if (authorName == undefined)
 			authorName = "noName";
+
+		// download all videos when no startid was given
+		let startToggle = startingVideoId == null || startingVideoId == '';
 
 		log(`#################### "${courseName} By ${authorName}" ####################`, 'INFO')
 
@@ -190,8 +197,18 @@ const downloadCourse = async (courseJSON) => {
 						duration,
 					} = sectionItems[videoIndex];
 
-					const videoURL = await getVideoURL(videoId);
-					const subsURL = await getSubtitleURL(videoId, versionId);
+					if (!startToggle) {
+						if (videoId == startingVideoId) {
+							startToggle = true;
+						}
+					}
+
+					if (!startToggle) {
+						console.log(`Skipping [${videoId}] ${videoName}`);
+						continue;
+					}
+					
+					console.log(`Downloading [${videoId}] ${videoName}`);
 
 					const filePath = await getFilePath(
 						removeInvalidCharacters(courseName),
@@ -213,25 +230,29 @@ const downloadCourse = async (courseJSON) => {
 						`${EXTENSION_SUBS}`
 					);
 
+
+					const videoURL = await getVideoURL(videoId);
+					const subsURL = await getSubtitleURL(videoId, versionId);
+
 					log(`Downloading... "${videoName}"`, 'DOWNLOAD')
 
 					getStorageValue();
 
-					
-					chrome.storage.sync.set({Status: "Downloading..."}, undefined);
+
+					chrome.storage.sync.set({ Status: "Downloading..." }, undefined);
 					await downloadVideo(videoURL, filePath);
 
 					// Progress Informaton Update on Storage
-					chrome.storage.sync.set({Completion_Module: `${sectionIndex+1}/${sections.length}`}, undefined);
-					chrome.storage.sync.set({Completion_Video: `${videoIndex+1}/${sectionItems.length}`}, undefined);
+					chrome.storage.sync.set({ Completion_Module: `${sectionIndex + 1}/${sections.length}` }, undefined);
+					chrome.storage.sync.set({ Completion_Video: `${videoIndex + 1}/${sectionItems.length}` }, undefined);
 					await sleep(DOWNLOAD_TIMEOUT);
 					await downloadSubs(subsURL, filePath_subs);
-					
-					chrome.storage.sync.set({Status: "Waiting..."}, undefined);
+
+					chrome.storage.sync.set({ Status: "Waiting..." }, undefined);
 					// Sleep for duration based on a constant updated by speedPercent from extesion browser
-					await sleep(Math.max(duration*10*DURATION_PERCENT - DOWNLOAD_TIMEOUT,DOWNLOAD_TIMEOUT));
-					
-					} else {
+					await sleep(Math.max(duration * 10 * DURATION_PERCENT - DOWNLOAD_TIMEOUT, DOWNLOAD_TIMEOUT));
+
+				} else {
 					CONTINUE_DOWNLOAD = false
 					DOWNLOADING = false
 					log('Downloading stopped!!!')
@@ -242,15 +263,15 @@ const downloadCourse = async (courseJSON) => {
 		DOWNLOADING = false
 		log('Downloading finished!!!')
 		confirm("Downloading finished");
-		
-		if(CONTINUE_DOWNLOAD)
-			chrome.storage.sync.set({Status: "Finished"}, undefined);
+
+		if (CONTINUE_DOWNLOAD)
+			chrome.storage.sync.set({ Status: "Finished" }, undefined);
 		else
-			chrome.storage.sync.set({Status: "Cancelled"}, undefined);
+			chrome.storage.sync.set({ Status: "Cancelled" }, undefined);
 
 	} catch (error) {
 		log(error, 'ERROR')
-		chrome.storage.sync.set({Status: "Stopped"}, undefined);
+		chrome.storage.sync.set({ Status: "Stopped" }, undefined);
 		return error;
 	}
 };
@@ -258,58 +279,50 @@ const downloadCourse = async (courseJSON) => {
 // main-function
 $(() => {
 	$(document).keypress(async (e) => {
-		if (
-			// e.ctrlKey &&
-			(e.which === 101 || e.which === 69)
-		) {
+
+		const toggleEnableKeyPressed = (e.which === 101 || e.which === 69);
+		const cmdStopDownload = e.which === 115 || e.which === 83;
+		const cmdDownloadAll = e.which === 99 || e.which === 67; // Download the entire course | key: c
+		const cmdDownloadFromNowOn = e.which === 86 || e.which === 118; //key: v
+
+		if (toggleEnableKeyPressed) {
 
 			// KEYPRESS `CTRL-e`
 			// Enable/Disabled extension bindings
 			!EXTENSION_ENABLED ? log('Enabled the extension bindings.') : log('Disabled the extension bindings.')
 			EXTENSION_ENABLED = !EXTENSION_ENABLED
+			return;
+		}
 
-		} else if (
-			EXTENSION_ENABLED &&
-			// e.ctrlKey &&
-			(e.which === 115 || e.which === 83)
-		) {
+		if (!EXTENSION_ENABLED) {
+			return;
+		}
+
+		if (cmdStopDownload) {
 
 			// KEYPRESS `s`
 			// Stops the download the process, it won't stop the current download, it will abort the download of further videos
 			log('Stopping the download process...')
-			CONTINUE_DOWNLOAD = false
+			CONTINUE_DOWNLOAD = false;
+			return;
 
-		} else if (
-			EXTENSION_ENABLED &&
-			// e.ctrlKey &&
-			(e.which === 118 || e.which === 86)
-		) {
+		}
 
-			// KEYPRESS `CTRL-v`
-			// Download current video
-
-		} else if (
-			EXTENSION_ENABLED &&
-			!DOWNLOADING &&
-			// e.ctrlKey &&
-			(e.which === 99 || e.which === 67)
-		) {
-			// KEYPRESS `CTRL-c`
-			// Download the entire course
-			log('Downloading course...')
+		if (cmdDownloadAll || cmdDownloadFromNowOn) {
+			log('Downloading course ' + (cmdDownloadAll ? 'from the beginning' : 'from now on') + ' ...')
 			log('Fetching course information...')
 
 			DOWNLOADING = true;
 
-			if (EXTENSION_ENABLED) {
-				const courseJSON = JSON
-					.parse($(window.__NEXT_DATA__).text())
-					.props
-					.pageProps
-					.tableOfContents;
+			const courseJSON = JSON
+				.parse($(window.__NEXT_DATA__).text())
+				.props
+				.pageProps
+				.tableOfContents;
 
-				await downloadCourse(courseJSON);
-			}
+			let startingVideoId = cmdDownloadFromNowOn ? getCurrentVideoId() : null;
+			await downloadCourse(courseJSON, startingVideoId);
+
 		}
 	});
 });
