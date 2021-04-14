@@ -327,6 +327,23 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
 		{
 			CONTINUE_DOWNLOAD = false;
 		}
+
+		if(key == 'btnDwnAll')
+		{
+			EXTENSION_ENABLED = true;
+			var e = $.Event('keypress');
+			e.which = 99; // Character 'c'
+			$(document).trigger(e);
+		}
+
+		if(key == 'btnDwnCur')
+		{
+			EXTENSION_ENABLED = true;
+			var e = $.Event('keypress');
+			e.which = 86; // Character 'v'
+			$(document).trigger(e);
+		}
+
 	}
   });
 
@@ -367,6 +384,7 @@ $(() => {
 			log('Downloading course ' + (cmdDownloadAll ? 'from the beginning' : 'from now on') + ' ...')
 			log('Fetching course information...')
 
+			CONTINUE_DOWNLOAD = true;
 			DOWNLOADING = true;
 
 			const courseJSON = JSON

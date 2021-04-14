@@ -56,6 +56,8 @@ chrome.runtime.onInstalled.addListener(function() {
   chrome.storage.sync.set({maxDuration: '0'}, undefined);
   chrome.storage.sync.set({btnStop: false}, undefined);
   chrome.storage.sync.set({btnSkip: false}, undefined);
+  chrome.storage.sync.set({btnDwnAll: false}, undefined);
+  chrome.storage.sync.set({btnDwnCur: false}, undefined);
 
   chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
     chrome.declarativeContent.onPageChanged.addRules(

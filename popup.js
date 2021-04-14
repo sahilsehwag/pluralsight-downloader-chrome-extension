@@ -18,6 +18,8 @@ let btnApply = document.getElementById('btnApply');
 
 let btnSkip = document.getElementById('btnSkip');
 let btnStop = document.getElementById('btnStop');
+let btnDwnAll = document.getElementById('btnDwnAll');
+let btnDwnCur = document.getElementById('btnDwnCur');
 
 chrome.storage.sync.get('Status', function(data) {
   statusLabel.innerHTML = `Status: ${data.Status}`;
@@ -61,5 +63,18 @@ btnStop.onclick = function(){
   toggleStop = !toggleStop;
   chrome.storage.sync.set({btnStop: toggleStop}, undefined);
 }
+
+var toggleDwnAll = false;
+btnDwnAll.onclick = function(){
+  toggleDwnAll = !toggleDwnAll;
+  chrome.storage.sync.set({btnDwnAll: toggleDwnAll}, undefined);
+}
+
+var toggleDwnCur = false;
+btnDwnCur.onclick = function(){
+  toggleDwnCur = !toggleDwnCur;
+  chrome.storage.sync.set({btnDwnCur: toggleDwnCur}, undefined);
+}
+
 
 
