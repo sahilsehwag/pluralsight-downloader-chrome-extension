@@ -13,6 +13,12 @@ let statusLabel = document.getElementById('label_Status');
 let cpltModuleLabel = document.getElementById('label_Module');
 let cpltVideoLabel = document.getElementById('label_Video');
 
+let maxDuration = document.getElementById('MaxDuration');
+let btnApply = document.getElementById('btnApply');
+
+let btnSkip = document.getElementById('btnSkip');
+let btnStop = document.getElementById('btnStop');
+
 chrome.storage.sync.get('Status', function(data) {
   statusLabel.innerHTML = `Status: ${data.Status}`;
 });
@@ -30,7 +36,30 @@ chrome.storage.sync.get('speedPercent', function(data) {
   speedLabel.innerHTML = `Duration(0-100%): ${speedPercent.value}`;
 });
 
+chrome.storage.sync.get('maxDuration', function(data) {
+  maxDuration.value = data.maxDuration;
+ });
+
+
 speedPercent.onchange = function(element){
   chrome.storage.sync.set({speedPercent: speedPercent.value}, undefined);
   speedLabel.innerHTML = `Duration(0-100%): ${speedPercent.value}`;
 }
+
+btnApply.onclick = function(){
+  chrome.storage.sync.set({maxDuration: maxDuration.value}, undefined);
+}
+
+let toggleSkip = false;
+btnSkip.onclick = function(){
+  toggleSkip = !toggleSkip;
+  chrome.storage.sync.set({btnSkip: toggleSkip}, undefined);
+}
+
+var toggleStop = false;
+btnStop.onclick = function(){
+  toggleStop = !toggleStop;
+  chrome.storage.sync.set({btnStop: toggleStop}, undefined);
+}
+
+

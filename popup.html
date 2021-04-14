@@ -17,7 +17,12 @@
       <label id="label_Module">Complete(Module): 0/0</label>
       <label id="label_Video">Complete(Video): 0/0</label>
       <label id="label_slider">Duration(0-100%):</label>
-      <input type="range" id="SpeedSlider" name="Speed Slider" min="0" max="100">
+      <input type="range" id="SpeedSlider" name="Speed Slider" min="0" max="100" >
+      <label id="label_maxduration">Max Duration(sec):</label>
+      <input type="number" min="0" id="MaxDuration" name="Max Duration" value="0" style="width: 6em"/>
+      <input type="submit" id="btnApply" name="Apply button" value="Apply">
+      <input type="submit" id="btnSkip" name="Skip" value="Skip" style="width: 5em">
+      <input type="submit" id="btnStop" name="Stop" value="Stop" style="width: 5em">
   </div>
   <script src="popup.js"></script>
   </body>
