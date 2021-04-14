@@ -191,7 +191,6 @@ const getStorageValue = () => {
 };
 
 
-
 const downloadCourse = async (courseJSON, startingVideoId) => {
 	try {
 		const {
@@ -261,12 +260,15 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 						`${EXTENSION_SUBS}`
 					);
 
+
 					getStorageValue();
+
 
 					const videoURL = await getVideoURL(videoId);
 					const subsURL = await getSubtitleURL(videoId, versionId);
 
 					log(`Downloading... "${videoName}"`, 'DOWNLOAD')
+
 
 
 					chrome.storage.sync.set({ Status: "Downloading..." }, undefined);
@@ -275,6 +277,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					// Progress Informaton Update on Storage
 					chrome.storage.sync.set({ Completion_Module: `${sectionIndex + 1}/${sections.length}` }, undefined);
 					chrome.storage.sync.set({ Completion_Video: `${videoIndex + 1}/${sectionItems.length}` }, undefined);
+
 					
 					await sleep(DOWNLOAD_TIMEOUT);
 					await downloadSubs(subsURL, filePath_subs);
@@ -293,6 +296,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 						DOWNLOADING = false
 						log('Downloading stopped!!!')
 						return
+
 				}
 			}
 		}
@@ -301,13 +305,14 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 		confirm("Downloading finished");
 
 		if (CONTINUE_DOWNLOAD)
-			r.set({ Status: "Finished" }, undefined);
+			chrome.storage.sync.set({ Status: "Finished" }, undefined);
+
 		else
 			chrome.storage.sync.set({ Status: "Cancelled" }, undefined);
 
 	} catch (error) {
 		log(error, 'ERROR')
-		//chrome.storage.sync.set({ Status: "Stopped" }, undefined);
+		chrome.storage.sync.set({ Status: "Stopped" }, undefined);
 		return error;
 	}
 };
@@ -335,8 +340,6 @@ $(() => {
 		const cmdDownloadAll = e.which === 99 || e.which === 67; // Download the entire course | key: c
 		const cmdDownloadFromNowOn = e.which === 86 || e.which === 118; //key: v
 
-
-
 		if (cmdToggleEnabled) {
 
 			// KEYPRESS `CTRL-e`
@@ -346,10 +349,10 @@ $(() => {
 			return;
 		}
 
+
 		if (!EXTENSION_ENABLED) {
 			return;
 		}
-
 		if (cmdStopDownload) {
 
 			// KEYPRESS `s`
