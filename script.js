@@ -116,14 +116,37 @@ const getSubtitleURL = async (videoId, versionId) => {
 	return subsURL + "/" + videoId + "/" + versionId + "/en/";
 }
 
-const getFilePath = async (
+
+
+const gePlaylistPath = (
+	courseName,
+	authorName,
+) => {
+	try {
+		const rootDirectory = ROOT_DIRECTORY
+		const courseDirectory = (
+			authorName !== undefined ?
+				`${courseName} By ${authorName}`.trim() :
+				`${courseName}`.trim()
+		);
+
+		let filePath = `${rootDirectory}\\${courseDirectory}\\playlist.m3u8`;
+
+		return filePath.replace(/(\r\n|\n|\r)/gm, "");
+	} catch (error) {
+		return error;
+	}
+};
+
+const getFilePath = (
 	courseName,
 	authorName,
 	sectionIndex,
 	sectionName,
 	videoIndex,
 	videoName,
-	extension
+	extension,
+	forPlaylist = false
 ) => {
 	try {
 		const rootDirectory = ROOT_DIRECTORY
@@ -135,8 +158,10 @@ const getFilePath = async (
 		const sectionDirectory = getDirectoryName(sectionIndex, sectionName);
 		const fileName = getFileName(videoIndex, videoName);
 
-		const filePath = `${rootDirectory}\\${courseDirectory}\\${sectionDirectory}\\${fileName}.${extension}`;
-
+		let filePath = `${sectionDirectory}\\${fileName}.${extension}`;
+		if (!forPlaylist) {
+			filePath = `${rootDirectory}\\${courseDirectory}\\${filePath}`;
+		}
 
 		return filePath.replace(/(\r\n|\n|\r)/gm, "");
 	} catch (error) {
@@ -180,6 +205,78 @@ const getStorageValue = () => {
 		DURATION_PERCENT = data.speedPercent;
 	});
 };
+
+const downloadPlaylist = async (courseJSON) => {
+	try {
+		const {
+			id: courseId,
+			title: courseName,
+			authors,
+			modules: sections,
+		} = courseJSON;
+
+		let playlistLines = [];
+
+		const authorName = authors[0].displayName != undefined ? authors[0].displayName : authors[0].authorHandle;
+		if (authorName == undefined)
+			authorName = "noName";
+
+
+		for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+			const {
+				id: sectionId,
+				title: sectionName,
+				contentItems: sectionItems,
+			} = sections[sectionIndex];
+
+			for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
+				const {
+					id: videoId,
+					title: videoName,
+					version: versionId,
+					duration,
+				} = sectionItems[videoIndex];
+				
+				const filePath = getFilePath(
+					removeInvalidCharacters(courseName),
+					removeInvalidCharacters(authorName),
+					sectionIndex,
+					removeInvalidCharacters(sectionName),
+					videoIndex,
+					removeInvalidCharacters(videoName),
+					`${EXTENSION}`,
+					true
+				);
+
+				playlistLines.push(filePath);
+			}
+		}
+
+		let playlistText = playlistLines.join("\n");
+		let playlistPath = gePlaylistPath(removeInvalidCharacters(courseName), removeInvalidCharacters(authorName));
+
+		downloadPlaylistText(playlistText, playlistPath);
+	} catch (error) {
+		log(error, 'ERROR')
+		chrome.storage.sync.set({ Status: "Stopped" }, undefined);
+		return error;
+	}
+}
+
+const downloadPlaylistText = (playlistText, path) => {
+	let playlistBlob = new Blob([playlistText], {
+		type: 'audio/x-mpegurl'
+	});
+
+	var url = window.URL.createObjectURL(playlistBlob);
+	chrome.runtime.sendMessage({
+		action: "download-sync",
+		link: url,
+		filePath: path,
+	},
+		(response) => log(response.actionStatus)
+	);
+}
 
 const downloadCourse = async (courseJSON, startingVideoId) => {
 	try {
@@ -237,7 +334,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 				console.log(`Downloading [${videoId}] ${videoName}`);
 
-				const filePath = await getFilePath(
+				const filePath = getFilePath(
 					removeInvalidCharacters(courseName),
 					removeInvalidCharacters(authorName),
 					sectionIndex,
@@ -247,7 +344,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					`${EXTENSION}`
 				);
 
-				const filePath_subs = await getFilePath(
+				const filePath_subs = getFilePath(
 					removeInvalidCharacters(courseName),
 					removeInvalidCharacters(authorName),
 					sectionIndex,
@@ -274,9 +371,9 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 				chrome.storage.sync.set({ Completion_Video: `${videoIndex + 1}/${sectionItems.length}` }, undefined);
 				await sleep(DOWNLOAD_TIMEOUT);
 				await downloadSubs(subsURL, filePath_subs);
-				
+
 				// So we dont even want to sleep if we are gonna cancel this run anyways.... 
-				if (!CONTINUE_DOWNLOAD){
+				if (!CONTINUE_DOWNLOAD) {
 					continue;
 				}
 
@@ -305,11 +402,13 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 // main-function
 $(() => {
 	$(document).keypress(async (e) => {
+		console.log(`Keypress: ${e.which}`);
 
 		const cmdToggleEnabled = (e.which === 101 || e.which === 69);
 		const cmdStopDownload = e.which === 115 || e.which === 83;
 		const cmdDownloadAll = e.which === 99 || e.which === 67; // Download the entire course | key: c
 		const cmdDownloadFromNowOn = e.which === 86 || e.which === 118; //key: v
+		const cmdPlaylist = e.which == 112 || e.which == 80; // p
 
 		if (cmdToggleEnabled) {
 
@@ -335,6 +434,19 @@ $(() => {
 
 		}
 
+		if (cmdPlaylist) {
+			log("Playlist!");
+
+			const courseJSON = JSON
+				.parse($(window.__NEXT_DATA__).text())
+				.props
+				.pageProps
+				.tableOfContents;
+
+			downloadPlaylist(courseJSON);
+			return;
+		}
+
 		if (cmdDownloadAll || cmdDownloadFromNowOn) {
 			log('Downloading course ' + (cmdDownloadAll ? 'from the beginning' : 'from now on') + ' ...')
 			log('Fetching course information...')
@@ -348,6 +460,7 @@ $(() => {
 				.tableOfContents;
 
 			let startingVideoId = cmdDownloadFromNowOn ? getCurrentVideoId() : null;
+			downloadPlaylist(courseJSON);
 			await downloadCourse(courseJSON, startingVideoId);
 
 		}
