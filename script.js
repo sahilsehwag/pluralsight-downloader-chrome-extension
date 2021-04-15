@@ -28,6 +28,8 @@ let CONTINUE_DOWNLOAD = true
 let DOWNLOADING = false
 var delayProm;
 
+let CURRENT_SLEEP = null;
+
 // =================================================================
 // END:VARIABLES
 // =================================================================
@@ -38,8 +40,26 @@ var delayProm;
 // ====================================================================
 // START:UTILITIES
 // ====================================================================
-const sleep = ms =>
-	new Promise((resolve) => setTimeout(resolve, ms));
+// const sleep = ms =>
+// 	new Promise((resolve) => setTimeout(resolve, ms));
+
+const sleep = (millis, throwOnAborted = false) => {
+	let timeout_id;
+	let rejector;
+	const prom = new Promise((resolve, reject) => {
+
+		rejector = throwOnAborted ? reject : (_) => resolve();
+
+		timeout_id = setTimeout(() => {
+			resolve();
+		}, millis);
+	});
+	prom.abort = () => {
+		clearTimeout(timeout_id);
+		rejector('aborted');
+	};
+	return prom;
+}
 
 // singleton delay promise
 function delay( millis ) {
@@ -219,87 +239,107 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 			log(`==================== "${sectionName}" ====================`, 'INFO')
 
 			for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
-				if (CONTINUE_DOWNLOAD) {
-					const {
-						id: videoId,
-						title: videoName,
-						version: versionId,
-						duration,
-					} = sectionItems[videoIndex];
-
-					if (!startToggle) {
-						if (videoId == startingVideoId) {
-							startToggle = true;
-						}
-					}
-
-					if (!startToggle) {
-						console.log(`Skipping [${videoId}] ${videoName}`);
-						continue;
-					}
-					
-					console.log(`Downloading [${videoId}] ${videoName}`);
-
-					const filePath = await getFilePath(
-						removeInvalidCharacters(courseName),
-						removeInvalidCharacters(authorName),
-						sectionIndex,
-						removeInvalidCharacters(sectionName),
-						videoIndex,
-						removeInvalidCharacters(videoName),
-						`${EXTENSION}`
-					);
-
-					const filePath_subs = await getFilePath(
-						removeInvalidCharacters(courseName),
-						removeInvalidCharacters(authorName),
-						sectionIndex,
-						removeInvalidCharacters(sectionName),
-						videoIndex,
-						removeInvalidCharacters(videoName),
-						`${EXTENSION_SUBS}`
-					);
-
-
-					getStorageValue();
-
-
-					const videoURL = await getVideoURL(videoId);
-					const subsURL = await getSubtitleURL(videoId, versionId);
-
-					log(`Downloading... "${videoName}"`, 'DOWNLOAD')
-
-
-
-					chrome.storage.sync.set({ Status: "Downloading..." }, undefined);
-					await downloadVideo(videoURL, filePath);
-
-					// Progress Informaton Update on Storage
-					chrome.storage.sync.set({ Completion_Module: `${sectionIndex + 1}/${sections.length}` }, undefined);
-					chrome.storage.sync.set({ Completion_Video: `${videoIndex + 1}/${sectionItems.length}` }, undefined);
-
-					
-					await sleep(DOWNLOAD_TIMEOUT);
-					await downloadSubs(subsURL, filePath_subs);
-
-					chrome.storage.sync.set({Status: "Waiting..."}, undefined);
-					
-					// Sleep for minimum duration btw the time with percent and the max duration time
-					if(DURATION_MAX != 0)
-						await delay(Math.min(duration*10*DURATION_PERCENT - DOWNLOAD_TIMEOUT, DURATION_MAX*1000 - DOWNLOAD_TIMEOUT));
-					else
-					// // Sleep for duration based on a constant updated by speedPercent from extesion browser
-						await delay(Math.max(duration*10*DURATION_PERCENT - DOWNLOAD_TIMEOUT,DOWNLOAD_TIMEOUT));
-
-					} else {
-						CONTINUE_DOWNLOAD = false
-						DOWNLOADING = false
-						log('Downloading stopped!!!')
-						return
-
+				if (!CONTINUE_DOWNLOAD) {
+					CONTINUE_DOWNLOAD = false
+					DOWNLOADING = false
+					log('Downloading stopped!!!')
+					return
 				}
+
+				const {
+					id: videoId,
+					title: videoName,
+					version: versionId,
+					duration,
+				} = sectionItems[videoIndex];
+
+				if (!startToggle) {
+					if (videoId == startingVideoId) {
+						startToggle = true;
+					}
+				}
+
+				if (!startToggle) {
+					console.log(`Skipping [${videoId}] ${videoName}`);
+					continue;
+				}
+
+				console.log(`Downloading [${videoId}] ${videoName}`);
+
+				const filePath = await getFilePath(
+					removeInvalidCharacters(courseName),
+					removeInvalidCharacters(authorName),
+					sectionIndex,
+					removeInvalidCharacters(sectionName),
+					videoIndex,
+					removeInvalidCharacters(videoName),
+					`${EXTENSION}`
+				);
+
+				const filePath_subs = await getFilePath(
+					removeInvalidCharacters(courseName),
+					removeInvalidCharacters(authorName),
+					sectionIndex,
+					removeInvalidCharacters(sectionName),
+					videoIndex,
+					removeInvalidCharacters(videoName),
+					`${EXTENSION_SUBS}`
+				);
+
+
+				const videoURL = await getVideoURL(videoId);
+				const subsURL = await getSubtitleURL(videoId, versionId);
+
+				log(`Downloading... "${videoName}"`, 'DOWNLOAD')
+
+				getStorageValue();
+
+
+				chrome.storage.sync.set({ Status: "Downloading..." }, undefined);
+				await downloadVideo(videoURL, filePath);
+
+				// Progress Informaton Update on Storage
+				chrome.storage.sync.set({ Completion_Module: `${sectionIndex + 1}/${sections.length}` }, undefined);
+				chrome.storage.sync.set({ Completion_Video: `${videoIndex + 1}/${sectionItems.length}` }, undefined);
+				await sleep(DOWNLOAD_TIMEOUT);
+				await downloadSubs(subsURL, filePath_subs);
+				
+				// So we dont even want to sleep if we are gonna cancel this run anyways.... 
+				if (!CONTINUE_DOWNLOAD){
+					continue;
+				}
+
+				
+
+
+				chrome.storage.sync.set({ Status: "Waiting..." }, undefined);
+				// Sleep for duration based on a constant updated by speedPercent from extesion browser
+				CURRENT_SLEEP = sleep(Math.max(duration * 10 * DURATION_PERCENT - DOWNLOAD_TIMEOUT, DOWNLOAD_TIMEOUT));
+				await CURRENT_SLEEP;
+
+				chrome.storage.sync.set({Status: "Waiting..."}, undefined);
+					
+				// Sleep for minimum duration btw the time with percent and the max duration time
+				if(DURATION_MAX != 0)
+				{
+					CURRENT_SLEEP = sleep(Math.min(duration*10*DURATION_PERCENT - DOWNLOAD_TIMEOUT, DURATION_MAX*1000 - DOWNLOAD_TIMEOUT));
+					await CURRENT_SLEEP;
+				}				
+				else
+				// // Sleep for duration based on a constant updated by speedPercent from extesion browser
+					{
+						CURRENT_SLEEP = sleep(Math.max(duration * 10 * DURATION_PERCENT - DOWNLOAD_TIMEOUT, DOWNLOAD_TIMEOUT));
+						await CURRENT_SLEEP;
+					}
+				} 				
 			}
 		}
+		catch (error) {
+			log(error, 'ERROR')
+			chrome.storage.sync.set({ Status: "Stopped" }, undefined);
+			return error;
+		}
+		
 		DOWNLOADING = false
 		log('Downloading finished!!!')
 		confirm("Downloading finished");
@@ -309,12 +349,6 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 		else
 			chrome.storage.sync.set({ Status: "Cancelled" }, undefined);
-
-	} catch (error) {
-		log(error, 'ERROR')
-		chrome.storage.sync.set({ Status: "Stopped" }, undefined);
-		return error;
-	}
 };
 
 chrome.storage.onChanged.addListener(function (changes, namespace) {
@@ -326,10 +360,14 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
 		if(key == 'btnStop')
 		{
 			CONTINUE_DOWNLOAD = false;
+			DOWNLOADING = false;
 		}
 
 		if(key == 'btnDwnAll')
 		{
+			if(DOWNLOADING) 
+				return;
+			
 			EXTENSION_ENABLED = true;
 			var e = $.Event('keypress');
 			e.which = 99; // Character 'c'
@@ -338,6 +376,9 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
 
 		if(key == 'btnDwnCur')
 		{
+			if(DOWNLOADING) 
+				return;
+			
 			EXTENSION_ENABLED = true;
 			var e = $.Event('keypress');
 			e.which = 86; // Character 'v'
@@ -366,7 +407,6 @@ $(() => {
 			return;
 		}
 
-
 		if (!EXTENSION_ENABLED) {
 			return;
 		}
@@ -376,8 +416,8 @@ $(() => {
 			// Stops the download the process, it won't stop the current download, it will abort the download of further videos
 			log('Stopping the download process...')
 			CONTINUE_DOWNLOAD = false;
+			CURRENT_SLEEP?.abort();
 			return;
-
 		}
 
 		if (cmdDownloadAll || cmdDownloadFromNowOn) {
