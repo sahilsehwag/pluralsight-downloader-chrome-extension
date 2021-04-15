@@ -26,7 +26,6 @@ const subsURL = "https://app.pluralsight.com/transcript/api/v1/caption/webvtt"
 let EXTENSION_ENABLED = false
 let CONTINUE_DOWNLOAD = true
 let DOWNLOADING = false
-var delayProm;
 
 let CURRENT_SLEEP = null;
 
@@ -60,25 +59,6 @@ const sleep = (millis, throwOnAborted = false) => {
 	};
 	return prom;
 }
-
-// singleton delay promise
-function delay( millis ) {
-		let timeout_id;
-		let resolver;
-		delayProm = new Promise((resolve, reject) => {
-			resolver = resolve;
-		  timeout_id = setTimeout(() => {
-			resolve();	//실행완료
-		  }, millis);
-		});
-		
-		delayProm.cancel = () => {
-		  clearTimeout( timeout_id );
-		  resolver();
-		};
-
-		return delayProm;
-	  }
 
 const log = (message, type = "STATUS") =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`);
@@ -157,7 +137,6 @@ const getFilePath = async (
 
 		const filePath = `${rootDirectory}\\${courseDirectory}\\${sectionDirectory}\\${fileName}.${extension}`;
 
-
 		return filePath.replace(/(\r\n|\n|\r)/gm, "");
 	} catch (error) {
 		return error;
@@ -193,7 +172,6 @@ const downloadSubs = async (subsURL, filePath) => {
 		return error;
 	}
 };
-
 
 const getStorageValue = () => {
 	try {
@@ -301,24 +279,18 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 				// Progress Informaton Update on Storage
 				chrome.storage.sync.set({ Completion_Module: `${sectionIndex + 1}/${sections.length}` }, undefined);
 				chrome.storage.sync.set({ Completion_Video: `${videoIndex + 1}/${sectionItems.length}` }, undefined);
-				await sleep(DOWNLOAD_TIMEOUT);
-				await downloadSubs(subsURL, filePath_subs);
 				
 				// So we dont even want to sleep if we are gonna cancel this run anyways.... 
 				if (!CONTINUE_DOWNLOAD){
 					continue;
 				}
 
-				
-
-
 				chrome.storage.sync.set({ Status: "Waiting..." }, undefined);
-				// Sleep for duration based on a constant updated by speedPercent from extesion browser
-				CURRENT_SLEEP = sleep(Math.max(duration * 10 * DURATION_PERCENT - DOWNLOAD_TIMEOUT, DOWNLOAD_TIMEOUT));
+				
+				CURRENT_SLEEP = sleep(DOWNLOAD_TIMEOUT);
 				await CURRENT_SLEEP;
+				await downloadSubs(subsURL, filePath_subs);
 
-				chrome.storage.sync.set({Status: "Waiting..."}, undefined);
-					
 				// Sleep for minimum duration btw the time with percent and the max duration time
 				if(DURATION_MAX != 0)
 				{
@@ -326,11 +298,11 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					await CURRENT_SLEEP;
 				}				
 				else
-				// // Sleep for duration based on a constant updated by speedPercent from extesion browser
-					{
-						CURRENT_SLEEP = sleep(Math.max(duration * 10 * DURATION_PERCENT - DOWNLOAD_TIMEOUT, DOWNLOAD_TIMEOUT));
-						await CURRENT_SLEEP;
-					}
+				// Sleep for duration based on a constant updated by speedPercent from extesion browser
+				{
+					CURRENT_SLEEP = sleep(Math.max(duration * 10 * DURATION_PERCENT - DOWNLOAD_TIMEOUT, DOWNLOAD_TIMEOUT));
+					await CURRENT_SLEEP;
+				}
 				} 				
 			}
 		}
@@ -353,9 +325,9 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 chrome.storage.onChanged.addListener(function (changes, namespace) {
 	for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-		if(key == 'btnSkip' && delayProm !== undefined)
+		if(key == 'btnSkip')
 		{
-			delayProm.cancel();
+			CURRENT_SLEEP?.abort();
 		}
 		if(key == 'btnStop')
 		{
