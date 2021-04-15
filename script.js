@@ -59,6 +59,16 @@ const sleep = (millis, throwOnAborted = false) => {
 	return prom;
 }
 
+const downloadFile = (link, filePath) => {
+	return new Promise((resolve, _) => {
+		chrome.runtime.sendMessage({
+			action: "download-sync",
+			link: link,
+			filePath: filePath,
+		}, (response) => resolve(response));
+	});
+};
+
 
 const log = (message, type = "STATUS") =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`);
@@ -118,7 +128,29 @@ const getSubtitleURL = async (videoId, versionId) => {
 
 
 
-const gePlaylistPath = (
+const getPlaylistPath = (
+	courseName,
+	authorName,
+) => {
+	try {
+		return (getCourseRootPath(courseName, authorName)) + "\\playlist.m3u8";
+	} catch (error) {
+		return error;
+	}
+};
+
+const getExercisePath = (
+	courseName,
+	authorName,
+) => {
+	try {
+		return (getCourseRootPath(courseName, authorName)) + "\\exercise.zip";
+	} catch (error) {
+		return error;
+	}
+};
+
+const getCourseRootPath = (
 	courseName,
 	authorName,
 ) => {
@@ -130,13 +162,13 @@ const gePlaylistPath = (
 				`${courseName}`.trim()
 		);
 
-		let filePath = `${rootDirectory}\\${courseDirectory}\\playlist.m3u8`;
-
-		return filePath.replace(/(\r\n|\n|\r)/gm, "");
+		return `${rootDirectory}\\${courseDirectory}`.replace(/(\r\n|\n|\r)/gm, "");
 	} catch (error) {
 		return error;
 	}
 };
+
+
 
 const getFilePath = (
 	courseName,
@@ -160,7 +192,8 @@ const getFilePath = (
 
 		let filePath = `${sectionDirectory}\\${fileName}.${extension}`;
 		if (!forPlaylist) {
-			filePath = `${rootDirectory}\\${courseDirectory}\\${filePath}`;
+			let courseRootPath = getCourseRootPath(courseName, authorName);
+			filePath = `${courseRootPath}\\${filePath}`;
 		}
 
 		return filePath.replace(/(\r\n|\n|\r)/gm, "");
@@ -236,7 +269,7 @@ const downloadPlaylist = async (courseJSON) => {
 					version: versionId,
 					duration,
 				} = sectionItems[videoIndex];
-				
+
 				const filePath = getFilePath(
 					removeInvalidCharacters(courseName),
 					removeInvalidCharacters(authorName),
@@ -253,9 +286,9 @@ const downloadPlaylist = async (courseJSON) => {
 		}
 
 		let playlistText = playlistLines.join("\n");
-		let playlistPath = gePlaylistPath(removeInvalidCharacters(courseName), removeInvalidCharacters(authorName));
+		let playlistPath = getPlaylistPath(removeInvalidCharacters(courseName), removeInvalidCharacters(authorName));
 
-		downloadPlaylistText(playlistText, playlistPath);
+		await downloadPlaylistText(playlistText, playlistPath);
 	} catch (error) {
 		log(error, 'ERROR')
 		chrome.storage.sync.set({ Status: "Stopped" }, undefined);
@@ -263,19 +296,13 @@ const downloadPlaylist = async (courseJSON) => {
 	}
 }
 
-const downloadPlaylistText = (playlistText, path) => {
+const downloadPlaylistText = async (playlistText, path) => {
 	let playlistBlob = new Blob([playlistText], {
 		type: 'audio/x-mpegurl'
 	});
 
 	var url = window.URL.createObjectURL(playlistBlob);
-	chrome.runtime.sendMessage({
-		action: "download-sync",
-		link: url,
-		filePath: path,
-	},
-		(response) => log(response.actionStatus)
-	);
+	await downloadFile(url, path);
 }
 
 const downloadCourse = async (courseJSON, startingVideoId) => {
@@ -399,6 +426,31 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 	}
 };
 
+const downloadExerciseFiles = async (courseJSON) => {
+	try {
+		const {
+			id: courseId,
+			title: courseName,
+			authors,
+			modules: sections,
+		} = courseJSON;
+
+		const authorName = authors[0].displayName != undefined ? authors[0].displayName : authors[0].authorHandle;
+		if (authorName == undefined)
+			authorName = "noName";
+
+		let exerciseLinkJson = await (await fetch(`https://app.pluralsight.com/learner/user/courses/${courseId}/exercise-files-url`)).json();
+
+		let targetPath = getExercisePath(removeInvalidCharacters(courseName), removeInvalidCharacters(authorName));
+		
+		await downloadFile(exerciseLinkJson.exerciseFilesUrl, targetPath);
+
+	} catch (error) {
+		log(error, 'ERROR')
+	}
+
+};
+
 // main-function
 $(() => {
 	$(document).keypress(async (e) => {
@@ -409,6 +461,7 @@ $(() => {
 		const cmdDownloadAll = e.which === 99 || e.which === 67; // Download the entire course | key: c
 		const cmdDownloadFromNowOn = e.which === 86 || e.which === 118; //key: v
 		const cmdPlaylist = e.which == 112 || e.which == 80; // p
+		const cmdExerciseFiles = e.which == 120 || e.which == 88; // x
 
 		if (cmdToggleEnabled) {
 
@@ -434,8 +487,13 @@ $(() => {
 
 		}
 
-		if (cmdPlaylist) {
-			log("Playlist!");
+		if
+			(
+			cmdExerciseFiles
+			|| cmdPlaylist
+			|| cmdDownloadAll
+			|| cmdDownloadFromNowOn
+		) {
 
 			const courseJSON = JSON
 				.parse($(window.__NEXT_DATA__).text())
@@ -443,25 +501,25 @@ $(() => {
 				.pageProps
 				.tableOfContents;
 
-			downloadPlaylist(courseJSON);
-			return;
-		}
+			if (cmdPlaylist) {
+				await downloadPlaylist(courseJSON);
+				return;
+			}
 
-		if (cmdDownloadAll || cmdDownloadFromNowOn) {
-			log('Downloading course ' + (cmdDownloadAll ? 'from the beginning' : 'from now on') + ' ...')
-			log('Fetching course information...')
+			if (cmdExerciseFiles) {
+				await downloadExerciseFiles(courseJSON);
+			}
 
-			DOWNLOADING = true;
+			if (cmdDownloadAll || cmdDownloadFromNowOn) {
+				log('Downloading course ' + (cmdDownloadAll ? 'from the beginning' : 'from now on') + ' ...')
+				log('Fetching course information...')
 
-			const courseJSON = JSON
-				.parse($(window.__NEXT_DATA__).text())
-				.props
-				.pageProps
-				.tableOfContents;
-
-			let startingVideoId = cmdDownloadFromNowOn ? getCurrentVideoId() : null;
-			downloadPlaylist(courseJSON);
-			await downloadCourse(courseJSON, startingVideoId);
+				DOWNLOADING = true;
+				let startingVideoId = cmdDownloadFromNowOn ? getCurrentVideoId() : null;
+				await downloadPlaylist(courseJSON);
+				await downloadExerciseFiles(courseJSON);
+				await downloadCourse(courseJSON, startingVideoId);
+			}
 
 		}
 	});
