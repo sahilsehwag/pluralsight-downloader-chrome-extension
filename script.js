@@ -396,6 +396,9 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 		log(`#################### "${courseName} By ${authorName}" ####################`, 'INFO')
 
+		// store the download failed file information to try again after done
+		let to_download_again = []
+
 		for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
 			const {
 				id: sectionId,
@@ -454,18 +457,33 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					`${EXTENSION_SUBS}`
 				);
 
-
-				const videoURL = await getVideoURL(videoId);
-				const subsURL = await getSubtitleURL(videoId, versionId);
-
 				log(`Downloading... "${videoName}"`, 'DOWNLOAD')
-
 				chrome.storage.sync.set({ Status: "Downloading..." }, undefined);
-				await downloadSubs(subsURL, filePath_subs);
-				// wait for downloading completed
-				//await sleep(1000);
 
-			    downloadVideo(videoURL, filePath);
+				let exceptionId = 0
+				try{
+					const subsURL = await getSubtitleURL(videoId, versionId);
+					await downloadSubs(subsURL, filePath_subs);
+					
+					exceptionId = 1
+					
+					// force exception for validation 
+					// supposed to download video clip in retry section..
+					throw 'testException'
+
+					const videoURL = await getVideoURL(videoId);
+					downloadVideo(videoURL, filePath);	
+				}
+				catch(error)
+				{
+					to_download_again.push({expId:exceptionId, 
+											videoId: videoId, 
+											verId: versionId,
+											filePath: filePath,
+											filePath_subs: filePath_subs,
+											duration: duration})
+					continue
+				}
 
 				// Progress Informaton Update on Storage
 				chrome.storage.sync.set({ Completion_Module: `${sectionIndex + 1}/${sections.length}` }, undefined);
@@ -494,6 +512,24 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					await CURRENT_SLEEP;
 				}
 				} 				
+			}
+
+			chrome.storage.sync.set({ Status: "Retry..." }, undefined);
+			for (let i = to_download_again.length - 1; i >= 0; i--)
+			{
+				let fileInfo = to_download_again.shift()
+				if(fileInfo.expId === 0)
+				{
+					const subsURL = await getSubtitleURL(fileInfo.videoId, fileInfo.verId);
+					await downloadSubs(subsURL, fileInfo.filePath_subs);
+				}
+				const videoURL = await getVideoURL(fileInfo.videoId);
+				downloadVideo(videoURL, fileInfo.filePath);	
+
+				let speed = await readSpeed();
+				CURRENT_SLEEP = sleep(Math.max(fileInfo.duration * 10 * speed, DOWNLOAD_TIMEOUT));
+				await CURRENT_SLEEP;
+
 			}
 		}
 		catch (error) {
