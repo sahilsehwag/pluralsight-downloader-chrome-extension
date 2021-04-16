@@ -23,8 +23,7 @@ const subsURL = "https://app.pluralsight.com/transcript/api/v1/caption/webvtt"
 
 // STATE variables
 let EXTENSION_ENABLED = false
-let CONTINUE_DOWNLOAD = true
-let DOWNLOADING = false
+let CONTINUE_DOWNLOAD = false
 
 let CURRENT_SLEEP = null;
 
@@ -270,7 +269,6 @@ const getTimeStats = async (courseJSON, startingVideoId) => {
 			for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
 				if (!CONTINUE_DOWNLOAD) {
 					CONTINUE_DOWNLOAD = false
-					DOWNLOADING = false
 					log('Downloading stopped!!!')
 					return
 				}
@@ -410,7 +408,6 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 			for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
 				if (!CONTINUE_DOWNLOAD) {
 					CONTINUE_DOWNLOAD = false
-					DOWNLOADING = false
 					log('Downloading stopped!!!')
 					return
 				}
@@ -466,9 +463,9 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 				chrome.storage.sync.set({ Status: "Downloading..." }, undefined);
 				await downloadSubs(subsURL, filePath_subs);
 				// wait for downloading completed
-				await sleep(1000);
+				//await sleep(1000);
 
-				await downloadVideo(videoURL, filePath);
+			    downloadVideo(videoURL, filePath);
 
 				// Progress Informaton Update on Storage
 				chrome.storage.sync.set({ Completion_Module: `${sectionIndex + 1}/${sections.length}` }, undefined);
@@ -480,10 +477,6 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 				}
 
 				chrome.storage.sync.set({ Status: "Waiting..." }, undefined);
-
-
-				CURRENT_SLEEP = sleep(DOWNLOAD_TIMEOUT);
-				await CURRENT_SLEEP;
 
 				let speed = await readSpeed();
 				let maxDuration = await readMaxDuration();
@@ -509,7 +502,6 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 			return error;
 		}
 		
-		DOWNLOADING = false
 		log('Downloading finished!!!')
 		confirm("Downloading finished");
 
@@ -518,6 +510,8 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 		else
 			chrome.storage.sync.set({ Status: "Cancelled" }, undefined);
+
+		CONTINUE_DOWNLOAD = false
 };
 
 chrome.storage.onChanged.addListener(function (changes, namespace) {
@@ -529,12 +523,11 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
 		if(key == 'btnStop')
 		{
 			CONTINUE_DOWNLOAD = false;
-			DOWNLOADING = false;
 		}
 
 		if(key == 'btnDwnAll')
 		{
-			if(DOWNLOADING) 
+			if(CONTINUE_DOWNLOAD) 
 				return;
 			
 			EXTENSION_ENABLED = true;
@@ -545,7 +538,7 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
 
 		if(key == 'btnDwnCur')
 		{
-			if(DOWNLOADING) 
+			if(CONTINUE_DOWNLOAD) 
 				return;
 			
 			EXTENSION_ENABLED = true;
@@ -642,7 +635,6 @@ $(() => {
 				log('Fetching course information...')
 
 				CONTINUE_DOWNLOAD = true;
-				DOWNLOADING = true;
 				let startingVideoId = cmdDownloadFromNowOn ? getCurrentVideoId() : null;
 				if (!cmdDownloadFromNowOn) {
 					await downloadPlaylist(courseJSON);
