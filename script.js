@@ -13,12 +13,8 @@ const EXTENSION_SUBS = 'smi'
 const qualities = ["1280x720", "1024x768"]
 const DEFAULT_QUALITY = qualities[0]
 
-const DOWNLOAD_TIMEOUT = 5000
-
+const DOWNLOAD_TIMEOUT = 1000
 let DURATION_PERCENT = 10		// percent max 100
-let DURATION_MAX = 0			// duration max 0 (infinity)
-
-
 
 // videoURL to get the actual video URL
 const viewclipURL = "https://app.pluralsight.com/video/clips/v3/viewclip";
@@ -77,6 +73,8 @@ const readSharedValue = async (name) =>
 	new Promise((resolve,_) => chrome.storage.sync.get(name, data => data == null ? resolve() : resolve(data[name])));
 
 const readSpeed = () => readSharedValue('speedPercent');
+
+const readMaxDuration = () => readSharedValue('maxDuration');
 
 const log = (message, type = "STATUS") =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`);
@@ -394,21 +392,6 @@ const downloadPlaylistText = async (playlistText, path) => {
 	await downloadFile(url, path);
 }
 
-const getStorageValue = () => {
-	try {
-		chrome.storage.sync.get('speedPercent', function (data) {
-			DURATION_PERCENT = data.speedPercent;
-		});
-	
-		chrome.storage.sync.get('maxDuration', function (data) {
-			DURATION_MAX = data.maxDuration;
-		});
-	} catch (error) {
-		log(error, 'ERROR')
-	}
-	
-};
-
 
 const downloadCourse = async (courseJSON, startingVideoId) => {
 	try {
@@ -493,9 +476,6 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 				log(`Downloading... "${videoName}"`, 'DOWNLOAD')
 
-
-
-
 				chrome.storage.sync.set({ Status: "Downloading..." }, undefined);
 				await downloadVideo(videoURL, filePath);
 
@@ -503,29 +483,29 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 				chrome.storage.sync.set({ Completion_Module: `${sectionIndex + 1}/${sections.length}` }, undefined);
 				chrome.storage.sync.set({ Completion_Video: `${videoIndex + 1}/${sectionItems.length}` }, undefined);
 
-        // So we dont even want to sleep if we are gonna cancel this run anyways.... 
+        		// So we dont even want to sleep if we are gonna cancel this run anyways.... 
 				if (!CONTINUE_DOWNLOAD) {
 					continue;
 				}
 
 				chrome.storage.sync.set({ Status: "Waiting..." }, undefined);
 
-				let speed = await readSpeed();
-				// Sleep for duration based on a constant updated by speedPercent from extesion browser
-				CURRENT_SLEEP = sleep(Math.max(duration * 10 * speed - DOWNLOAD_TIMEOUT, DOWNLOAD_TIMEOUT));
+				CURRENT_SLEEP = sleep(DOWNLOAD_TIMEOUT);
 				await CURRENT_SLEEP;
 				await downloadSubs(subsURL, filePath_subs);
 
+				let speed = await readSpeed();
+				let maxDuration = await readMaxDuration();
 				// Sleep for minimum duration btw the time with percent and the max duration time
 				if(DURATION_MAX != 0)
 				{
-					CURRENT_SLEEP = sleep(Math.min(duration*10*DURATION_PERCENT - DOWNLOAD_TIMEOUT, DURATION_MAX*1000 - DOWNLOAD_TIMEOUT));
+					CURRENT_SLEEP = sleep(Math.min(duration*10*speed - DOWNLOAD_TIMEOUT, maxDuration * 1000 - DOWNLOAD_TIMEOUT));
 					await CURRENT_SLEEP;
 				}				
 				else
 				// Sleep for duration based on a constant updated by speedPercent from extesion browser
 				{
-					CURRENT_SLEEP = sleep(Math.max(duration * 10 * DURATION_PERCENT - DOWNLOAD_TIMEOUT, DOWNLOAD_TIMEOUT));
+					CURRENT_SLEEP = sleep(Math.max(duration * 10 * speed - DOWNLOAD_TIMEOUT, DOWNLOAD_TIMEOUT));
 					await CURRENT_SLEEP;
 				}
 				} 				
