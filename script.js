@@ -14,7 +14,10 @@ const qualities = ["1280x720", "1024x768"]
 const DEFAULT_QUALITY = qualities[0]
 
 const DOWNLOAD_TIMEOUT = 5000
-// let DURATION_PERCENT = 10		// percent max 100
+
+let DURATION_PERCENT = 10		// percent max 100
+let DURATION_MAX = 0			// duration max 0 (infinity)
+
 
 
 // videoURL to get the actual video URL
@@ -59,6 +62,7 @@ const sleep = (millis, throwOnAborted = false) => {
 	return prom;
 }
 
+
 const downloadFile = (link, filePath) => {
 	return new Promise((resolve, _) => {
 		chrome.runtime.sendMessage({
@@ -73,7 +77,6 @@ const readSharedValue = async (name) =>
 	new Promise((resolve,_) => chrome.storage.sync.get(name, data => data == null ? resolve() : resolve(data[name])));
 
 const readSpeed = () => readSharedValue('speedPercent');
-
 
 const log = (message, type = "STATUS") =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`);
@@ -201,6 +204,7 @@ const getFilePath = (
 			filePath = `${courseRootPath}\\${filePath}`;
 		}
 
+
 		return filePath.replace(/(\r\n|\n|\r)/gm, "");
 	} catch (error) {
 		return error;
@@ -235,6 +239,7 @@ const downloadSubs = async (subsURL, filePath) => {
 		return error;
 	}
 };
+
 
 const printTimeStats = async (courseJSON, startingVideoId) => {
 	let stat = await getTimeStats(courseJSON, startingVideoId);
@@ -388,6 +393,23 @@ const downloadPlaylistText = async (playlistText, path) => {
 	var url = window.URL.createObjectURL(playlistBlob);
 	await downloadFile(url, path);
 }
+
+const getStorageValue = () => {
+	try {
+		chrome.storage.sync.get('speedPercent', function (data) {
+			DURATION_PERCENT = data.speedPercent;
+		});
+	
+		chrome.storage.sync.get('maxDuration', function (data) {
+			DURATION_MAX = data.maxDuration;
+		});
+	} catch (error) {
+		log(error, 'ERROR')
+	}
+	
+};
+
+
 const downloadCourse = async (courseJSON, startingVideoId) => {
 	try {
 		const {
@@ -422,7 +444,6 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					log('Downloading stopped!!!')
 					return
 				}
-
 
 				const {
 					id: videoId,
@@ -481,36 +502,89 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 				// Progress Informaton Update on Storage
 				chrome.storage.sync.set({ Completion_Module: `${sectionIndex + 1}/${sections.length}` }, undefined);
 				chrome.storage.sync.set({ Completion_Video: `${videoIndex + 1}/${sectionItems.length}` }, undefined);
-				await sleep(DOWNLOAD_TIMEOUT);
-				await downloadSubs(subsURL, filePath_subs);
 
-				// So we dont even want to sleep if we are gonna cancel this run anyways.... 
+        // So we dont even want to sleep if we are gonna cancel this run anyways.... 
 				if (!CONTINUE_DOWNLOAD) {
 					continue;
 				}
 
 				chrome.storage.sync.set({ Status: "Waiting..." }, undefined);
+
 				let speed = await readSpeed();
 				// Sleep for duration based on a constant updated by speedPercent from extesion browser
 				CURRENT_SLEEP = sleep(Math.max(duration * 10 * speed - DOWNLOAD_TIMEOUT, DOWNLOAD_TIMEOUT));
 				await CURRENT_SLEEP;
+				await downloadSubs(subsURL, filePath_subs);
+
+				// Sleep for minimum duration btw the time with percent and the max duration time
+				if(DURATION_MAX != 0)
+				{
+					CURRENT_SLEEP = sleep(Math.min(duration*10*DURATION_PERCENT - DOWNLOAD_TIMEOUT, DURATION_MAX*1000 - DOWNLOAD_TIMEOUT));
+					await CURRENT_SLEEP;
+				}				
+				else
+				// Sleep for duration based on a constant updated by speedPercent from extesion browser
+				{
+					CURRENT_SLEEP = sleep(Math.max(duration * 10 * DURATION_PERCENT - DOWNLOAD_TIMEOUT, DOWNLOAD_TIMEOUT));
+					await CURRENT_SLEEP;
+				}
+				} 				
 			}
 		}
+		catch (error) {
+			log(error, 'ERROR')
+			chrome.storage.sync.set({ Status: "Stopped" }, undefined);
+			return error;
+		}
+		
 		DOWNLOADING = false
 		log('Downloading finished!!!')
 		confirm("Downloading finished");
 
 		if (CONTINUE_DOWNLOAD)
 			chrome.storage.sync.set({ Status: "Finished" }, undefined);
+
 		else
 			chrome.storage.sync.set({ Status: "Cancelled" }, undefined);
-
-	} catch (error) {
-		log(error, 'ERROR')
-		chrome.storage.sync.set({ Status: "Stopped" }, undefined);
-		return error;
-	}
 };
+
+chrome.storage.onChanged.addListener(function (changes, namespace) {
+	for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+		if(key == 'btnSkip')
+		{
+			CURRENT_SLEEP?.abort();
+		}
+		if(key == 'btnStop')
+		{
+			CONTINUE_DOWNLOAD = false;
+			DOWNLOADING = false;
+		}
+
+		if(key == 'btnDwnAll')
+		{
+			if(DOWNLOADING) 
+				return;
+			
+			EXTENSION_ENABLED = true;
+			var e = $.Event('keypress');
+			e.which = 99; // Character 'c'
+			$(document).trigger(e);
+		}
+
+		if(key == 'btnDwnCur')
+		{
+			if(DOWNLOADING) 
+				return;
+			
+			EXTENSION_ENABLED = true;
+			var e = $.Event('keypress');
+			e.which = 86; // Character 'v'
+			$(document).trigger(e);
+		}
+
+	}
+  });
+
 
 const downloadExerciseFiles = async (courseJSON) => {
 	try {
@@ -537,6 +611,7 @@ const downloadExerciseFiles = async (courseJSON) => {
 
 };
 
+
 // main-function
 $(() => {
 	$(document).keypress(async (e) => {
@@ -562,7 +637,6 @@ $(() => {
 		if (!EXTENSION_ENABLED) {
 			return;
 		}
-
 		if (cmdStopDownload) {
 
 			// KEYPRESS `s`
@@ -571,7 +645,6 @@ $(() => {
 			CONTINUE_DOWNLOAD = false;
 			CURRENT_SLEEP?.abort();
 			return;
-
 		}
 
 		if
@@ -581,7 +654,15 @@ $(() => {
 			|| cmdDownloadAll
 			|| cmdDownloadFromNowOn
 			|| cmdTime
-		) {
+		) 
+      {
+			log('Downloading course ' + (cmdDownloadAll ? 'from the beginning' : 'from now on') + ' ...')
+			log('Fetching course information...')
+
+			CONTINUE_DOWNLOAD = true;
+			DOWNLOADING = true;
+
+
 			const courseJSON = JSON
 				.parse($(window.__NEXT_DATA__).text())
 				.props
