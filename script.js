@@ -175,8 +175,6 @@ const getCourseRootPath = (
 	}
 };
 
-
-
 const getFilePath = (
 	courseName,
 	authorName,
@@ -212,14 +210,8 @@ const getFilePath = (
 
 const downloadVideo = async (videoURL, filePath) => {
 	try {
-		chrome.runtime.sendMessage({
-			action: "download-sync",
-			link: videoURL,
-			filePath: filePath,
-		},
-			(response) => log(response.actionStatus)
-		);
-
+		await downloadFile(videoURL, filePath);
+		log(response.actionStatus);
 	} catch (error) {
 		return error;
 	}
@@ -227,13 +219,8 @@ const downloadVideo = async (videoURL, filePath) => {
 
 const downloadSubs = async (subsURL, filePath) => {
 	try {
-		chrome.runtime.sendMessage({
-			action: "download-sync",
-			link: subsURL,
-			filePath: filePath,
-		},
-			(response) => log(response.actionStatus)
-		);
+		await downloadFile(subsURL, filePath);
+		log(response.actionStatus);
 	} catch (error) {
 		return error;
 	}
@@ -315,7 +302,6 @@ const getTimeStats = async (courseJSON, startingVideoId) => {
 
 	} catch (error) {
 		log(error, 'ERROR')
-		chrome.storage.sync.set({ Status: "Stopped" }, undefined);
 		return error;
 	}
 
@@ -498,7 +484,6 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 				CURRENT_SLEEP = sleep(DOWNLOAD_TIMEOUT);
 				await CURRENT_SLEEP;
-				await downloadSubs(subsURL, filePath_subs);
 
 				let speed = await readSpeed();
 				let maxDuration = await readMaxDuration();
@@ -645,10 +630,6 @@ $(() => {
       {
 			log('Downloading course ' + (cmdDownloadAll ? 'from the beginning' : 'from now on') + ' ...')
 			log('Fetching course information...')
-
-			CONTINUE_DOWNLOAD = true;
-			DOWNLOADING = true;
-
 
 			const courseJSON = JSON
 				.parse($(window.__NEXT_DATA__).text())
