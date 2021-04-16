@@ -13,7 +13,7 @@ const EXTENSION_SUBS = 'smi'
 const qualities = ["1280x720", "1024x768"]
 const DEFAULT_QUALITY = qualities[0]
 
-const DOWNLOAD_TIMEOUT = 5000
+const DOWNLOAD_TIMEOUT = 3000
 let DURATION_PERCENT = 10		// percent max 100
 let DURATION_MAX = 0			// duration max 0 (infinity)
 
@@ -274,6 +274,10 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 
 				chrome.storage.sync.set({ Status: "Downloading..." }, undefined);
+				await downloadSubs(subsURL, filePath_subs);
+				// wait for downloading completed
+				await sleep(1000);
+
 				await downloadVideo(videoURL, filePath);
 
 				// Progress Informaton Update on Storage
@@ -286,21 +290,19 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 				}
 
 				chrome.storage.sync.set({ Status: "Waiting..." }, undefined);
-				
-				CURRENT_SLEEP = sleep(DOWNLOAD_TIMEOUT);
-				await CURRENT_SLEEP;
-				await downloadSubs(subsURL, filePath_subs);
 
+				let speed = await readSpeed();
+				let maxDuration = await readMaxDuration();
 				// Sleep for minimum duration btw the time with percent and the max duration time
 				if(DURATION_MAX != 0)
 				{
-					CURRENT_SLEEP = sleep(Math.min(duration*10*DURATION_PERCENT - DOWNLOAD_TIMEOUT, DURATION_MAX*1000 - DOWNLOAD_TIMEOUT));
+					CURRENT_SLEEP = sleep(Math.min(duration*10*speed, maxDuration * 1000));
 					await CURRENT_SLEEP;
 				}				
 				else
 				// Sleep for duration based on a constant updated by speedPercent from extesion browser
 				{
-					CURRENT_SLEEP = sleep(Math.max(duration * 10 * DURATION_PERCENT - DOWNLOAD_TIMEOUT, DOWNLOAD_TIMEOUT));
+					CURRENT_SLEEP = sleep(Math.max(duration * 10 * speed, DOWNLOAD_TIMEOUT));
 					await CURRENT_SLEEP;
 				}
 				} 				
@@ -405,9 +407,37 @@ $(() => {
 				.pageProps
 				.tableOfContents;
 
-			let startingVideoId = cmdDownloadFromNowOn ? getCurrentVideoId() : null;
-			await downloadCourse(courseJSON, startingVideoId);
+			if (cmdDownloadAll || cmdDownloadFromNowOn) {
+				log('Downloading course ' + (cmdDownloadAll ? 'from the beginning' : 'from now on') + ' ...')
+				log('Fetching course information...')
 
+				CONTINUE_DOWNLOAD = true;
+				DOWNLOADING = true;
+				let startingVideoId = cmdDownloadFromNowOn ? getCurrentVideoId() : null;
+				if (!cmdDownloadFromNowOn) {
+					await downloadPlaylist(courseJSON);
+					await downloadExerciseFiles(courseJSON);
+				}
+
+				await downloadCourse(courseJSON, startingVideoId);
+			}
+			else
+			{
+				if (cmdPlaylist) {
+					await downloadPlaylist(courseJSON);
+					return;
+				}
+	
+				if (cmdExerciseFiles) {
+					await downloadExerciseFiles(courseJSON);
+					return;
+				}
+	
+				if (cmdTime) {
+					await printTimeStats(courseJSON, getCurrentVideoId());
+					return;
+				}
+			}
 		}
 	});
 });
