@@ -497,7 +497,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 				let speed = await readSpeed();
 				let maxDuration = await readMaxDuration();
 				// Sleep for minimum duration btw the time with percent and the max duration time
-				if(DURATION_MAX != 0)
+				if(maxDuration != 0)
 				{
 					CURRENT_SLEEP = sleep(Math.min(duration*10*speed - DOWNLOAD_TIMEOUT, maxDuration * 1000 - DOWNLOAD_TIMEOUT));
 					await CURRENT_SLEEP;
@@ -513,7 +513,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 		}
 		catch (error) {
 			log(error, 'ERROR')
-			chrome.storage.sync.set({ Status: "Stopped" }, undefined);
+			chrome.storage.sync.set({ Status: "Errored" }, undefined);
 			return error;
 		}
 		
