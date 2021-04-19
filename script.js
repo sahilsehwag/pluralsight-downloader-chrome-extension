@@ -674,7 +674,9 @@ $(() => {
 				let startingVideoId = cmdDownloadFromNowOn ? getCurrentVideoId() : null;
 				if (!cmdDownloadFromNowOn) {
 					await downloadPlaylist(courseJSON);
-					await downloadExerciseFiles(courseJSON);
+					// you can skip the waiting for exercise download to complete
+					CURRENT_SLEEP = downloadExerciseFiles(courseJSON);
+					await CURRENT_SLEEP
 				}
 
 				await downloadCourse(courseJSON, startingVideoId);
@@ -687,7 +689,8 @@ $(() => {
 				}
 	
 				if (cmdExerciseFiles) {
-					await downloadExerciseFiles(courseJSON);
+					CURRENT_SLEEP = downloadExerciseFiles(courseJSON);
+					await CURRENT_SLEEP
 					return;
 				}
 	
