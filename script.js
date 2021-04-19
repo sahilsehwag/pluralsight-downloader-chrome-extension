@@ -469,7 +469,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					
 					// force exception for validation 
 					// supposed to download video clip in retry section..
-					throw 'testException'
+					//throw 'testException'
 
 					const videoURL = await getVideoURL(videoId);
 					downloadVideo(videoURL, filePath);	
