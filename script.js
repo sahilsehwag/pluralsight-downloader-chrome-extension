@@ -229,7 +229,7 @@ const downloadSubs = async (subsURL, filePath) => {
 
 
 const printTimeStats = async (courseJSON, startingVideoId) => {
-	let stat = await getTimeStats(courseJSON, startingVideoId);
+	let stat = await getCourseStats(courseJSON, startingVideoId);
 
 	let friendlyTtl = new Date(stat.timeTotal * 1000).toISOString().substr(11, 8);
 	let friendlyTfn = new Date(stat.timeFromNow * 1000).toISOString().substr(11, 8);
@@ -241,7 +241,9 @@ const printTimeStats = async (courseJSON, startingVideoId) => {
 	console.log(`Time remaining downloading: ${friendlyTfnDl}`);
 }
 
-const getTimeStats = async (courseJSON, startingVideoId) => {
+let video_to_download = []
+
+const getCourseStats = async (courseJSON, startingVideoId) => {
 	let timeFromNow = 0;
 	let timeTotal = 0;
 	try {
@@ -259,6 +261,7 @@ const getTimeStats = async (courseJSON, startingVideoId) => {
 		// download all videos when no startid was given
 		let startToggle = startingVideoId == null || startingVideoId == '';
 
+		video_to_download = []
 
 		for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
 			const {
@@ -294,11 +297,14 @@ const getTimeStats = async (courseJSON, startingVideoId) => {
 					continue;
 				}
 
+				video_to_download.push(videoId)
+
 				timeFromNow += duration;
 
 			}
 		}
-
+		
+		chrome.runtime.sendMessage({action:'badge', text:`${video_to_download.length}`})
 
 	} catch (error) {
 		log(error, 'ERROR')
@@ -365,7 +371,7 @@ const downloadPlaylist = async (courseJSON) => {
 		await downloadPlaylistText(playlistText, playlistPath);
 	} catch (error) {
 		log(error, 'ERROR')
-		chrome.storage.sync.set({ Status: "Stopped" }, undefined);
+		chrome.runtime.sendMessage({Status: "Stopped"});
 		return error;
 	}
 }
@@ -379,6 +385,16 @@ const downloadPlaylistText = async (playlistText, path) => {
 	await downloadFile(url, path);
 }
 
+function removeDownloadItem(item)
+{
+	if(!video_to_download.includes(item))
+		return
+
+	var idx = video_to_download.indexOf(item)		
+	video_to_download.splice(idx, 1);
+
+	chrome.runtime.sendMessage({action:'badge', text:`${video_to_download.length}`})
+}
 
 const downloadCourse = async (courseJSON, startingVideoId) => {
 	try {
@@ -400,6 +416,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 		// store the download failed file information to try again after done
 		let to_download_again = []
+		await getCourseStats(courseJSON, startingVideoId)
 
 		for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
 			const {
@@ -412,7 +429,6 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 			for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
 				if (!CONTINUE_DOWNLOAD) {
-					CONTINUE_DOWNLOAD = false
 					log('Downloading stopped!!!')
 					return
 				}
@@ -437,8 +453,6 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 				console.log(`Downloading [${videoId}] ${videoName}`);
 
-				await printTimeStats(courseJSON, videoId);
-
 				const filePath = getFilePath(
 					removeInvalidCharacters(courseName),
 					removeInvalidCharacters(authorName),
@@ -460,7 +474,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 				);
 
 				log(`Downloading... "${videoName}"`, 'DOWNLOAD')
-				chrome.storage.sync.set({ Status: "Downloading..." }, undefined);
+				chrome.runtime.sendMessage({Status: "Downloading..."});
 
 				let exceptionId = 0
 				try {
@@ -473,8 +487,9 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					// supposed to download video clip in retry section..
 					//throw 'testException'
 
-					const videoURL = await getVideoURL(videoId);
-					downloadVideo(videoURL, filePath);
+					const videoURL = await getVideoURL(videoId)
+					downloadVideo(videoURL, filePath)
+					
 				}
 				catch (error) {
 					to_download_again.push({
@@ -489,15 +504,19 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 				}
 
 				// Progress Informaton Update on Storage
-				chrome.storage.sync.set({ Completion_Module: `${sectionIndex + 1}/${sections.length}` }, undefined);
-				chrome.storage.sync.set({ Completion_Video: `${videoIndex + 1}/${sectionItems.length}` }, undefined);
+				chrome.runtime.sendMessage({
+					Completion_Module: [sectionIndex + 1, sections.length],
+					Completion_Video: [videoIndex + 1, sectionItems.length],
+					Status: "Downloading...",
+				});
+				removeDownloadItem(videoId)
 
 				// So we dont even want to sleep if we are gonna cancel this run anyways.... 
 				if (!CONTINUE_DOWNLOAD) {
 					continue;
 				}
 
-				chrome.storage.sync.set({ Status: "Waiting..." }, undefined);
+				chrome.runtime.sendMessage({Status: "Waiting..."});
 
 				let speed = await readSpeed();
 				let maxDuration = await readMaxDuration();
@@ -509,15 +528,17 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 				else
 				// Sleep for duration based on a constant updated by speedPercent from extesion browser
 				{
-
 					CURRENT_SLEEP = sleep(Math.max(duration * 10 * speed, DOWNLOAD_TIMEOUT));
 					await CURRENT_SLEEP;
 				}
 			}
 		}
 
-		chrome.storage.sync.set({ Status: "Retry..." }, undefined);
+		chrome.runtime.sendMessage({Status: "Retry..."});
 		for (let i = to_download_again.length - 1; i >= 0; i--) {
+
+			chrome.runtime.sendMessage({action:'badge', text:`${to_download_again.length}`})
+
 			let fileInfo = to_download_again.shift()
 			if (fileInfo.expId === 0) {
 				const subsURL = await getSubtitleURL(fileInfo.videoId, fileInfo.verId);
@@ -530,72 +551,30 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 			CURRENT_SLEEP = sleep(Math.max(fileInfo.duration * 10 * speed, DOWNLOAD_TIMEOUT));
 			await CURRENT_SLEEP;
 
+			
 		}
 	}
 	catch (error) {
 		log(error, 'ERROR')
-		chrome.storage.sync.set({ Status: "Errored" }, undefined);
+		chrome.runtime.sendMessage({Status: "Errored"});
 		return error;
 	}
+	finally
+	{
+		if (CONTINUE_DOWNLOAD)
+			chrome.runtime.sendMessage({Status: "Finished"});
+		else
+			chrome.runtime.sendMessage({Status: "Cancelled"});
+	
+		log('Downloading finished!!!')
+		confirm("Downloading finished");
+	
+		video_to_download = []
+		chrome.runtime.sendMessage({action:'badge', text:``})
 
-	log('Downloading finished!!!')
-	confirm("Downloading finished");
-
-	if (CONTINUE_DOWNLOAD)
-		chrome.storage.sync.set({ Status: "Finished" }, undefined);
-
-	else
-		chrome.storage.sync.set({ Status: "Cancelled" }, undefined);
-
-	CONTINUE_DOWNLOAD = false
-};
-
-chrome.storage.onChanged.addListener(function (changes, namespace) {
-	for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-		if (key == 'btnSkip') {
-			CURRENT_SLEEP?.abort();
-		}
-		if (key == 'btnStop') {
-			CONTINUE_DOWNLOAD = false;
-		}
-
-		if (key == 'btnAppend') {
-			if (!CONTINUE_DOWNLOAD) {
-				log("Not on downloading")
-				return;
-			}
-			var e = $.Event('keypress');
-			e.which = 96; // Character 'a'
-			$(document).trigger(e);
-		}
-
-		if (key == 'btnDwnAll') {
-			if (CONTINUE_DOWNLOAD)
-				return;
-
-			EXTENSION_ENABLED = true;
-			var e = $.Event('keypress');
-			e.which = 99; // Character 'c'
-			$(document).trigger(e);
-		}
-
-		if (key == 'btnDwnCur') {
-			if (CONTINUE_DOWNLOAD)
-				return;
-
-			EXTENSION_ENABLED = true;
-			var e = $.Event('keypress');
-			e.which = 86; // Character 'v'
-			$(document).trigger(e);
-		}
-
+		CONTINUE_DOWNLOAD = false
 	}
-});
-
-// chrome.runtime.onMessage.addListener (function (request, sender, sendResponse) {
-//     alert("Contents Of Text File = " + request.fileData);
-// });
-
+};
 
 chrome.runtime.onMessage.addListener(message => {
 	if (typeof message !== 'object') {
@@ -606,14 +585,36 @@ chrome.runtime.onMessage.addListener(message => {
 		var e = $.Event('keypress');
 		EXTENSION_ENABLED = true
 
-		if (message.btnCmd.cmd === 'DwnAppend') {
-			// if (!CONTINUE_DOWNLOAD) {
-			// 	log("Not on downloading")
-			// 	return;
-			// }
-			
+		if (message.btnCmd.cmd === 'DwnAll') 
+		{
+			if (CONTINUE_DOWNLOAD)
+				return;
+
+			EXTENSION_ENABLED = true;
+			e.which = 99; // Character 'a'
+		}
+		else if (message.btnCmd.cmd === 'DwnCur') 
+		{
+			if (CONTINUE_DOWNLOAD)
+				return;
+
+			EXTENSION_ENABLED = true;
+			e.which = 86; // Character 'a'
+		}
+		else if (message.btnCmd.cmd === 'DwnAppend') {
 			e.which = 96; // Character 'a'
 		}
+		else if (message.btnCmd.cmd === 'Skip') 
+		{
+			CURRENT_SLEEP?.abort();
+			return
+		}
+		else if (message.btnCmd.cmd === 'Stop') 
+		{
+			CONTINUE_DOWNLOAD = false;
+			e.which = 115; // Character 's'
+		}
+
 		$(document).trigger(e);
 	}
 })
@@ -714,7 +715,7 @@ $(() => {
 					sessions.push(courseJSON)
 					// let newAppend = data.appendSession
 					// newAppend.push(courseJSON)
-					chrome.storage.local.set({ appendSession: sessions }, undefined)
+					chrome.storage.local.set({ appendSession: sessions })
 				})
 				
 				return
