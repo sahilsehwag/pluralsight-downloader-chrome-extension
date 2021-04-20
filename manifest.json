@@ -30,5 +30,5 @@
     "48": "images/extension_icon_48.png",
     "128": "images/extension_icon_128.png"
   },
-  "permissions": ["activeTab","declarativeContent", "storage",  "downloads", "notifications"]
+  "permissions": ["activeTab","declarativeContent", "storage",  "downloads", "notifications", "unlimitedStorage"]
 }

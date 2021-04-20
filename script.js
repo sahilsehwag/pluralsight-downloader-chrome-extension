@@ -13,7 +13,8 @@ const EXTENSION_SUBS = 'smi'
 const qualities = ["1280x720", "1024x768"]
 const DEFAULT_QUALITY = qualities[0]
 
-const DOWNLOAD_TIMEOUT = 1000
+
+const DOWNLOAD_TIMEOUT = 3000
 let DURATION_PERCENT = 10		// percent max 100
 
 // videoURL to get the actual video URL
@@ -22,8 +23,7 @@ const subsURL = "https://app.pluralsight.com/transcript/api/v1/caption/webvtt"
 
 // STATE variables
 let EXTENSION_ENABLED = false
-let CONTINUE_DOWNLOAD = true
-let DOWNLOADING = false
+let CONTINUE_DOWNLOAD = false
 
 let CURRENT_SLEEP = null;
 
@@ -70,11 +70,13 @@ const downloadFile = (link, filePath) => {
 };
 
 const readSharedValue = async (name) =>
-	new Promise((resolve,_) => chrome.storage.sync.get(name, data => data == null ? resolve() : resolve(data[name])));
+	new Promise((resolve, _) => chrome.storage.sync.get(name, data => data == null ? resolve() : resolve(data[name])));
 
 const readSpeed = () => readSharedValue('speedPercent');
 
 const readMaxDuration = () => readSharedValue('maxDuration');
+
+const readAppendSession = () => readSharedValue('appendSession');
 
 const log = (message, type = "STATUS") =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`);
@@ -174,8 +176,6 @@ const getCourseRootPath = (
 	}
 };
 
-
-
 const getFilePath = (
 	courseName,
 	authorName,
@@ -211,14 +211,8 @@ const getFilePath = (
 
 const downloadVideo = async (videoURL, filePath) => {
 	try {
-		chrome.runtime.sendMessage({
-			action: "download-sync",
-			link: videoURL,
-			filePath: filePath,
-		},
-			(response) => log(response.actionStatus)
-		);
-
+		await downloadFile(videoURL, filePath);
+		log(response.actionStatus);
 	} catch (error) {
 		return error;
 	}
@@ -226,13 +220,8 @@ const downloadVideo = async (videoURL, filePath) => {
 
 const downloadSubs = async (subsURL, filePath) => {
 	try {
-		chrome.runtime.sendMessage({
-			action: "download-sync",
-			link: subsURL,
-			filePath: filePath,
-		},
-			(response) => log(response.actionStatus)
-		);
+		await downloadFile(subsURL, filePath);
+		log(response.actionStatus);
 	} catch (error) {
 		return error;
 	}
@@ -282,7 +271,6 @@ const getTimeStats = async (courseJSON, startingVideoId) => {
 			for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
 				if (!CONTINUE_DOWNLOAD) {
 					CONTINUE_DOWNLOAD = false
-					DOWNLOADING = false
 					log('Downloading stopped!!!')
 					return
 				}
@@ -314,7 +302,6 @@ const getTimeStats = async (courseJSON, startingVideoId) => {
 
 	} catch (error) {
 		log(error, 'ERROR')
-		chrome.storage.sync.set({ Status: "Stopped" }, undefined);
 		return error;
 	}
 
@@ -411,6 +398,9 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 		log(`#################### "${courseName} By ${authorName}" ####################`, 'INFO')
 
+		// store the download failed file information to try again after done
+		let to_download_again = []
+
 		for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
 			const {
 				id: sectionId,
@@ -423,7 +413,6 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 			for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
 				if (!CONTINUE_DOWNLOAD) {
 					CONTINUE_DOWNLOAD = false
-					DOWNLOADING = false
 					log('Downloading stopped!!!')
 					return
 				}
@@ -470,92 +459,130 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					`${EXTENSION_SUBS}`
 				);
 
-
-				const videoURL = await getVideoURL(videoId);
-				const subsURL = await getSubtitleURL(videoId, versionId);
-
 				log(`Downloading... "${videoName}"`, 'DOWNLOAD')
-
 				chrome.storage.sync.set({ Status: "Downloading..." }, undefined);
-				await downloadVideo(videoURL, filePath);
+
+				let exceptionId = 0
+				try {
+					const subsURL = await getSubtitleURL(videoId, versionId);
+					await downloadSubs(subsURL, filePath_subs);
+
+					exceptionId = 1
+
+					// force exception for validation 
+					// supposed to download video clip in retry section..
+					//throw 'testException'
+
+					const videoURL = await getVideoURL(videoId);
+					downloadVideo(videoURL, filePath);
+				}
+				catch (error) {
+					to_download_again.push({
+						expId: exceptionId,
+						videoId: videoId,
+						verId: versionId,
+						filePath: filePath,
+						filePath_subs: filePath_subs,
+						duration: duration
+					})
+					continue
+				}
 
 				// Progress Informaton Update on Storage
 				chrome.storage.sync.set({ Completion_Module: `${sectionIndex + 1}/${sections.length}` }, undefined);
 				chrome.storage.sync.set({ Completion_Video: `${videoIndex + 1}/${sectionItems.length}` }, undefined);
 
-        		// So we dont even want to sleep if we are gonna cancel this run anyways.... 
+				// So we dont even want to sleep if we are gonna cancel this run anyways.... 
 				if (!CONTINUE_DOWNLOAD) {
 					continue;
 				}
 
 				chrome.storage.sync.set({ Status: "Waiting..." }, undefined);
 
-				CURRENT_SLEEP = sleep(DOWNLOAD_TIMEOUT);
-				await CURRENT_SLEEP;
-				await downloadSubs(subsURL, filePath_subs);
-
 				let speed = await readSpeed();
 				let maxDuration = await readMaxDuration();
 				// Sleep for minimum duration btw the time with percent and the max duration time
-				if(maxDuration != 0)
-				{
-					CURRENT_SLEEP = sleep(Math.min(duration*10*speed - DOWNLOAD_TIMEOUT, maxDuration * 1000 - DOWNLOAD_TIMEOUT));
+				if (maxDuration != 0) {
+					CURRENT_SLEEP = sleep(Math.min(duration * 10 * speed, maxDuration * 1000));
 					await CURRENT_SLEEP;
-				}				
+				}
 				else
 				// Sleep for duration based on a constant updated by speedPercent from extesion browser
 				{
-					CURRENT_SLEEP = sleep(Math.max(duration * 10 * speed - DOWNLOAD_TIMEOUT, DOWNLOAD_TIMEOUT));
+
+					CURRENT_SLEEP = sleep(Math.max(duration * 10 * speed, DOWNLOAD_TIMEOUT));
 					await CURRENT_SLEEP;
 				}
-				} 				
 			}
 		}
-		catch (error) {
-			log(error, 'ERROR')
-			chrome.storage.sync.set({ Status: "Errored" }, undefined);
-			return error;
+
+		chrome.storage.sync.set({ Status: "Retry..." }, undefined);
+		for (let i = to_download_again.length - 1; i >= 0; i--) {
+			let fileInfo = to_download_again.shift()
+			if (fileInfo.expId === 0) {
+				const subsURL = await getSubtitleURL(fileInfo.videoId, fileInfo.verId);
+				await downloadSubs(subsURL, fileInfo.filePath_subs);
+			}
+			const videoURL = await getVideoURL(fileInfo.videoId);
+			downloadVideo(videoURL, fileInfo.filePath);
+
+			let speed = await readSpeed();
+			CURRENT_SLEEP = sleep(Math.max(fileInfo.duration * 10 * speed, DOWNLOAD_TIMEOUT));
+			await CURRENT_SLEEP;
+
 		}
-		
-		DOWNLOADING = false
-		log('Downloading finished!!!')
-		confirm("Downloading finished");
+	}
+	catch (error) {
+		log(error, 'ERROR')
+		chrome.storage.sync.set({ Status: "Errored" }, undefined);
+		return error;
+	}
 
-		if (CONTINUE_DOWNLOAD)
-			chrome.storage.sync.set({ Status: "Finished" }, undefined);
+	log('Downloading finished!!!')
+	confirm("Downloading finished");
 
-		else
-			chrome.storage.sync.set({ Status: "Cancelled" }, undefined);
+	if (CONTINUE_DOWNLOAD)
+		chrome.storage.sync.set({ Status: "Finished" }, undefined);
+
+	else
+		chrome.storage.sync.set({ Status: "Cancelled" }, undefined);
+
+	CONTINUE_DOWNLOAD = false
 };
 
 chrome.storage.onChanged.addListener(function (changes, namespace) {
 	for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-		if(key == 'btnSkip')
-		{
+		if (key == 'btnSkip') {
 			CURRENT_SLEEP?.abort();
 		}
-		if(key == 'btnStop')
-		{
+		if (key == 'btnStop') {
 			CONTINUE_DOWNLOAD = false;
-			DOWNLOADING = false;
 		}
 
-		if(key == 'btnDwnAll')
-		{
-			if(DOWNLOADING) 
+		if (key == 'btnAppend') {
+			if (!CONTINUE_DOWNLOAD) {
+				log("Not on downloading")
 				return;
-			
+			}
+			var e = $.Event('keypress');
+			e.which = 96; // Character 'a'
+			$(document).trigger(e);
+		}
+
+		if (key == 'btnDwnAll') {
+			if (CONTINUE_DOWNLOAD)
+				return;
+
 			EXTENSION_ENABLED = true;
 			var e = $.Event('keypress');
 			e.which = 99; // Character 'c'
 			$(document).trigger(e);
 		}
 
-		if(key == 'btnDwnCur')
-		{
-			if(DOWNLOADING) 
+		if (key == 'btnDwnCur') {
+			if (CONTINUE_DOWNLOAD)
 				return;
-			
+
 			EXTENSION_ENABLED = true;
 			var e = $.Event('keypress');
 			e.which = 86; // Character 'v'
@@ -563,7 +590,33 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
 		}
 
 	}
-  });
+});
+
+// chrome.runtime.onMessage.addListener (function (request, sender, sendResponse) {
+//     alert("Contents Of Text File = " + request.fileData);
+// });
+
+
+chrome.runtime.onMessage.addListener(message => {
+	if (typeof message !== 'object') {
+		return false
+	}
+
+	if (message.btnCmd) {
+		var e = $.Event('keypress');
+		EXTENSION_ENABLED = true
+
+		if (message.btnCmd.cmd === 'DwnAppend') {
+			// if (!CONTINUE_DOWNLOAD) {
+			// 	log("Not on downloading")
+			// 	return;
+			// }
+			
+			e.which = 96; // Character 'a'
+		}
+		$(document).trigger(e);
+	}
+})
 
 
 const downloadExerciseFiles = async (courseJSON) => {
@@ -591,6 +644,7 @@ const downloadExerciseFiles = async (courseJSON) => {
 
 };
 
+let jsonCnt = 0
 
 // main-function
 $(() => {
@@ -604,6 +658,7 @@ $(() => {
 		const cmdPlaylist = e.which == 112 || e.which == 80; // p
 		const cmdExerciseFiles = e.which == 120 || e.which == 88; // x
 		const cmdTime = e.which == 116 || e.which == 84;
+		const cmdAppendSession = e.which == 96 || e.which == 65; // a append session.
 
 		if (cmdToggleEnabled) {
 
@@ -626,42 +681,43 @@ $(() => {
 			CURRENT_SLEEP?.abort();
 			return;
 		}
+		if (cmdAppendSession) {
 
-		if
-			(
-			cmdExerciseFiles
+		}
+		if (cmdExerciseFiles
 			|| cmdPlaylist
 			|| cmdDownloadAll
 			|| cmdDownloadFromNowOn
 			|| cmdTime
-		) 
-      {
+			|| cmdAppendSession
+		) {
 			log('Downloading course ' + (cmdDownloadAll ? 'from the beginning' : 'from now on') + ' ...')
 			log('Fetching course information...')
-
-			CONTINUE_DOWNLOAD = true;
-			DOWNLOADING = true;
-
 
 			const courseJSON = JSON
 				.parse($(window.__NEXT_DATA__).text())
 				.props
 				.pageProps
 				.tableOfContents;
+			if (cmdAppendSession) {
+				// if(!CONTINUE_DOWNLOAD)
+				// 	return
 
-			if (cmdPlaylist) {
-				await downloadPlaylist(courseJSON);
-				return;
-			}
+				log('Append course')
+				let sessions = []
+			    //let appended = await readAppendSession()
+				chrome.storage.local.get('appendSession', (data) =>{
+					if(data.appendSession)
+						sessions.push.apply(sessions, data.appendSession)
 
-			if (cmdExerciseFiles) {
-				await downloadExerciseFiles(courseJSON);
-				return;
-			}
-
-			if (cmdTime) {
-				await printTimeStats(courseJSON, getCurrentVideoId());
-				return;
+					courseJSON.id = jsonCnt++
+					sessions.push(courseJSON)
+					// let newAppend = data.appendSession
+					// newAppend.push(courseJSON)
+					chrome.storage.local.set({ appendSession: sessions }, undefined)
+				})
+				
+				return
 			}
 
 			if (cmdDownloadAll || cmdDownloadFromNowOn) {
@@ -669,16 +725,33 @@ $(() => {
 				log('Fetching course information...')
 
 				CONTINUE_DOWNLOAD = true;
-				DOWNLOADING = true;
 				let startingVideoId = cmdDownloadFromNowOn ? getCurrentVideoId() : null;
 				if (!cmdDownloadFromNowOn) {
 					await downloadPlaylist(courseJSON);
-					await downloadExerciseFiles(courseJSON);
+					// you can skip the waiting for exercise download to complete
+					CURRENT_SLEEP = downloadExerciseFiles(courseJSON);
+					await CURRENT_SLEEP
 				}
 
 				await downloadCourse(courseJSON, startingVideoId);
 			}
+			else {
+				if (cmdPlaylist) {
+					await downloadPlaylist(courseJSON);
+					return;
+				}
 
+				if (cmdExerciseFiles) {
+					CURRENT_SLEEP = downloadExerciseFiles(courseJSON);
+					await CURRENT_SLEEP
+					return;
+				}
+
+				if (cmdTime) {
+					await printTimeStats(courseJSON, getCurrentVideoId());
+					return;
+				}
+			}
 		}
 	});
 });
