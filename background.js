@@ -34,7 +34,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         });
       }
     } catch (err) {
-      alert('Error: ' + err.message);
+      throw 'Exception at download url'
+      //alert('Error: ' + err.message);
     }
   }
   else if (request.action === 'badge')

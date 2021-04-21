@@ -26,6 +26,7 @@ let EXTENSION_ENABLED = false
 let CONTINUE_DOWNLOAD = false
 
 let CURRENT_SLEEP = null;
+let CURRENT_INTERVAL = null;
 
 // =================================================================
 // END:VARIABLES
@@ -56,6 +57,45 @@ const sleep = (millis, throwOnAborted = false) => {
 		rejector('aborted');
 	};
 	return prom;
+}
+
+const updateWaitStats = (timeStat) =>{
+	try{
+		return asyncInterval(writeTimeStat, timeStat)
+	}
+	catch(e)
+	{
+
+	}
+}
+
+const writeTimeStat = (msStat) =>{
+	let toSec = new Date(msStat).toISOString().slice(14, -5);
+	chrome.runtime.sendMessage({Status: `Waiting... ${toSec}`});
+}
+
+const asyncInterval = (callback, msClear, msInterval = 1000) => {
+	let rejector;
+	let interval
+	const prom = new Promise((resolove, reject) =>{
+		rejector = (_) => resolove()
+		interval = setInterval(()=>{
+			if(msClear > 0)
+				callback(msClear)
+			else
+			{
+				rejector()
+				clearInterval(interval)
+			}
+			msClear -= msInterval
+		}, msInterval)
+	});
+
+	prom.abort = () => {
+		clearInterval(interval);
+		rejector()
+	}
+	return prom
 }
 
 
@@ -480,16 +520,12 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 				try {
 					const subsURL = await getSubtitleURL(videoId, versionId);
 					await downloadSubs(subsURL, filePath_subs);
-
+				
+					//Index to descriminate subs or video
 					exceptionId = 1
-
-					// force exception for validation 
-					// supposed to download video clip in retry section..
-					//throw 'testException'
-
+					
 					const videoURL = await getVideoURL(videoId)
 					downloadVideo(videoURL, filePath)
-					
 				}
 				catch (error) {
 					to_download_again.push({
@@ -522,14 +558,19 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 				let maxDuration = await readMaxDuration();
 				// Sleep for minimum duration btw the time with percent and the max duration time
 				if (maxDuration != 0) {
+
+					CURRENT_INTERVAL = updateWaitStats(Math.min(duration * 10 * speed, maxDuration * 1000))
 					CURRENT_SLEEP = sleep(Math.min(duration * 10 * speed, maxDuration * 1000));
-					await CURRENT_SLEEP;
+					await CURRENT_SLEEP
+					CURRENT_INTERVAL.abort()
 				}
 				else
 				// Sleep for duration based on a constant updated by speedPercent from extesion browser
 				{
+					CURRENT_INTERVAL = updateWaitStats(Math.max(duration * 10 * speed, DOWNLOAD_TIMEOUT))
 					CURRENT_SLEEP = sleep(Math.max(duration * 10 * speed, DOWNLOAD_TIMEOUT));
-					await CURRENT_SLEEP;
+					await CURRENT_SLEEP
+					CURRENT_INTERVAL.abort()
 				}
 			}
 		}
@@ -543,15 +584,16 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 			if (fileInfo.expId === 0) {
 				const subsURL = await getSubtitleURL(fileInfo.videoId, fileInfo.verId);
 				await downloadSubs(subsURL, fileInfo.filePath_subs);
+				
 			}
 			const videoURL = await getVideoURL(fileInfo.videoId);
-			downloadVideo(videoURL, fileInfo.filePath);
+			downloadVideo(videoURL, fileInfo.filePath);	
 
 			let speed = await readSpeed();
+			CURRENT_INTERVAL = updateWaitStats(Math.max(fileInfo.duration * 10 * speed, DOWNLOAD_TIMEOUT))
 			CURRENT_SLEEP = sleep(Math.max(fileInfo.duration * 10 * speed, DOWNLOAD_TIMEOUT));
 			await CURRENT_SLEEP;
-
-			
+			CURRENT_INTERVAL.abort()
 		}
 	}
 	catch (error) {
@@ -602,6 +644,10 @@ chrome.runtime.onMessage.addListener(message => {
 			e.which = 86; // Character 'a'
 		}
 		else if (message.btnCmd.cmd === 'DwnAppend') {
+			// must be in downlonding state in advance
+			if (!CONTINUE_DOWNLOAD)
+				return;
+
 			e.which = 96; // Character 'a'
 		}
 		else if (message.btnCmd.cmd === 'Skip') 
@@ -682,9 +728,6 @@ $(() => {
 			CURRENT_SLEEP?.abort();
 			return;
 		}
-		if (cmdAppendSession) {
-
-		}
 		if (cmdExerciseFiles
 			|| cmdPlaylist
 			|| cmdDownloadAll
@@ -701,8 +744,9 @@ $(() => {
 				.pageProps
 				.tableOfContents;
 			if (cmdAppendSession) {
-				// if(!CONTINUE_DOWNLOAD)
-				// 	return
+				// must be in downlonding state in advance
+				if(!CONTINUE_DOWNLOAD)
+					return
 
 				log('Append course')
 				let sessions = []
@@ -713,11 +757,8 @@ $(() => {
 
 					courseJSON.id = jsonCnt++
 					sessions.push(courseJSON)
-					// let newAppend = data.appendSession
-					// newAppend.push(courseJSON)
 					chrome.storage.local.set({ appendSession: sessions })
 				})
-				
 				return
 			}
 
@@ -728,7 +769,9 @@ $(() => {
 				CONTINUE_DOWNLOAD = true;
 				let startingVideoId = cmdDownloadFromNowOn ? getCurrentVideoId() : null;
 				if (!cmdDownloadFromNowOn) {
+					chrome.runtime.sendMessage({Status: "Downloading..."});
 					await downloadPlaylist(courseJSON);
+
 					// you can skip the waiting for exercise download to complete
 					CURRENT_SLEEP = downloadExerciseFiles(courseJSON);
 					await CURRENT_SLEEP
@@ -738,11 +781,13 @@ $(() => {
 			}
 			else {
 				if (cmdPlaylist) {
+					chrome.runtime.sendMessage({Status: "Downloading..."});
 					await downloadPlaylist(courseJSON);
 					return;
 				}
 
 				if (cmdExerciseFiles) {
+					chrome.runtime.sendMessage({Status: "Downloading..."});
 					CURRENT_SLEEP = downloadExerciseFiles(courseJSON);
 					await CURRENT_SLEEP
 					return;
