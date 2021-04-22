@@ -116,7 +116,7 @@ const readSpeed = () => readSharedValue('speedPercent');
 
 const readMaxDuration = () => readSharedValue('maxDuration');
 
-const readAppendSession = () => readSharedValue('appendSession');
+const readAddedCourses = () => readSharedValue('addedCourses');
 
 const log = (message, type = "STATUS") =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`);
@@ -294,7 +294,7 @@ const getCourseStats = async (courseJSON, startingVideoId) => {
 			modules: sections,
 		} = courseJSON;
 
-		const authorName = authors[0].displayName != undefined ? authors[0].displayName : authors[0].authorHandle;
+		let authorName = authors[0].displayName != undefined ? authors[0].displayName : authors[0].authorHandle;
 		if (authorName == undefined)
 			authorName = "noName";
 
@@ -370,7 +370,7 @@ const downloadPlaylist = async (courseJSON) => {
 
 		let playlistLines = [];
 
-		const authorName = authors[0].displayName != undefined ? authors[0].displayName : authors[0].authorHandle;
+		let authorName = authors[0].displayName != undefined ? authors[0].displayName : authors[0].authorHandle;
 		if (authorName == undefined)
 			authorName = "noName";
 
@@ -421,6 +421,7 @@ const downloadPlaylistText = async (playlistText, path) => {
 		type: 'audio/x-mpegurl'
 	});
 
+	
 	var url = window.URL.createObjectURL(playlistBlob);
 	await downloadFile(url, path);
 }
@@ -445,7 +446,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 			modules: sections,
 		} = courseJSON;
 
-		const authorName = authors[0].displayName != undefined ? authors[0].displayName : authors[0].authorHandle;
+		let authorName = authors[0].displayName != undefined ? authors[0].displayName : authors[0].authorHandle;
 		if (authorName == undefined)
 			authorName = "noName";
 
@@ -609,7 +610,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 			chrome.runtime.sendMessage({Status: "Cancelled"});
 	
 		log('Downloading finished!!!')
-		confirm("Downloading finished");
+		//confirm("Downloading finished");
 	
 		video_to_download = []
 		chrome.runtime.sendMessage({action:'badge', text:``})
@@ -643,10 +644,10 @@ chrome.runtime.onMessage.addListener(message => {
 			EXTENSION_ENABLED = true;
 			e.which = 86; // Character 'a'
 		}
-		else if (message.btnCmd.cmd === 'DwnAppend') {
+		else if (message.btnCmd.cmd === 'AddCourse') {
 			// must be in downlonding state in advance
-			if (!CONTINUE_DOWNLOAD)
-				return;
+			// if (!CONTINUE_DOWNLOAD)
+			// 	return;
 
 			e.which = 96; // Character 'a'
 		}
@@ -675,7 +676,7 @@ const downloadExerciseFiles = async (courseJSON) => {
 			modules: sections,
 		} = courseJSON;
 
-		const authorName = authors[0].displayName != undefined ? authors[0].displayName : authors[0].authorHandle;
+		let authorName = authors[0].displayName != undefined ? authors[0].displayName : authors[0].authorHandle;
 		if (authorName == undefined)
 			authorName = "noName";
 
@@ -705,7 +706,7 @@ $(() => {
 		const cmdPlaylist = e.which == 112 || e.which == 80; // p
 		const cmdExerciseFiles = e.which == 120 || e.which == 88; // x
 		const cmdTime = e.which == 116 || e.which == 84;
-		const cmdAppendSession = e.which == 96 || e.which == 65; // a append session.
+		const cmdAddCourse = e.which == 96 || e.which == 65; // add course
 
 		if (cmdToggleEnabled) {
 
@@ -733,7 +734,7 @@ $(() => {
 			|| cmdDownloadAll
 			|| cmdDownloadFromNowOn
 			|| cmdTime
-			|| cmdAppendSession
+			|| cmdAddCourse
 		) {
 			log('Downloading course ' + (cmdDownloadAll ? 'from the beginning' : 'from now on') + ' ...')
 			log('Fetching course information...')
@@ -743,22 +744,25 @@ $(() => {
 				.props
 				.pageProps
 				.tableOfContents;
-			if (cmdAppendSession) {
+			if (cmdAddCourse) {
 				// must be in downlonding state in advance
-				if(!CONTINUE_DOWNLOAD)
-					return
+				// if(!CONTINUE_DOWNLOAD)
+				// 	return
 
-				log('Append course')
+				log('Add Course')
 				let sessions = []
-			    //let appended = await readAppendSession()
-				chrome.storage.local.get('appendSession', (data) =>{
-					if(data.appendSession)
-						sessions.push.apply(sessions, data.appendSession)
+				chrome.storage.local.get('addedCourses', (data) =>{
+					if(data.addedCourses)
+						sessions.push.apply(sessions, data.addedCourses)
 
-					courseJSON.id = jsonCnt++
+					courseJSON.startingVideoId = null
 					sessions.push(courseJSON)
-					chrome.storage.local.set({ appendSession: sessions })
+					chrome.storage.local.set({ addedCourses: sessions })
 				})
+
+				let courses = await new Promise((resolve, _) => 
+				chrome.storage.local.get('addedCourses', data => data == null ? resolve() : resolve(data['addedCourses'])));
+
 				return
 			}
 
@@ -778,6 +782,30 @@ $(() => {
 				}
 
 				await downloadCourse(courseJSON, startingVideoId);
+
+				while(true)
+				{
+					let nextCourse = await new Promise((resolve, _) => chrome.storage.local.get('addedCourses', data => {
+						if(!data)
+						 	resolve() 
+						else{
+							let courses = data['addedCourses']
+							let dwnCourse = courses.shift()
+							chrome.storage.local.set({ addedCourses: courses })
+						 	resolve(dwnCourse)
+						}
+					}));
+					if(!nextCourse)
+						break;
+
+
+					log(`Download course : ${nextCourse.title}`)
+
+					CONTINUE_DOWNLOAD = true;
+					await downloadCourse(nextCourse, null);
+					
+				}
+
 			}
 			else {
 				if (cmdPlaylist) {

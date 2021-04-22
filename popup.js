@@ -20,7 +20,7 @@ let btnSkip = document.getElementById('btnSkip');
 let btnStop = document.getElementById('btnStop');
 let btnDwnAll = document.getElementById('btnDwnAll');
 let btnDwnCur = document.getElementById('btnDwnCur');
-let btnDwnAppend = document.getElementById('btnDwnAppend');
+let btnAddCourse = document.getElementById('btnAddCourse');
 
 
 chrome.storage.sync.get('Status', function (data) {
@@ -104,12 +104,12 @@ btnDwnCur.onclick = function () {
     });
 }
 
-btnDwnAppend.onclick = function () {
+btnAddCourse.onclick = function () {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
   chrome.tabs.sendMessage(tabs[0].id,
       {
         btnCmd: {
-          cmd: 'DwnAppend',
+          cmd: 'AddCourse',
           state: true
         }
       });
