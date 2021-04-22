@@ -34,8 +34,14 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         });
       }
     } catch (err) {
-      alert('Error: ' + err.message);
+      throw 'Exception at download url'
+      //alert('Error: ' + err.message);
     }
+  }
+  else if (request.action === 'badge')
+  {
+    chrome.browserAction.setBadgeBackgroundColor({ color: [122, 186, 122, 255] });
+		chrome.browserAction.setBadgeText({text: `${request.text}`})
   }
 });
 
@@ -50,9 +56,10 @@ chrome.downloads.onDeterminingFilename.addListener(function (item, suggest) {
 
 chrome.runtime.onInstalled.addListener(function() {
 
+  chrome.storage.sync.set({Status: 'Ready'}, undefined);
   chrome.storage.sync.set({speedPercent: '80'}, undefined);
-	chrome.storage.sync.set({Completion_Module: `${0}/${0}`}, undefined);
-	chrome.storage.sync.set({Completion_Video: `${0}/${0}`}, undefined);
+	chrome.storage.sync.set({Completion_Module: [0,0]}, undefined);
+	chrome.storage.sync.set({Completion_Video: [0,0]}, undefined);
   chrome.storage.sync.set({maxDuration: '0'}, undefined);
   chrome.storage.sync.set({btnStop: false}, undefined);
   chrome.storage.sync.set({btnSkip: false}, undefined);
