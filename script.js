@@ -826,8 +826,11 @@ $(() => {
 					log(`Download course : ${nextCourse.title}`)
 
 					CONTINUE_DOWNLOAD = true;
+					await downloadPlaylist(courseJSON);
+					// you can skip the waiting for exercise download to complete
+					CURRENT_SLEEP = downloadExerciseFiles(courseJSON);
+					await CURRENT_SLEEP
 					await downloadCourse(nextCourse, null);
-					
 				}
 
 			}
