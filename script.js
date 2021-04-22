@@ -459,6 +459,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 		let to_download_again = []
 		await getCourseStats(courseJSON, startingVideoId)
 
+
 		for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
 			const {
 				id: sectionId,
@@ -470,6 +471,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 			for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
 				if (!CONTINUE_DOWNLOAD) {
+
 					log('Downloading stopped!!!')
 					return
 				}
@@ -537,6 +539,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 						filePath_subs: filePath_subs,
 						duration: duration
 					})
+
 					continue
 				}
 
@@ -572,7 +575,26 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					CURRENT_SLEEP = sleep(Math.max(duration * 10 * speed, DOWNLOAD_TIMEOUT));
 					await CURRENT_SLEEP
 					CURRENT_INTERVAL.abort()
+
 				}
+			}
+
+			chrome.storage.sync.set({ Status: "Retry..." }, undefined);
+			for (let i = to_download_again.length - 1; i >= 0; i--)
+			{
+				let fileInfo = to_download_again.shift()
+				if(fileInfo.expId === 0)
+				{
+					const subsURL = await getSubtitleURL(fileInfo.videoId, fileInfo.verId);
+					await downloadSubs(subsURL, fileInfo.filePath_subs);
+				}
+				const videoURL = await getVideoURL(fileInfo.videoId);
+				downloadVideo(videoURL, fileInfo.filePath);	
+
+				let speed = await readSpeed();
+				CURRENT_SLEEP = sleep(Math.max(fileInfo.duration * 10 * speed, DOWNLOAD_TIMEOUT));
+				await CURRENT_SLEEP;
+
 			}
 		}
 
@@ -628,6 +650,7 @@ chrome.runtime.onMessage.addListener(message => {
 		var e = $.Event('keypress');
 		EXTENSION_ENABLED = true
 
+
 		if (message.btnCmd.cmd === 'DwnAll') 
 		{
 			if (CONTINUE_DOWNLOAD)
@@ -638,6 +661,7 @@ chrome.runtime.onMessage.addListener(message => {
 		}
 		else if (message.btnCmd.cmd === 'DwnCur') 
 		{
+
 			if (CONTINUE_DOWNLOAD)
 				return;
 
@@ -744,6 +768,7 @@ $(() => {
 				.props
 				.pageProps
 				.tableOfContents;
+      
 			if (cmdAddCourse) {
 				// must be in downlonding state in advance
 				// if(!CONTINUE_DOWNLOAD)
@@ -775,7 +800,6 @@ $(() => {
 				if (!cmdDownloadFromNowOn) {
 					chrome.runtime.sendMessage({Status: "Downloading..."});
 					await downloadPlaylist(courseJSON);
-
 					// you can skip the waiting for exercise download to complete
 					CURRENT_SLEEP = downloadExerciseFiles(courseJSON);
 					await CURRENT_SLEEP
@@ -816,11 +840,11 @@ $(() => {
 
 				if (cmdExerciseFiles) {
 					chrome.runtime.sendMessage({Status: "Downloading..."});
+
 					CURRENT_SLEEP = downloadExerciseFiles(courseJSON);
 					await CURRENT_SLEEP
 					return;
 				}
-
 				if (cmdTime) {
 					await printTimeStats(courseJSON, getCurrentVideoId());
 					return;
