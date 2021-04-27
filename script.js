@@ -116,7 +116,7 @@ const readSpeed = () => readSharedValue('speedPercent');
 
 const readMaxDuration = () => readSharedValue('maxDuration');
 
-const readAddedCourses = () => readSharedValue('addedCourses');
+const readAddedCourses = () => readSharedValue('AddedCourses');
 
 const log = (message, type = "STATUS") =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`);
@@ -474,6 +474,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 		let to_download_again = []
 		await getCourseStats(courseJSON, startingVideoId)
 
+		chrome.runtime.sendMessage({CourseTitle: courseName});
 
 		for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
 			const {
@@ -734,8 +735,6 @@ $(() => {
 		const cmdAddCourse = e.which == 96 || e.which == 65; // add course
 
 		if (cmdToggleEnabled) {
-
-			// KEYPRESS `CTRL-e`
 			// Enable/Disabled extension bindings
 			!EXTENSION_ENABLED ? log('Enabled the extension bindings.') : log('Disabled the extension bindings.')
 			EXTENSION_ENABLED = !EXTENSION_ENABLED
@@ -752,6 +751,14 @@ $(() => {
 			log('Stopping the download process...')
 			CONTINUE_DOWNLOAD = false;
 			CURRENT_SLEEP?.abort();
+
+			chrome.runtime.sendMessage({
+				CourseTitle: "",
+				Completion_Module: [0, 0],
+				Completion_Video: [0, 0],
+				Status: "Ready...",
+			});
+
 			return;
 		}
 		if (cmdExerciseFiles
@@ -771,24 +778,18 @@ $(() => {
 				.tableOfContents;
       
 			if (cmdAddCourse) {
-				// must be in downlonding state in advance
-				// if(!CONTINUE_DOWNLOAD)
-				// 	return
-
 				log('Add Course')
-				let sessions = []
+				let addedCourses = []
 				chrome.storage.local.get('addedCourses', (data) =>{
 					if(data.addedCourses)
-						sessions.push.apply(sessions, data.addedCourses)
+						addedCourses.push.apply(addedCourses, data.addedCourses)
 
 					courseJSON.startingVideoId = null
-					sessions.push(courseJSON)
-					chrome.storage.local.set({ addedCourses: sessions })
+					addedCourses.push(courseJSON)
+					chrome.storage.local.set({ addedCourses: addedCourses })
+
+					chrome.runtime.sendMessage({AddedCourseCount: addedCourses.length});
 				})
-
-				let courses = await new Promise((resolve, _) => 
-				chrome.storage.local.get('addedCourses', data => data == null ? resolve() : resolve(data['addedCourses'])));
-
 				return
 			}
 
@@ -817,13 +818,17 @@ $(() => {
 							let courses = data['addedCourses']
 							let dwnCourse = courses.shift()
 							chrome.storage.local.set({ addedCourses: courses })
+							
+							chrome.runtime.sendMessage({AddedCourseCount: courses.length});
 						 	resolve(dwnCourse)
 						}
 					}));
 					if(!nextCourse)
+					{
+						chrome.runtime.sendMessage({AddedCourseCount: 0});
 						break;
-
-
+					}
+						
 					log(`Download course : ${nextCourse.title}`)
 
 					CONTINUE_DOWNLOAD = true;

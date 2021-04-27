@@ -57,6 +57,7 @@ chrome.downloads.onDeterminingFilename.addListener(function (item, suggest) {
 chrome.runtime.onInstalled.addListener(function() {
 
   chrome.storage.sync.set({Status: 'Ready'}, undefined);
+  chrome.storage.sync.set({CourseTitle: ''}, undefined);
   chrome.storage.sync.set({speedPercent: '80'}, undefined);
 	chrome.storage.sync.set({Completion_Module: [0,0]}, undefined);
 	chrome.storage.sync.set({Completion_Video: [0,0]}, undefined);
@@ -65,6 +66,7 @@ chrome.runtime.onInstalled.addListener(function() {
   chrome.storage.sync.set({btnSkip: false}, undefined);
   chrome.storage.sync.set({btnDwnAll: false}, undefined);
   chrome.storage.sync.set({btnDwnCur: false}, undefined);
+  chrome.storage.sync.set({AddedCourseCount: '0'}, undefined);
 
   chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
     chrome.declarativeContent.onPageChanged.addRules(
