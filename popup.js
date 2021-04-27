@@ -10,8 +10,10 @@ let speedLabel = document.getElementById('label_slider');
 
 let statusLabel = document.getElementById('label_Status');
 
+let titleLabel = document.getElementById('label_Title');
 let cpltModuleLabel = document.getElementById('label_Module');
 let cpltVideoLabel = document.getElementById('label_Video');
+let addedCourseCntLabel = document.getElementById('label_AddedCourseCnt');
 
 let maxDuration = document.getElementById('MaxDuration');
 let btnApply = document.getElementById('btnApply');
@@ -23,8 +25,15 @@ let btnDwnCur = document.getElementById('btnDwnCur');
 let btnAddCourse = document.getElementById('btnAddCourse');
 
 
+
+
 chrome.storage.sync.get('Status', function (data) {
   statusLabel.innerHTML = `Status: ${data.Status}`;
+});
+
+chrome.storage.sync.get('CourseTitle', function (data) {
+  titleLabel.innerHTML = `Title: ${data.CourseTitle}`;
+  //cpltModuleLabel.innerHTML = `Complete(Module): ${data.Completion_Module}`;
 });
 
 chrome.storage.sync.get('Completion_Module', function (data) {
@@ -44,6 +53,10 @@ chrome.storage.sync.get('speedPercent', function (data) {
 
 chrome.storage.sync.get('maxDuration', function (data) {
   maxDuration.value = data.maxDuration;
+});
+
+chrome.storage.sync.get('AddedCourseCount', function (data) {
+  addedCourseCntLabel.innerHTML = `Added Courses: ${data.AddedCourseCount}`;
 });
 
 
@@ -126,6 +139,12 @@ chrome.runtime.onMessage.addListener(message => {
       statusLabel.innerHTML = `Status: ${message.Status}`
       chrome.storage.sync.set({Status: `${message.Status}`}, undefined);
     }
+    
+  if (message.CourseTitle)
+  {
+    titleLabel.innerHTML = `Title: ${message.CourseTitle}`;
+    chrome.storage.sync.set({CourseTitle: message.CourseTitle}, undefined);
+  }
 
   if (message.Completion_Module)
   {
@@ -138,4 +157,11 @@ chrome.runtime.onMessage.addListener(message => {
     cpltVideoLabel.innerHTML = `Complete(Video): ${message.Completion_Video[0]}/${message.Completion_Video[1]}`;
     chrome.storage.sync.set({Completion_Video: message.Completion_Video}, undefined);
   }
+
+  if (message.AddedCourseCount >= 0)
+  {
+    addedCourseCntLabel.innerHTML = `Added Courses: ${message.AddedCourseCount}`;
+    chrome.storage.sync.set({AddedCourseCount: message.AddedCourseCount}, undefined);
+  }
+
 })
