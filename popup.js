@@ -20,61 +20,122 @@ let btnSkip = document.getElementById('btnSkip');
 let btnStop = document.getElementById('btnStop');
 let btnDwnAll = document.getElementById('btnDwnAll');
 let btnDwnCur = document.getElementById('btnDwnCur');
+let btnAddCourse = document.getElementById('btnAddCourse');
 
-chrome.storage.sync.get('Status', function(data) {
+
+chrome.storage.sync.get('Status', function (data) {
   statusLabel.innerHTML = `Status: ${data.Status}`;
 });
 
-chrome.storage.sync.get('Completion_Module', function(data) {
-  cpltModuleLabel.innerHTML = `Complete(Module): ${data.Completion_Module}`;
+chrome.storage.sync.get('Completion_Module', function (data) {
+  cpltModuleLabel.innerHTML = `Complete(Module): ${data.Completion_Module[0]}/${data.Completion_Module[1]}`;
+  //cpltModuleLabel.innerHTML = `Complete(Module): ${data.Completion_Module}`;
 });
 
-chrome.storage.sync.get('Completion_Video', function(data) {
-  cpltVideoLabel.innerHTML = `Complete(Video): ${data.Completion_Video}`;
+chrome.storage.sync.get('Completion_Video', function (data) {
+  cpltVideoLabel.innerHTML = `Complete(Video): ${data.Completion_Video[0]}/${data.Completion_Video[1]}`;
+  //cpltVideoLabel.innerHTML = `Complete(Video): ${data.Completion_Video}`;
 });
 
-chrome.storage.sync.get('speedPercent', function(data) {
+chrome.storage.sync.get('speedPercent', function (data) {
   speedPercent.value = data.speedPercent;
   speedLabel.innerHTML = `Duration(0-100%): ${speedPercent.value}`;
 });
 
-chrome.storage.sync.get('maxDuration', function(data) {
+chrome.storage.sync.get('maxDuration', function (data) {
   maxDuration.value = data.maxDuration;
- });
+});
 
 
-speedPercent.onchange = function(element){
-  chrome.storage.sync.set({speedPercent: speedPercent.value}, undefined);
+speedPercent.onchange = function (element) {
+  chrome.storage.sync.set({ speedPercent: speedPercent.value }, undefined);
   speedLabel.innerHTML = `Duration(0-100%): ${speedPercent.value}`;
 }
 
-btnApply.onclick = function(){
-  chrome.storage.sync.set({maxDuration: maxDuration.value}, undefined);
+btnApply.onclick = function () {
+  chrome.storage.sync.set({ maxDuration: maxDuration.value }, undefined);
 }
 
-let toggleSkip = false;
-btnSkip.onclick = function(){
-  toggleSkip = !toggleSkip;
-  chrome.storage.sync.set({btnSkip: toggleSkip}, undefined);
+btnSkip.onclick = function () {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    chrome.tabs.sendMessage(tabs[0].id,
+        {
+          btnCmd: {
+            cmd: 'Skip',
+            state: true
+          }
+        });
+    });
 }
 
-var toggleStop = false;
-btnStop.onclick = function(){
-  toggleStop = !toggleStop;
-  chrome.storage.sync.set({btnStop: toggleStop}, undefined);
+btnStop.onclick = function () {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    chrome.tabs.sendMessage(tabs[0].id,
+        {
+          btnCmd: {
+            cmd: 'Stop',
+            state: true
+          }
+        });
+    });
 }
 
-var toggleDwnAll = false;
-btnDwnAll.onclick = function(){
-  toggleDwnAll = !toggleDwnAll;
-  chrome.storage.sync.set({btnDwnAll: toggleDwnAll}, undefined);
+btnDwnAll.onclick = function () {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    chrome.tabs.sendMessage(tabs[0].id,
+        {
+          btnCmd: {
+            cmd: 'DwnAll',
+            state: true
+          }
+        });
+    });
 }
 
-var toggleDwnCur = false;
-btnDwnCur.onclick = function(){
-  toggleDwnCur = !toggleDwnCur;
-  chrome.storage.sync.set({btnDwnCur: toggleDwnCur}, undefined);
+btnDwnCur.onclick = function () {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    chrome.tabs.sendMessage(tabs[0].id,
+        {
+          btnCmd: {
+            cmd: 'DwnCur',
+            state: true
+          }
+        });
+    });
 }
 
+btnAddCourse.onclick = function () {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+  chrome.tabs.sendMessage(tabs[0].id,
+      {
+        btnCmd: {
+          cmd: 'AddCourse',
+          state: true
+        }
+      });
+  });
+}
 
+chrome.runtime.onMessage.addListener(message => {
+  if (typeof message !== 'object') {
+    return false
+  }
 
+  if (message.Status)
+    {
+      statusLabel.innerHTML = `Status: ${message.Status}`
+      chrome.storage.sync.set({Status: `${message.Status}`}, undefined);
+    }
+
+  if (message.Completion_Module)
+  {
+    cpltModuleLabel.innerHTML = `Complete(Module): ${message.Completion_Module[0]}/${message.Completion_Module[1]}`;
+    chrome.storage.sync.set({Completion_Module: message.Completion_Module}, undefined);
+  }  
+
+  if (message.Completion_Video)
+  {
+    cpltVideoLabel.innerHTML = `Complete(Video): ${message.Completion_Video[0]}/${message.Completion_Video[1]}`;
+    chrome.storage.sync.set({Completion_Video: message.Completion_Video}, undefined);
+  }
+})
