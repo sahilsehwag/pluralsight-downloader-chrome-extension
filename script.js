@@ -137,11 +137,24 @@ const getCurrentVideoId = () => {
 
 
 
-const getDirectoryName = (sectionIndex, sectionName) =>
-	removeInvalidCharacters(`${sectionIndex + 1}${DELIMINATOR} ${sectionName}`);
+const getDirectoryName = (sectionIndex, sectionName, bPadding = false) =>{
+	let padIndex = `${sectionIndex + 1}`
+	if(bPadding)
+	{
+		padIndex = padIndex.padStart(2,'0')
+	}
+	return removeInvalidCharacters(`${padIndex}${DELIMINATOR} ${sectionName}`);
+}
+	
 
-const getFileName = (videoIndex, videoName) =>
-	removeInvalidCharacters(`${videoIndex + 1}${DELIMINATOR} ${videoName}`);
+const getFileName = (videoIndex, videoName, bPadding = false) =>{
+	let padIndex = `${videoIndex + 1}`
+	if(bPadding)
+	{
+		padIndex = padIndex.padStart(2,'0')
+	}
+	return removeInvalidCharacters(`${padIndex}${DELIMINATOR} ${videoName}`);
+}
 
 
 const getVideoURL = async (videoId) => {
@@ -224,6 +237,7 @@ const getFilePath = (
 	videoIndex,
 	videoName,
 	extension,
+	addPadding,
 	forPlaylist = false
 ) => {
 	try {
@@ -233,8 +247,8 @@ const getFilePath = (
 				`${courseName} By ${authorName}`.trim() :
 				`${courseName}`.trim()
 		)
-		const sectionDirectory = getDirectoryName(sectionIndex, sectionName);
-		const fileName = getFileName(videoIndex, videoName);
+		const sectionDirectory = getDirectoryName(sectionIndex, sectionName, addPadding);
+		const fileName = getFileName(videoIndex, videoName, addPadding);
 
 		let filePath = `${sectionDirectory}\\${fileName}.${extension}`;
 		if (!forPlaylist) {
@@ -398,6 +412,7 @@ const downloadPlaylist = async (courseJSON) => {
 					videoIndex,
 					removeInvalidCharacters(videoName),
 					`${EXTENSION}`,
+					sectionItems.length > 9 ,
 					true
 				);
 
@@ -503,7 +518,8 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					removeInvalidCharacters(sectionName),
 					videoIndex,
 					removeInvalidCharacters(videoName),
-					`${EXTENSION}`
+					`${EXTENSION}`,
+					sectionItems.length > 9
 				);
 
 				const filePath_subs = getFilePath(
@@ -513,7 +529,8 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					removeInvalidCharacters(sectionName),
 					videoIndex,
 					removeInvalidCharacters(videoName),
-					`${EXTENSION_SUBS}`
+					`${EXTENSION_SUBS}`,
+					sectionItems.length > 9
 				);
 
 				log(`Downloading... "${videoName}"`, 'DOWNLOAD')
