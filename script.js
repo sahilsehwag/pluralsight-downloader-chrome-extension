@@ -521,8 +521,11 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 				let exceptionId = 0
 				try {
-					const subsURL = await getSubtitleURL(videoId, versionId);
-					await downloadSubs(subsURL, filePath_subs);
+					if(versionId)
+					{
+						const subsURL = await getSubtitleURL(videoId, versionId);
+						await downloadSubs(subsURL, filePath_subs);
+					}
 				
 					//Index to descriminate subs or video
 					exceptionId = 1
@@ -578,24 +581,6 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 				}
 			}
-
-			chrome.storage.sync.set({ Status: "Retry..." }, undefined);
-			for (let i = to_download_again.length - 1; i >= 0; i--)
-			{
-				let fileInfo = to_download_again.shift()
-				if(fileInfo.expId === 0)
-				{
-					const subsURL = await getSubtitleURL(fileInfo.videoId, fileInfo.verId);
-					await downloadSubs(subsURL, fileInfo.filePath_subs);
-				}
-				const videoURL = await getVideoURL(fileInfo.videoId);
-				downloadVideo(videoURL, fileInfo.filePath);	
-
-				let speed = await readSpeed();
-				CURRENT_SLEEP = sleep(Math.max(fileInfo.duration * 10 * speed, DOWNLOAD_TIMEOUT));
-				await CURRENT_SLEEP;
-
-			}
 		}
 
 		chrome.runtime.sendMessage({Status: "Retry..."});
@@ -607,7 +592,6 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 			if (fileInfo.expId === 0) {
 				const subsURL = await getSubtitleURL(fileInfo.videoId, fileInfo.verId);
 				await downloadSubs(subsURL, fileInfo.filePath_subs);
-				
 			}
 			const videoURL = await getVideoURL(fileInfo.videoId);
 			downloadVideo(videoURL, fileInfo.filePath);	
@@ -826,9 +810,9 @@ $(() => {
 					log(`Download course : ${nextCourse.title}`)
 
 					CONTINUE_DOWNLOAD = true;
-					await downloadPlaylist(courseJSON);
+					await downloadPlaylist(nextCourse);
 					// you can skip the waiting for exercise download to complete
-					CURRENT_SLEEP = downloadExerciseFiles(courseJSON);
+					CURRENT_SLEEP = downloadExerciseFiles(nextCourse);
 					await CURRENT_SLEEP
 					await downloadCourse(nextCourse, null);
 				}
