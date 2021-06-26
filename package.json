@@ -1,0 +1,24 @@
+{
+	"name": "pluralsight-downloader-chrome-extension",
+	"version": "1.0.0",
+	"description": "Chrome Extension to download Pluralsight courses (_**BETA**_).",
+	"main": "script.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"prettify": "sh ./scripts/prettify.sh"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension.git"
+	},
+	"keywords": [
+		"chrome-extension",
+		"pluralsight-downloader"
+	],
+	"author": "Sahil Sehwag",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension/issues"
+	},
+	"homepage": "https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension#readme"
+}
