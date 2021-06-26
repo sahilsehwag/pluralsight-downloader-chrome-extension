@@ -5,10 +5,10 @@
 const APPNAME = 'PluralsightCourseDownloader'
 const ROOT_DIRECTORY = 'PluralsightCourseDownloader'
 
-const INVALID_CHARACTERS = /[\/:?><]/g
+const INVALID_CHARACTERS = /[\/*?<>|']/g
 const DELIMINATOR = '.'
 const EXTENSION = 'mp4'
-const EXTENSION_SUBS = 'smi'
+const EXTENSION_SUBS = 'vtt'
 
 const qualities = ["1280x720", "1024x768"]
 const DEFAULT_QUALITY = qualities[0]
@@ -116,14 +116,34 @@ const readSpeed = () => readSharedValue('speedPercent');
 
 const readMaxDuration = () => readSharedValue('maxDuration');
 
-const readAddedCourses = () => readSharedValue('addedCourses');
+const readAddedCourses = () => readSharedValue('AddedCourses');
 
 const log = (message, type = "STATUS") =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`);
 
 
+const replaceQuotesWithSquareBrackets = name => {
+	let isFirstQuote = true;
+	let newName = '';
+	for (let i = 0; i < name.length; i++) {
+		switch (name[i]) {
+			case '"':
+				newName += isFirstQuote ? '[' : ']';
+				isFirstQuote = !isFirstQuote;
+				break;
+			default:
+				newName += name[i];
+		}
+	}
+	newName = newName.replace('“', '[');
+	newName = newName.replace('”', ']');
+	return newName;
+}
+
 const removeInvalidCharacters = name =>
-	name.replace(INVALID_CHARACTERS, " ")
+	replaceQuotesWithSquareBrackets(name)
+		.replace(INVALID_CHARACTERS, "")
+		.replace(':', ' -')
 		.trim();
 
 const getCurrentVideoId = () => {
@@ -137,11 +157,24 @@ const getCurrentVideoId = () => {
 
 
 
-const getDirectoryName = (sectionIndex, sectionName) =>
-	removeInvalidCharacters(`${sectionIndex + 1}${DELIMINATOR} ${sectionName}`);
+const getDirectoryName = (sectionIndex, sectionName, bPadding = false) =>{
+	let padIndex = `${sectionIndex + 1}`
+	if(bPadding)
+	{
+		padIndex = padIndex.padStart(2,'0')
+	}
+	return removeInvalidCharacters(`${padIndex}${DELIMINATOR} ${sectionName}`);
+}
+	
 
-const getFileName = (videoIndex, videoName) =>
-	removeInvalidCharacters(`${videoIndex + 1}${DELIMINATOR} ${videoName}`);
+const getFileName = (videoIndex, videoName, bPadding = false) =>{
+	let padIndex = `${videoIndex + 1}`
+	if(bPadding)
+	{
+		padIndex = padIndex.padStart(2,'0')
+	}
+	return removeInvalidCharacters(`${padIndex}${DELIMINATOR} ${videoName}`);
+}
 
 
 const getVideoURL = async (videoId) => {
@@ -224,6 +257,7 @@ const getFilePath = (
 	videoIndex,
 	videoName,
 	extension,
+	addPadding,
 	forPlaylist = false
 ) => {
 	try {
@@ -233,8 +267,8 @@ const getFilePath = (
 				`${courseName} By ${authorName}`.trim() :
 				`${courseName}`.trim()
 		)
-		const sectionDirectory = getDirectoryName(sectionIndex, sectionName);
-		const fileName = getFileName(videoIndex, videoName);
+		const sectionDirectory = getDirectoryName(sectionIndex, sectionName, addPadding);
+		const fileName = getFileName(videoIndex, videoName, addPadding);
 
 		let filePath = `${sectionDirectory}\\${fileName}.${extension}`;
 		if (!forPlaylist) {
@@ -398,6 +432,7 @@ const downloadPlaylist = async (courseJSON) => {
 					videoIndex,
 					removeInvalidCharacters(videoName),
 					`${EXTENSION}`,
+					sectionItems.length > 9 ,
 					true
 				);
 
@@ -459,6 +494,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 		let to_download_again = []
 		await getCourseStats(courseJSON, startingVideoId)
 
+		chrome.runtime.sendMessage({CourseTitle: courseName});
 
 		for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
 			const {
@@ -503,7 +539,8 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					removeInvalidCharacters(sectionName),
 					videoIndex,
 					removeInvalidCharacters(videoName),
-					`${EXTENSION}`
+					`${EXTENSION}`,
+					sectionItems.length > 9
 				);
 
 				const filePath_subs = getFilePath(
@@ -513,7 +550,8 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					removeInvalidCharacters(sectionName),
 					videoIndex,
 					removeInvalidCharacters(videoName),
-					`${EXTENSION_SUBS}`
+					`${EXTENSION_SUBS}`,
+					sectionItems.length > 9
 				);
 
 				log(`Downloading... "${videoName}"`, 'DOWNLOAD')
@@ -717,8 +755,6 @@ $(() => {
 		const cmdAddCourse = e.which == 96 || e.which == 65; // add course
 
 		if (cmdToggleEnabled) {
-
-			// KEYPRESS `CTRL-e`
 			// Enable/Disabled extension bindings
 			!EXTENSION_ENABLED ? log('Enabled the extension bindings.') : log('Disabled the extension bindings.')
 			EXTENSION_ENABLED = !EXTENSION_ENABLED
@@ -735,6 +771,14 @@ $(() => {
 			log('Stopping the download process...')
 			CONTINUE_DOWNLOAD = false;
 			CURRENT_SLEEP?.abort();
+
+			chrome.runtime.sendMessage({
+				CourseTitle: "",
+				Completion_Module: [0, 0],
+				Completion_Video: [0, 0],
+				Status: "Ready...",
+			});
+
 			return;
 		}
 		if (cmdExerciseFiles
@@ -754,24 +798,18 @@ $(() => {
 				.tableOfContents;
       
 			if (cmdAddCourse) {
-				// must be in downlonding state in advance
-				// if(!CONTINUE_DOWNLOAD)
-				// 	return
-
 				log('Add Course')
-				let sessions = []
+				let addedCourses = []
 				chrome.storage.local.get('addedCourses', (data) =>{
 					if(data.addedCourses)
-						sessions.push.apply(sessions, data.addedCourses)
+						addedCourses.push.apply(addedCourses, data.addedCourses)
 
 					courseJSON.startingVideoId = null
-					sessions.push(courseJSON)
-					chrome.storage.local.set({ addedCourses: sessions })
+					addedCourses.push(courseJSON)
+					chrome.storage.local.set({ addedCourses: addedCourses })
+
+					chrome.runtime.sendMessage({AddedCourseCount: addedCourses.length});
 				})
-
-				let courses = await new Promise((resolve, _) => 
-				chrome.storage.local.get('addedCourses', data => data == null ? resolve() : resolve(data['addedCourses'])));
-
 				return
 			}
 
@@ -800,13 +838,17 @@ $(() => {
 							let courses = data['addedCourses']
 							let dwnCourse = courses.shift()
 							chrome.storage.local.set({ addedCourses: courses })
+							
+							chrome.runtime.sendMessage({AddedCourseCount: courses.length});
 						 	resolve(dwnCourse)
 						}
 					}));
 					if(!nextCourse)
+					{
+						chrome.runtime.sendMessage({AddedCourseCount: 0});
 						break;
-
-
+					}
+						
 					log(`Download course : ${nextCourse.title}`)
 
 					CONTINUE_DOWNLOAD = true;
