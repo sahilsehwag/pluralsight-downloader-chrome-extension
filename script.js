@@ -5,10 +5,10 @@
 const APPNAME = 'PluralsightCourseDownloader'
 const ROOT_DIRECTORY = 'PluralsightCourseDownloader'
 
-const INVALID_CHARACTERS = /[\/:?><]/g
+const INVALID_CHARACTERS = /[\/*?<>|']/g
 const DELIMINATOR = '.'
 const EXTENSION = 'mp4'
-const EXTENSION_SUBS = 'smi'
+const EXTENSION_SUBS = 'vtt'
 
 const qualities = ["1280x720", "1024x768"]
 const DEFAULT_QUALITY = qualities[0]
@@ -122,8 +122,28 @@ const log = (message, type = "STATUS") =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`);
 
 
+const replaceQuotesWithSquareBrackets = name => {
+	let isFirstQuote = true;
+	let newName = '';
+	for (let i = 0; i < name.length; i++) {
+		switch (name[i]) {
+			case '"':
+				newName += isFirstQuote ? '[' : ']';
+				isFirstQuote = !isFirstQuote;
+				break;
+			default:
+				newName += name[i];
+		}
+	}
+	newName = newName.replace('“', '[');
+	newName = newName.replace('”', ']');
+	return newName;
+}
+
 const removeInvalidCharacters = name =>
-	name.replace(INVALID_CHARACTERS, " ")
+	replaceQuotesWithSquareBrackets(name)
+		.replace(INVALID_CHARACTERS, "")
+		.replace(':', ' -')
 		.trim();
 
 const getCurrentVideoId = () => {
