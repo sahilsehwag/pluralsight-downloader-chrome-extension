@@ -41,7 +41,7 @@ const sleep = (millis, throwOnAborted = false) => {
 	let timeout_id
 	let rejector
 	const prom = new Promise((resolve, reject) => {
-		rejector = throwOnAborted ? reject : (_) => resolve()
+		rejector = throwOnAborted ? reject : _ => resolve()
 
 		timeout_id = setTimeout(() => {
 			resolve()
@@ -54,13 +54,13 @@ const sleep = (millis, throwOnAborted = false) => {
 	return prom
 }
 
-const updateWaitStats = (timeStat) => {
+const updateWaitStats = timeStat => {
 	try {
 		return asyncInterval(writeTimeStat, timeStat)
 	} catch (e) {}
 }
 
-const writeTimeStat = (msStat) => {
+const writeTimeStat = msStat => {
 	let toSec = new Date(msStat).toISOString().slice(14, -5)
 	chrome.runtime.sendMessage({ Status: `Waiting... ${toSec}` })
 }
@@ -69,7 +69,7 @@ const asyncInterval = (callback, msClear, msInterval = 1000) => {
 	let rejector
 	let interval
 	const prom = new Promise((resolove, reject) => {
-		rejector = (_) => resolove()
+		rejector = _ => resolove()
 		interval = setInterval(() => {
 			if (msClear > 0) callback(msClear)
 			else {
@@ -95,14 +95,14 @@ const downloadFile = (link, filePath) => {
 				link: link,
 				filePath: filePath,
 			},
-			(response) => resolve(response),
+			response => resolve(response),
 		)
 	})
 }
 
-const readSharedValue = async (name) =>
+const readSharedValue = async name =>
 	new Promise((resolve, _) =>
-		chrome.storage.sync.get(name, (data) =>
+		chrome.storage.sync.get(name, data =>
 			data == null ? resolve() : resolve(data[name]),
 		),
 	)
@@ -116,7 +116,7 @@ const readAddedCourses = () => readSharedValue('AddedCourses')
 const log = (message, type = 'STATUS') =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`)
 
-const replaceQuotesWithSquareBrackets = (name) => {
+const replaceQuotesWithSquareBrackets = name => {
 	let isFirstQuote = true
 	let newName = ''
 	for (let i = 0; i < name.length; i++) {
@@ -134,7 +134,7 @@ const replaceQuotesWithSquareBrackets = (name) => {
 	return newName
 }
 
-const removeInvalidCharacters = (name) =>
+const removeInvalidCharacters = name =>
 	replaceQuotesWithSquareBrackets(name)
 		.replace(INVALID_CHARACTERS, '')
 		.replace(':', ' -')
@@ -165,7 +165,7 @@ const getFileName = (videoIndex, videoName, bPadding = false) => {
 	return removeInvalidCharacters(`${padIndex}${DELIMINATOR} ${videoName}`)
 }
 
-const getVideoURL = async (videoId) => {
+const getVideoURL = async videoId => {
 	try {
 		const response = await fetch(viewclipURL, {
 			method: 'POST',
@@ -367,7 +367,7 @@ const getCourseStats = async (courseJSON, startingVideoId) => {
 	return { timeFromNow, timeTotal, timeDownloading }
 }
 
-const downloadPlaylist = async (courseJSON) => {
+const downloadPlaylist = async courseJSON => {
 	try {
 		const {
 			id: courseId,
@@ -649,7 +649,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 	}
 }
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener(message => {
 	if (typeof message !== 'object') {
 		return false
 	}
@@ -686,7 +686,7 @@ chrome.runtime.onMessage.addListener((message) => {
 	}
 })
 
-const downloadExerciseFiles = async (courseJSON) => {
+const downloadExerciseFiles = async courseJSON => {
 	try {
 		const {
 			id: courseId,
@@ -722,7 +722,7 @@ let jsonCnt = 0
 
 // main-function
 $(() => {
-	$(document).keypress(async (e) => {
+	$(document).keypress(async e => {
 		console.log(`Keypress: ${e.which}`)
 
 		const cmdToggleEnabled = e.which === 101 || e.which === 69
@@ -783,7 +783,7 @@ $(() => {
 			if (cmdAddCourse) {
 				log('Add Course')
 				let addedCourses = []
-				chrome.storage.local.get('addedCourses', (data) => {
+				chrome.storage.local.get('addedCourses', data => {
 					if (data.addedCourses)
 						addedCourses.push.apply(addedCourses, data.addedCourses)
 
@@ -818,7 +818,7 @@ $(() => {
 
 				while (true) {
 					let nextCourse = await new Promise((resolve, _) =>
-						chrome.storage.local.get('addedCourses', (data) => {
+						chrome.storage.local.get('addedCourses', data => {
 							if (!data) resolve()
 							else {
 								let courses = data['addedCourses']

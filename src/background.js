@@ -6,7 +6,7 @@ let listenerInstance = undefined
 // mode, which implies that no more than one download is present, thus no need to
 // to check for the finished download ID
 var onChangeFactory =
-	(responseCb) =>
+	responseCb =>
 	({ state }) => {
 		if (
 			state &&

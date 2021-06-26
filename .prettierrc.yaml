@@ -1,6 +1,8 @@
-"useTabs": true
-"tabWidth": 2
-"printWidth": 80
-"singleQuote": true
-"semi": false
-"trailingComma": "all"
+'useTabs': true
+'tabWidth': 2
+'printWidth': 80
+'singleQuote': true
+'semi': false
+'trailingComma': 'all'
+'arrowParens': 'avoid'
+'endOfLine': 'auto'

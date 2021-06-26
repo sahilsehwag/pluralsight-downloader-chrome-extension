@@ -20,5 +20,9 @@
 	"bugs": {
 		"url": "https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension/issues"
 	},
-	"homepage": "https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension#readme"
+	"homepage": "https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension#readme",
+	"dependencies": {},
+	"devDependencies": {
+		"prettier": "^2.3.2"
+	}
 }

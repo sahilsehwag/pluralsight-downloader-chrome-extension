@@ -119,7 +119,7 @@ btnAddCourse.onclick = function () {
 	})
 }
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener(message => {
 	if (typeof message !== 'object') {
 		return false
 	}

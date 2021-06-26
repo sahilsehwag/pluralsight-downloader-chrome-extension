@@ -1,1 +1,3 @@
 specification.txt
+node_modules/
+*.env
