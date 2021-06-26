@@ -235,11 +235,6 @@ const getFilePath = (
 	forPlaylist = false,
 ) => {
 	try {
-		const rootDirectory = ROOT_DIRECTORY
-		const courseDirectory =
-			authorName !== undefined
-				? `${courseName} By ${authorName}`.trim()
-				: `${courseName}`.trim()
 		const sectionDirectory = getDirectoryName(
 			sectionIndex,
 			sectionName,

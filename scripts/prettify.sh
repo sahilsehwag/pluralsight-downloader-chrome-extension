@@ -1,2 +1,2 @@
-prettier --write "./src/**/*.{js,html}"
+prettier --write "./src/**/*"
 prettier --write *.json
