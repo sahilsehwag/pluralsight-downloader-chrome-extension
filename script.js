@@ -8,7 +8,7 @@ const ROOT_DIRECTORY = 'PluralsightCourseDownloader'
 const INVALID_CHARACTERS = /[\/*?<>|']/g
 const DELIMINATOR = '.'
 const EXTENSION = 'mp4'
-const EXTENSION_SUBS = 'smi'
+const EXTENSION_SUBS = 'vtt'
 
 const qualities = ["1280x720", "1024x768"]
 const DEFAULT_QUALITY = qualities[0]
