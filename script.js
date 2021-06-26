@@ -122,24 +122,22 @@ const log = (message, type = "STATUS") =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`);
 
 
-const replaceQuotesWithSquareBrackets = name =>
-{
-  let isFirstQuote = true;
-  let newName = "";
-  for (let i = 0; i < name.length; i++)
-  {
-  	switch (name[i])
-    {
-    	case '"':
-			newName += isFirstQuote ? '[' : ']';
-			isFirstQuote = !isFirstQuote;
-			break;
-		default:
-			newName += name[i];
+const replaceQuotesWithSquareBrackets = name => {
+	let isFirstQuote = true;
+	let newName = '';
+	for (let i = 0; i < name.length; i++) {
+		switch (name[i]) {
+			case '"':
+				newName += isFirstQuote ? '[' : ']';
+				isFirstQuote = !isFirstQuote;
+				break;
+			default:
+				newName += name[i];
+		}
 	}
-  }
-  return newName.replace('“', '[')
-				.replace('”', ']');
+	newName = newName.replace('“', '[');
+	newName = newName.replace('”', ']');
+	return newName;
 }
 
 const removeInvalidCharacters = name =>
