@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "PluralsightCourseDownloaderExtension",
 	"description": "Download entire course from Pluralsight easilty",
-	"version": "0.6",
+	"version": "0.1.0",
 	"author": "Sahil Sehwag",
 	"homepage_url": "https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension",
 	"content_scripts": [
@@ -16,7 +16,6 @@
 		"scripts": ["src/background.js"],
 		"persistent": false
 	},
-
 	"browser_action": {
 		"default_icon": {
 			"16": "images/extension_icon_16.png",
