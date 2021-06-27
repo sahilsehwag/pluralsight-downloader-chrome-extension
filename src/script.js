@@ -68,7 +68,7 @@ const writeTimeStat = msStat => {
 const asyncInterval = (callback, msClear, msInterval = 1000) => {
 	let rejector
 	let interval
-	const prom = new Promise((resolove, reject) => {
+	const prom = new Promise(resolove => {
 		rejector = _ => resolove()
 		interval = setInterval(() => {
 			if (msClear > 0) callback(msClear)
@@ -294,12 +294,7 @@ const getCourseStats = async (courseJSON, startingVideoId) => {
 	let timeFromNow = 0
 	let timeTotal = 0
 	try {
-		const {
-			id: courseId,
-			title: courseName,
-			authors,
-			modules: sections,
-		} = courseJSON
+		const { authors, modules: sections } = courseJSON
 
 		let authorName =
 			authors[0].displayName != undefined
@@ -313,11 +308,7 @@ const getCourseStats = async (courseJSON, startingVideoId) => {
 		video_to_download = []
 
 		for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
-			const {
-				id: sectionId,
-				title: sectionName,
-				contentItems: sectionItems,
-			} = sections[sectionIndex]
+			const { contentItems: sectionItems } = sections[sectionIndex]
 
 			for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
 				if (!CONTINUE_DOWNLOAD) {
@@ -326,12 +317,7 @@ const getCourseStats = async (courseJSON, startingVideoId) => {
 					return
 				}
 
-				const {
-					id: videoId,
-					title: videoName,
-					version: versionId,
-					duration,
-				} = sectionItems[videoIndex]
+				const { id: videoId, duration } = sectionItems[videoIndex]
 
 				timeTotal += duration
 
@@ -369,12 +355,7 @@ const getCourseStats = async (courseJSON, startingVideoId) => {
 
 const downloadPlaylist = async courseJSON => {
 	try {
-		const {
-			id: courseId,
-			title: courseName,
-			authors,
-			modules: sections,
-		} = courseJSON
+		const { title: courseName, authors, modules: sections } = courseJSON
 
 		let playlistLines = []
 
@@ -385,19 +366,11 @@ const downloadPlaylist = async courseJSON => {
 		if (authorName == undefined) authorName = 'noName'
 
 		for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
-			const {
-				id: sectionId,
-				title: sectionName,
-				contentItems: sectionItems,
-			} = sections[sectionIndex]
+			const { title: sectionName, contentItems: sectionItems } =
+				sections[sectionIndex]
 
 			for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
-				const {
-					id: videoId,
-					title: videoName,
-					version: versionId,
-					duration,
-				} = sectionItems[videoIndex]
+				const { title: videoName } = sectionItems[videoIndex]
 
 				const filePath = getFilePath(
 					removeInvalidCharacters(courseName),
@@ -452,12 +425,7 @@ function removeDownloadItem(item) {
 
 const downloadCourse = async (courseJSON, startingVideoId) => {
 	try {
-		const {
-			id: courseId,
-			title: courseName,
-			authors,
-			modules: sections,
-		} = courseJSON
+		const { title: courseName, authors, modules: sections } = courseJSON
 
 		let authorName =
 			authors[0].displayName != undefined
@@ -480,11 +448,8 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 		chrome.runtime.sendMessage({ CourseTitle: courseName })
 
 		for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
-			const {
-				id: sectionId,
-				title: sectionName,
-				contentItems: sectionItems,
-			} = sections[sectionIndex]
+			const { title: sectionName, contentItems: sectionItems } =
+				sections[sectionIndex]
 
 			log(`==================== "${sectionName}" ====================`, 'INFO')
 
@@ -688,12 +653,7 @@ chrome.runtime.onMessage.addListener(message => {
 
 const downloadExerciseFiles = async courseJSON => {
 	try {
-		const {
-			id: courseId,
-			title: courseName,
-			authors,
-			modules: sections,
-		} = courseJSON
+		const { id: courseId, title: courseName, authors } = courseJSON
 
 		let authorName =
 			authors[0].displayName != undefined
