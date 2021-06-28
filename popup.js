@@ -64,7 +64,7 @@ chrome.storage.sync.get('secondaryLanguage', function (data) {
 });
 
 btnApplySecondaryLanguage.onclick = function () {
-  chrome.storage.sync.set({ secondaryLanguage: secondaryLanguage.value}, undefined);
+  chrome.storage.sync.set({ secondaryLanguage: secondaryLanguage.value }, undefined);
 }
 
 speedPercent.onchange = function (element) {
