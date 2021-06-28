@@ -113,6 +113,8 @@ const readMaxDuration = () => readSharedValue('maxDuration')
 
 const readAddedCourses = () => readSharedValue('AddedCourses')
 
+const readSecondaryLanguageCode = () => readSharedValue('secondaryLanguage')
+
 const log = (message, type = 'STATUS') =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`)
 
