@@ -191,8 +191,8 @@ const getVideoURL = async videoId => {
 	}
 }
 
-const getSubtitleURL = async (videoId, versionId) => {
-	return subsURL + '/' + videoId + '/' + versionId + '/en/'
+const getSubtitleURL = async (videoId, versionId, languageCode = "en") => {
+	return subsURL + "/" + videoId + "/" + versionId + "/" + languageCode + "/";
 }
 
 const getPlaylistPath = (courseName, authorName) => {
