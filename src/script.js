@@ -115,6 +115,8 @@ const readAddedCourses = () => readSharedValue('AddedCourses')
 
 const readSecondaryLanguageCode = () => readSharedValue('secondaryLanguage')
 
+const readIsLeadingZeroAlways = () => readSharedValue('isAlwaysLeadingZero')
+
 const log = (message, type = 'STATUS') =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`)
 
@@ -374,6 +376,7 @@ const downloadPlaylist = async courseJSON => {
 			for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
 				const { title: videoName } = sectionItems[videoIndex]
 
+				const isLeadingZeroAlways = await readIsLeadingZeroAlways();
 				const filePath = getFilePath(
 					removeInvalidCharacters(courseName),
 					removeInvalidCharacters(authorName),
@@ -382,7 +385,7 @@ const downloadPlaylist = async courseJSON => {
 					videoIndex,
 					removeInvalidCharacters(videoName),
 					`${EXTENSION}`,
-					sectionItems.length > 9,
+					isLeadingZeroAlways || sectionItems.length > 9,
 					true,
 				)
 
@@ -481,6 +484,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 				console.log(`Downloading [${videoId}] ${videoName}`)
 
+				const isLeadingZeroAlways = await readIsLeadingZeroAlways();
 				const filePath = getFilePath(
 					removeInvalidCharacters(courseName),
 					removeInvalidCharacters(authorName),
@@ -489,7 +493,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					videoIndex,
 					removeInvalidCharacters(videoName),
 					`${EXTENSION}`,
-					sectionItems.length > 9,
+					isLeadingZeroAlways || sectionItems.length > 9,
 				)
 
 				const filePath_subs = getFilePath(
@@ -500,7 +504,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					videoIndex,
 					removeInvalidCharacters(videoName),
 					`${EXTENSION_SUBS}`,
-					sectionItems.length > 9,
+					isLeadingZeroAlways || sectionItems.length > 9,
 				)
 
 				const extensionIndex = filePath_subs.lastIndexOf(`.${EXTENSION_SUBS}`)
