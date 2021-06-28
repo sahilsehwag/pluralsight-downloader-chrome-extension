@@ -24,8 +24,8 @@ let btnDwnAll = document.getElementById('btnDwnAll');
 let btnDwnCur = document.getElementById('btnDwnCur');
 let btnAddCourse = document.getElementById('btnAddCourse');
 
-
-
+let secondaryLanguage = document.getElementById('SecondaryLanguage');
+let btnApplySecondaryLanguage = document.getElementById('btnApplySecondaryLanguage');
 
 chrome.storage.sync.get('Status', function (data) {
   statusLabel.innerHTML = `Status: ${data.Status}`;
@@ -59,6 +59,13 @@ chrome.storage.sync.get('AddedCourseCount', function (data) {
   addedCourseCntLabel.innerHTML = `Added Courses: ${data.AddedCourseCount}`;
 });
 
+chrome.storage.sync.get('secondaryLanguage', function (data) {
+  secondaryLanguage.value = data.secondaryLanguage;
+});
+
+btnApplySecondaryLanguage.onclick = function () {
+  chrome.storage.sync.set({ secondaryLanguage: secondaryLanguage.value}, undefined);
+}
 
 speedPercent.onchange = function (element) {
   chrome.storage.sync.set({ speedPercent: speedPercent.value }, undefined);
