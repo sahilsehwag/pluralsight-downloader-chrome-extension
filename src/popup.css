@@ -8,3 +8,6 @@ label {
 select {
 	width: 6.7em;
 }
+#label_leadingZero {
+	display: inline;
+}

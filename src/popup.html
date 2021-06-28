@@ -29,6 +29,25 @@
 				style="width: 6em"
 			/>
 			<input type="submit" id="btnApply" name="Apply button" value="Apply" />
+			<!--START Leading Zero Tags-->
+			<label id="label_LeadingZeroText">Leading Zero:</label>
+			<input 
+				type="radio"
+				id="btnAlwaysLeadingZero"
+				name="Always Leading Zero"
+				value="true"
+			/>
+			<label id="label_leadingZero" for="btnAlwaysLeadingZero">Always</label>
+			<br>
+			<input 
+				type="radio"
+				id="btnMoreTenLeadingZero"
+				name="Always Leading Zero"
+				value="false"
+				checked
+			/>
+			<label id="label_leadingZero" for="btnMoreTenLeadingZero">10 files or more</label>
+			<!--END Leading Zero Tags-->
 			<!--START Language Tags-->
 			<label id="label_PrimaryLanguage">Primary Language:</label>
 			<select id="PrimaryLanguage" name="Primary language" size="1">
