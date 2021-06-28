@@ -562,7 +562,9 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 						await downloadSubs(subsURL, filePath_subs);
 						// Secondary language logic
 						const secondaryLangCode = readSecondaryLanguageCode();
-						if (secondaryLangCode !== 'none') {
+						if (secondaryLangCode !== null 
+							&& secondaryLangCode !== '' 
+							&& secondaryLangCode !== 'none') {
 							const langSubsUrl = await getSubtitleURL(videoId, versionId, secondaryLangCode);
 							const filePath_subsLang = filePathNotExt_subs + `.${secondaryLangCode}.vtt`;
 							await downloadSubs(langSubsUrl, filePath_subsLang);  
@@ -638,7 +640,9 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 				const extensionIndex = fileInfo.filePath_subs.lastIndexOf(`.${EXTENSION_SUBS}`);
 				const filePathNotExt_subs = fileInfo.filePath_subs.substring(0, extensionIndex);
 				const secondaryLangCode = readSecondaryLanguageCode();
-				if (secondaryLangCode !== 'none') {
+				if (secondaryLangCode !== null 
+					&& secondaryLangCode !== '' 
+					&& secondaryLangCode !== 'none') {
 					const langSubsUrl = await getSubtitleURL(fileInfo.videoId, fileInfo.versionId, secondaryLangCode);
 					const filePath_subsLang = filePathNotExt_subs + `.${secondaryLangCode}.vtt`;
 					await downloadSubs(langSubsUrl, filePath_subsLang);  
