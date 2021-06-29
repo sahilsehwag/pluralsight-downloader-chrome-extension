@@ -35,7 +35,7 @@ chrome.storage.sync.get('isAlwaysLeadingZero', function (data) {
 })
 
 chrome.storage.sync.get('secondaryLanguage', function (data) {
-	secondaryLanguage.value = data.secondaryLanguage
+	secondaryLanguage.value = data.secondaryLanguage !== undefined ? data.secondaryLanguage : "none"; 
 })
   
 chrome.storage.sync.get('Status', function (data) {
