@@ -5,3 +5,9 @@ label {
 #label_Status {
 	color: blue;
 }
+select {
+	width: 6.7em;
+}
+#label_leadingZero {
+	display: inline;
+}

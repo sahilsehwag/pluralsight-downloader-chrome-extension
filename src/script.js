@@ -113,6 +113,10 @@ const readMaxDuration = () => readSharedValue('maxDuration')
 
 const readAddedCourses = () => readSharedValue('AddedCourses')
 
+const readSecondaryLanguageCode = () => readSharedValue('secondaryLanguage')
+
+const readIsLeadingZeroAlways = () => readSharedValue('isAlwaysLeadingZero')
+
 const log = (message, type = 'STATUS') =>
 	console.log(`[${APPNAME}]:[${type}]: ${message}`)
 
@@ -189,8 +193,8 @@ const getVideoURL = async videoId => {
 	}
 }
 
-const getSubtitleURL = async (videoId, versionId) => {
-	return subsURL + '/' + videoId + '/' + versionId + '/en/'
+const getSubtitleURL = async (videoId, versionId, languageCode = "en") => {
+	return subsURL + "/" + videoId + "/" + versionId + "/" + languageCode + "/"
 }
 
 const getPlaylistPath = (courseName, authorName) => {
@@ -372,6 +376,7 @@ const downloadPlaylist = async courseJSON => {
 			for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
 				const { title: videoName } = sectionItems[videoIndex]
 
+				const isLeadingZeroAlways = await readIsLeadingZeroAlways();
 				const filePath = getFilePath(
 					removeInvalidCharacters(courseName),
 					removeInvalidCharacters(authorName),
@@ -380,7 +385,7 @@ const downloadPlaylist = async courseJSON => {
 					videoIndex,
 					removeInvalidCharacters(videoName),
 					`${EXTENSION}`,
-					sectionItems.length > 9,
+					isLeadingZeroAlways || sectionItems.length > 9,
 					true,
 				)
 
@@ -479,6 +484,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 
 				console.log(`Downloading [${videoId}] ${videoName}`)
 
+				const isLeadingZeroAlways = await readIsLeadingZeroAlways();
 				const filePath = getFilePath(
 					removeInvalidCharacters(courseName),
 					removeInvalidCharacters(authorName),
@@ -487,7 +493,7 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					videoIndex,
 					removeInvalidCharacters(videoName),
 					`${EXTENSION}`,
-					sectionItems.length > 9,
+					isLeadingZeroAlways || sectionItems.length > 9,
 				)
 
 				const filePath_subs = getFilePath(
@@ -498,8 +504,11 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					videoIndex,
 					removeInvalidCharacters(videoName),
 					`${EXTENSION_SUBS}`,
-					sectionItems.length > 9,
+					isLeadingZeroAlways || sectionItems.length > 9,
 				)
+
+				const extensionIndex = filePath_subs.lastIndexOf(`.${EXTENSION_SUBS}`)
+				const filePathNoExt_subs = filePath_subs.substring(0, extensionIndex)
 
 				log(`Downloading... "${videoName}"`, 'DOWNLOAD')
 				chrome.runtime.sendMessage({ Status: 'Downloading...' })
@@ -509,6 +518,16 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 					if (versionId) {
 						const subsURL = await getSubtitleURL(videoId, versionId)
 						await downloadSubs(subsURL, filePath_subs)
+						// Secondary language logic
+						const secondaryLangCode = await readSecondaryLanguageCode()
+						if (secondaryLangCode !== null
+							&& secondaryLangCode !== undefined
+							&& secondaryLangCode !== ''
+							&& secondaryLangCode !== 'none') {
+							const langSubsUrl = await getSubtitleURL(videoId, versionId, secondaryLangCode)
+							const filePath_subsLang = `${filePathNoExt_subs}.${secondaryLangCode}.vtt`
+							await downloadSubs(langSubsUrl, filePath_subsLang)
+						}
 					}
 
 					//Index to descriminate subs or video
@@ -582,6 +601,18 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 			if (fileInfo.expId === 0) {
 				const subsURL = await getSubtitleURL(fileInfo.videoId, fileInfo.verId)
 				await downloadSubs(subsURL, fileInfo.filePath_subs)
+				// Secondary language logic
+				const extensionIndex = fileInfo.filePath_subs.lastIndexOf(`.${EXTENSION_SUBS}`)
+				const filePathNoExt_subs = fileInfo.filePath_subs.substring(0, extensionIndex);
+				const secondaryLangCode = await readSecondaryLanguageCode();
+				if (secondaryLangCode !== null
+					&& secondaryLangCode != undefined
+					&& secondaryLangCode !== ''
+					&& secondaryLangCode !== 'none') {
+					const langSubsUrl = await getSubtitleURL(fileInfo.videoId, fileInfo.versionId, secondaryLangCode)
+					const filePath_subsLang = `${filePathNoExt_subs}.${secondaryLangCode}.vtt`
+					await downloadSubs(langSubsUrl, filePath_subsLang)
+				}				
 			}
 			const videoURL = await getVideoURL(fileInfo.videoId)
 			downloadVideo(videoURL, fileInfo.filePath)
