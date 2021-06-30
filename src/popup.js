@@ -23,21 +23,24 @@ let btnDwnAll = document.getElementById('btnDwnAll')
 let btnDwnCur = document.getElementById('btnDwnCur')
 let btnAddCourse = document.getElementById('btnAddCourse')
 
-let secondaryLanguage = document.getElementById('SecondaryLanguage');
-let btnApplySecondaryLanguage = document.getElementById('btnApplySecondaryLanguage');
+let secondaryLanguage = document.getElementById('SecondaryLanguage')
+let btnApplySecondaryLanguage = document.getElementById(
+	'btnApplySecondaryLanguage',
+)
 
-let isAlwaysLeadingZero = document.getElementById('isAlwaysLeadingZero');
-let btnAlwaysLeadingZero = document.getElementById('btnAlwaysLeadingZero');
-let btnMoreTenLeadingZero = document.getElementById('btnMoreTenLeadingZero');
+let isAlwaysLeadingZero = document.getElementById('isAlwaysLeadingZero')
+let btnAlwaysLeadingZero = document.getElementById('btnAlwaysLeadingZero')
+let btnMoreTenLeadingZero = document.getElementById('btnMoreTenLeadingZero')
 
 chrome.storage.sync.get('isAlwaysLeadingZero', function (data) {
 	isAlwaysLeadingZero.value = data.isAlwaysLeadingZero
 })
 
 chrome.storage.sync.get('secondaryLanguage', function (data) {
-	secondaryLanguage.value = data.secondaryLanguage !== undefined ? data.secondaryLanguage : "none"; 
+	secondaryLanguage.value =
+		data.secondaryLanguage !== undefined ? data.secondaryLanguage : 'none'
 })
-  
+
 chrome.storage.sync.get('Status', function (data) {
 	statusLabel.innerHTML = `Status: ${data.Status}`
 })
@@ -71,15 +74,24 @@ chrome.storage.sync.get('AddedCourseCount', function (data) {
 })
 
 btnAlwaysLeadingZero.onclick = function () {
-	chrome.storage.sync.set({ isAlwaysLeadingZero: btnAlwaysLeadingZero.value }, undefined)
+	chrome.storage.sync.set(
+		{ isAlwaysLeadingZero: btnAlwaysLeadingZero.value },
+		undefined,
+	)
 }
 
 btnMoreTenLeadingZero.onclick = function () {
-	chrome.storage.sync.set({ isAlwaysLeadingZero: btnMoreTenLeadingZero.value }, undefined)
+	chrome.storage.sync.set(
+		{ isAlwaysLeadingZero: btnMoreTenLeadingZero.value },
+		undefined,
+	)
 }
 
 btnApplySecondaryLanguage.onclick = function () {
-	chrome.storage.sync.set({ secondaryLanguage: secondaryLanguage.value }, undefined)
+	chrome.storage.sync.set(
+		{ secondaryLanguage: secondaryLanguage.value },
+		undefined,
+	)
 }
 
 speedPercent.onchange = function (element) {
