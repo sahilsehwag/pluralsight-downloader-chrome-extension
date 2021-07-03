@@ -24,87 +24,72 @@ let btnDwnCur = document.getElementById('btnDwnCur')
 let btnAddCourse = document.getElementById('btnAddCourse')
 
 let secondaryLanguage = document.getElementById('SecondaryLanguage')
-let btnApplySecondaryLanguage = document.getElementById(
-	'btnApplySecondaryLanguage',
-)
+let btnApplySecondaryLanguage = document.getElementById('btnApplySecondaryLanguage')
 
 let isAlwaysLeadingZero = document.getElementById('isAlwaysLeadingZero')
 let btnAlwaysLeadingZero = document.getElementById('btnAlwaysLeadingZero')
 let btnMoreTenLeadingZero = document.getElementById('btnMoreTenLeadingZero')
 
-chrome.storage.sync.get('isAlwaysLeadingZero', function (data) {
+chrome.storage.sync.get('isAlwaysLeadingZero', function(data) {
 	isAlwaysLeadingZero.value = data.isAlwaysLeadingZero
 })
 
-chrome.storage.sync.get('secondaryLanguage', function (data) {
-	secondaryLanguage.value =
-		data.secondaryLanguage !== undefined ? data.secondaryLanguage : 'none'
+chrome.storage.sync.get('secondaryLanguage', function(data) {
+	secondaryLanguage.value = data.secondaryLanguage !== undefined ? data.secondaryLanguage : 'none'
 })
 
-chrome.storage.sync.get('Status', function (data) {
-	statusLabel.innerHTML = `Status: ${data.Status}`
+chrome.storage.sync.get('Status', function(data) {
+	statusLabel.innerHTML = data.Status
 })
 
-chrome.storage.sync.get('CourseTitle', function (data) {
-	titleLabel.innerHTML = `Title: ${data.CourseTitle}`
-	//cpltModuleLabel.innerHTML = `Complete(Module): ${data.Completion_Module}`;
+chrome.storage.sync.get('CourseTitle', function(data) {
+	titleLabel.innerHTML = data.CourseTitle
 })
 
-chrome.storage.sync.get('Completion_Module', function (data) {
-	cpltModuleLabel.innerHTML = `Complete(Module): ${data.Completion_Module[0]}/${data.Completion_Module[1]}`
-	//cpltModuleLabel.innerHTML = `Complete(Module): ${data.Completion_Module}`;
+chrome.storage.sync.get('Completion_Module', function(data) {
+	cpltModuleLabel.innerHTML = `${data.Completion_Module[0]}/${data.Completion_Module[1]}`
 })
 
-chrome.storage.sync.get('Completion_Video', function (data) {
-	cpltVideoLabel.innerHTML = `Complete(Video): ${data.Completion_Video[0]}/${data.Completion_Video[1]}`
-	//cpltVideoLabel.innerHTML = `Complete(Video): ${data.Completion_Video}`;
+chrome.storage.sync.get('Completion_Video', function(data) {
+	cpltVideoLabel.innerHTML = `${data.Completion_Video[0]}/${data.Completion_Video[1]}`
 })
 
-chrome.storage.sync.get('speedPercent', function (data) {
+chrome.storage.sync.get('speedPercent', function(data) {
 	speedPercent.value = data.speedPercent
-	speedLabel.innerHTML = `Duration(0-100%): ${speedPercent.value}`
+	speedLabel.innerHTML = speedPercent.value
 })
 
-chrome.storage.sync.get('maxDuration', function (data) {
+chrome.storage.sync.get('maxDuration', function(data) {
 	maxDuration.value = data.maxDuration
 })
 
-chrome.storage.sync.get('AddedCourseCount', function (data) {
-	addedCourseCntLabel.innerHTML = `Added Courses: ${data.AddedCourseCount}`
+chrome.storage.sync.get('AddedCourseCount', function(data) {
+	addedCourseCntLabel.innerHTML = data.AddedCourseCount
 })
 
-btnAlwaysLeadingZero.onclick = function () {
-	chrome.storage.sync.set(
-		{ isAlwaysLeadingZero: btnAlwaysLeadingZero.value },
-		undefined,
-	)
+btnAlwaysLeadingZero.onclick = function() {
+	chrome.storage.sync.set({ isAlwaysLeadingZero: btnAlwaysLeadingZero.value }, undefined)
 }
 
-btnMoreTenLeadingZero.onclick = function () {
-	chrome.storage.sync.set(
-		{ isAlwaysLeadingZero: btnMoreTenLeadingZero.value },
-		undefined,
-	)
+btnMoreTenLeadingZero.onclick = function() {
+	chrome.storage.sync.set({ isAlwaysLeadingZero: btnMoreTenLeadingZero.value }, undefined)
 }
 
-btnApplySecondaryLanguage.onclick = function () {
-	chrome.storage.sync.set(
-		{ secondaryLanguage: secondaryLanguage.value },
-		undefined,
-	)
+btnApplySecondaryLanguage.onclick = function() {
+	chrome.storage.sync.set({ secondaryLanguage: secondaryLanguage.value }, undefined)
 }
 
-speedPercent.onchange = function (element) {
+speedPercent.onchange = function(element) {
 	chrome.storage.sync.set({ speedPercent: speedPercent.value }, undefined)
-	speedLabel.innerHTML = `Duration(0-100%): ${speedPercent.value}`
+	speedLabel.innerHTML = speedPercent.value
 }
 
-btnApply.onclick = function () {
+btnApply.onclick = function() {
 	chrome.storage.sync.set({ maxDuration: maxDuration.value }, undefined)
 }
 
-btnSkip.onclick = function () {
-	chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+btnSkip.onclick = function() {
+	chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
 		chrome.tabs.sendMessage(tabs[0].id, {
 			btnCmd: {
 				cmd: 'Skip',
@@ -114,8 +99,8 @@ btnSkip.onclick = function () {
 	})
 }
 
-btnStop.onclick = function () {
-	chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+btnStop.onclick = function() {
+	chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
 		chrome.tabs.sendMessage(tabs[0].id, {
 			btnCmd: {
 				cmd: 'Stop',
@@ -125,8 +110,8 @@ btnStop.onclick = function () {
 	})
 }
 
-btnDwnAll.onclick = function () {
-	chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+btnDwnAll.onclick = function() {
+	chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
 		chrome.tabs.sendMessage(tabs[0].id, {
 			btnCmd: {
 				cmd: 'DwnAll',
@@ -136,8 +121,8 @@ btnDwnAll.onclick = function () {
 	})
 }
 
-btnDwnCur.onclick = function () {
-	chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+btnDwnCur.onclick = function() {
+	chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
 		chrome.tabs.sendMessage(tabs[0].id, {
 			btnCmd: {
 				cmd: 'DwnCur',
@@ -147,8 +132,8 @@ btnDwnCur.onclick = function () {
 	})
 }
 
-btnAddCourse.onclick = function () {
-	chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+btnAddCourse.onclick = function() {
+	chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
 		chrome.tabs.sendMessage(tabs[0].id, {
 			btnCmd: {
 				cmd: 'AddCourse',
@@ -164,36 +149,27 @@ chrome.runtime.onMessage.addListener(message => {
 	}
 
 	if (message.Status) {
-		statusLabel.innerHTML = `Status: ${message.Status}`
+		statusLabel.innerHTML = message.Status
 		chrome.storage.sync.set({ Status: `${message.Status}` }, undefined)
 	}
 
 	if (message.CourseTitle) {
-		titleLabel.innerHTML = `Title: ${message.CourseTitle}`
+		titleLabel.innerHTML = message.CourseTitle
 		chrome.storage.sync.set({ CourseTitle: message.CourseTitle }, undefined)
 	}
 
 	if (message.Completion_Module) {
-		cpltModuleLabel.innerHTML = `Complete(Module): ${message.Completion_Module[0]}/${message.Completion_Module[1]}`
-		chrome.storage.sync.set(
-			{ Completion_Module: message.Completion_Module },
-			undefined,
-		)
+		cpltModuleLabel.innerHTML = `${message.Completion_Module[0]}/${message.Completion_Module[1]}`
+		chrome.storage.sync.set({ Completion_Module: message.Completion_Module }, undefined)
 	}
 
 	if (message.Completion_Video) {
-		cpltVideoLabel.innerHTML = `Complete(Video): ${message.Completion_Video[0]}/${message.Completion_Video[1]}`
-		chrome.storage.sync.set(
-			{ Completion_Video: message.Completion_Video },
-			undefined,
-		)
+		cpltVideoLabel.innerHTML = `${message.Completion_Video[0]}/${message.Completion_Video[1]}`
+		chrome.storage.sync.set({ Completion_Video: message.Completion_Video }, undefined)
 	}
 
 	if (message.AddedCourseCount >= 0) {
-		addedCourseCntLabel.innerHTML = `Added Courses: ${message.AddedCourseCount}`
-		chrome.storage.sync.set(
-			{ AddedCourseCount: message.AddedCourseCount },
-			undefined,
-		)
+		addedCourseCntLabel.innerHTML = `${message.AddedCourseCount}`
+		chrome.storage.sync.set({ AddedCourseCount: message.AddedCourseCount }, undefined)
 	}
 })

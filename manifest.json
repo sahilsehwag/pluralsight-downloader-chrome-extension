@@ -26,12 +26,5 @@
 		"default_title": "Pluralsight Downloader",
 		"default_popup": "src/popup.html"
 	},
-	"permissions": [
-		"activeTab",
-		"declarativeContent",
-		"storage",
-		"downloads",
-		"notifications",
-		"unlimitedStorage"
-	]
+	"permissions": ["activeTab", "declarativeContent", "storage", "downloads", "notifications", "unlimitedStorage"]
 }

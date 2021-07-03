@@ -8,11 +8,7 @@ let listenerInstance = undefined
 var onChangeFactory =
 	responseCb =>
 	({ state }) => {
-		if (
-			state &&
-			state.current === 'complete' &&
-			state.previous === 'in_progress'
-		) {
+		if (state && state.current === 'complete' && state.previous === 'in_progress') {
 			chrome.downloads.onChanged.removeListener(listenerInstance)
 			responseCb({ actionStatus: 'File downloaded successfully' })
 		}

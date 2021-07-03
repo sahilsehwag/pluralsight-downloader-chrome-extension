@@ -10,6 +10,9 @@ This chrome extension is a clone of project [**Pluralsight Course Downloader**](
 <br><br>
 The old extension stopped working because it was not being maintained, so I rewrote the extension. I will be **maintaining** this repository and will be adding more **features**. Currently this extension is in _**BETA**_ stage, so please any report issue that you find. It will help me and other people too.
 
+## Screenshots
+![Screenshot-1](./images/screenshot-1.png)
+
 ## Installation
 
 You can clone this repository, or download [**zip/tar.gz/.crx(chrome extension)**](https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension/releases/tag/v0.3-alpha), and follow one of the ways mentioned below to install the extension.
