@@ -133,8 +133,28 @@ const replaceQuotesWithSquareBrackets = name => {
 	return newName
 }
 
-const removeInvalidCharacters = name =>
-	replaceQuotesWithSquareBrackets(name).replace(INVALID_CHARACTERS, '').replace(':', ' -').trim()
+const replaceColonsWithHyphen = name => {
+	let newName = name[0]
+	for (let i = 1; i < name.length - 1; i++) {
+			if (name[i - 1] !== ' ' && name[i] === ':' && name[i + 1] !== ' ')
+			{
+				newName += '-'
+			}
+			else 
+			{
+				newName += name[i]
+			}
+		}
+	newName += name[name.length - 1]
+	newName = newName.replace(':', ' -')
+	return newName
+}
+
+const removeInvalidCharacters = name => {
+	let clearedName = replaceQuotesWithSquareBrackets(name);
+	clearedName = replaceColonsWithHyphen(clearedName).replace(INVALID_CHARACTERS, '').trim();
+	return clearedName
+}
 
 const getCurrentVideoId = () => {
 	const vIdMatch = location.search.match('clipId=?([0-9a-f-]*)')
