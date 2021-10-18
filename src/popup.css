@@ -336,7 +336,30 @@ label > span {
 	border-radius: var(--psLayoutSpacingXXSmall);
 }
 
-.leading-zero { }
+.leadingzero {}
+.leadingzero > section {}
+.leadingzero > section:not(:last-child) {
+	border-bottom: 1px solid var(--psColorsBorderHighOnDark);
+	padding-bottom: var(--psLayoutSpacingSmall);
+	margin-bottom: var(--psLayoutSpacingSmall);
+}
+.leadingzero select {
+	width: 100%;
+	color: var(--psColorsBone);
+	background: var(--psColorsBackgroundDark3);
+	padding: var(--psLayoutSpacingXXSmall) var(--psLayoutSpacingSmall);
+	border-radius: var(--psLayoutSpacingXXSmall)
+ }
+.leading-zero {
+	width: 80%;
+ }
+ .leading-zero__submit {
+	padding: var(--psLayoutSpacingXXSmall) var(--psLayoutSpacingMedium);
+	border: none;
+	background-color: var(--psColorsBlueBase);
+	color: var(--psColorsBone);
+	border-radius: var(--psLayoutSpacingXXSmall);
+ }
 .leading-zero__label { }
 
 .subtitle { }

@@ -111,7 +111,13 @@ const readAddedCourses = () => readSharedValue('AddedCourses')
 
 const readSecondaryLanguageCode = () => readSharedValue('secondaryLanguage')
 
-const readIsLeadingZeroAlways = () => readSharedValue('isAlwaysLeadingZero')
+const readIsLeadingZeroAlways = () => {
+	let isAlwaysLeadingZero = readSharedValue('isAlwaysLeadingZero')
+	if (isAlwaysLeadingZero === 'true') {
+		return true;
+	}
+	return false;
+}
 
 const log = (message, type = 'STATUS') => console.log(`[${APPNAME}]:[${type}]: ${message}`)
 
@@ -136,15 +142,13 @@ const replaceQuotesWithSquareBrackets = name => {
 const replaceColonsWithHyphen = name => {
 	let newName = name[0]
 	for (let i = 1; i < name.length - 1; i++) {
-			if (name[i - 1] !== ' ' && name[i] === ':' && name[i + 1] !== ' ')
-			{
-				newName += '-'
-			}
-			else 
-			{
-				newName += name[i]
-			}
+		if (name[i - 1] !== ' ' && name[i] === ':' && name[i + 1] !== ' ') {
+			newName += '-'
 		}
+		else {
+			newName += name[i]
+		}
+	}
 	newName += name[name.length - 1]
 	newName = newName.replace(':', ' -')
 	return newName

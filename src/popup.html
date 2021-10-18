@@ -49,32 +49,20 @@
 						</div>
 					</section>
 				</section>
-				<section class="leading-zero">
-					<input type="hidden" id="isAlwaysLeadingZero" name="Is Always Leading Zero" value="false" />
-					<label id="label_LeadingZeroText" class="leading-zero__label"> Leading Zero: </label>
-					<div>
-						<input
-							type="radio"
-							id="btnAlwaysLeadingZero"
-							name="Always Leading Zero"
-							class="leading-zero--always-input"
-							value="true"
-						/>
-						<label id="label_leadingZero" class="leading-zero__always-label" for="btnAlwaysLeadingZero">Always</label>
-					</div>
-					<div>
-						<input
-							type="radio"
-							id="btnMoreTenLeadingZero"
-							name="Always Leading Zero"
-							class="leading-zero__mt10-input"
-							value="false"
-							checked
-						/>
-						<label id="label_leadingZero" for="btnMoreTenLeadingZero" class="leading-zero__mt10-label">
-							10 files or more
-						</label>
-					</div>
+				<section class="leadingzero">
+					<section class="leading-zero">
+						<label id="label_LeadingZeroText" class="leading-zero__label"> Leading Zero: </label>
+						<select id="isAlwaysLeadingZero" name="Is Always Leading Zero" class="always-leading-zero__select">
+							<option value="false">10 files or more</option>
+							<option value="true">Always</option>
+						</select>
+					</section>
+					<button
+						id="btnApplyLeadingZero"
+						class="leading-zero__submit"
+					>
+						Apply
+					</button>
 				</section>
 				<section class="subtitle">
 					<section class="primary-subtitle">
