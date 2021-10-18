@@ -111,7 +111,13 @@ const readAddedCourses = () => readSharedValue('AddedCourses')
 
 const readSecondaryLanguageCode = () => readSharedValue('secondaryLanguage')
 
-const readIsLeadingZeroAlways = () => readSharedValue('isAlwaysLeadingZero')
+const readIsLeadingZeroAlways = () => {
+	let isAlwaysLeadingZero = readSharedValue('isAlwaysLeadingZero')
+	if (isAlwaysLeadingZero === 'true') {
+		return true;
+	}
+	return false;
+}
 
 const log = (message, type = 'STATUS') => console.log(`[${APPNAME}]:[${type}]: ${message}`)
 

@@ -27,11 +27,10 @@ let secondaryLanguage = document.getElementById('SecondaryLanguage')
 let btnApplySecondaryLanguage = document.getElementById('btnApplySecondaryLanguage')
 
 let isAlwaysLeadingZero = document.getElementById('isAlwaysLeadingZero')
-let btnAlwaysLeadingZero = document.getElementById('btnAlwaysLeadingZero')
-let btnMoreTenLeadingZero = document.getElementById('btnMoreTenLeadingZero')
+let btnApplyLeadingZero = document.getElementById('btnApplyLeadingZero')
 
 chrome.storage.sync.get('isAlwaysLeadingZero', function(data) {
-	isAlwaysLeadingZero.value = data.isAlwaysLeadingZero
+	isAlwaysLeadingZero.value = data.secondaryLanguage !== undefined ? data.isAlwaysLeadingZero : 'false'
 })
 
 chrome.storage.sync.get('secondaryLanguage', function(data) {
@@ -67,12 +66,8 @@ chrome.storage.sync.get('AddedCourseCount', function(data) {
 	addedCourseCntLabel.innerHTML = data.AddedCourseCount
 })
 
-btnAlwaysLeadingZero.onclick = function() {
-	chrome.storage.sync.set({ isAlwaysLeadingZero: btnAlwaysLeadingZero.value }, undefined)
-}
-
-btnMoreTenLeadingZero.onclick = function() {
-	chrome.storage.sync.set({ isAlwaysLeadingZero: btnMoreTenLeadingZero.value }, undefined)
+btnApplyLeadingZero.onclick = function() {
+	chrome.storage.sync.set({ isAlwaysLeadingZero: isAlwaysLeadingZero.value }, undefined)
 }
 
 btnApplySecondaryLanguage.onclick = function() {
