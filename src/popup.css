@@ -266,6 +266,38 @@ label > span {
 	color: var(--psColorsBone);
 }
 
+.coursetype {
+	align-items: center;
+}
+.coursetype__label {
+	text-transform: uppercase;
+	font-weight: var(--psTypeFontWeightBold);
+	flex-grow: 1;
+}
+
+.coursetype {}
+.coursetype > section {}
+.coursetype > section:not(:last-child) {
+	border-bottom: 1px solid var(--psColorsBorderHighOnDark);
+	padding-bottom: var(--psLayoutSpacingSmall);
+	margin-bottom: var(--psLayoutSpacingSmall);
+}
+.coursetype select {
+	width: 70%;
+	color: var(--psColorsBone);
+	background: var(--psColorsBackgroundDark3);
+	padding: var(--psLayoutSpacingXXSmall) var(--psLayoutSpacingSmall);
+	border-radius: var(--psLayoutSpacingXXSmall);
+ }
+ .CourseType__submit {
+	margin-left: 2%;
+	padding: var(--psLayoutSpacingXXSmall) var(--psLayoutSpacingMedium);
+	border: none;
+	background-color: var(--psColorsBlueBase);
+	color: var(--psColorsBone);
+	border-radius: var(--psLayoutSpacingXXSmall);
+ }
+
 .status {
 	align-items: center;
 }

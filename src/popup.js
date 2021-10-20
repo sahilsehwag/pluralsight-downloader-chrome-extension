@@ -29,6 +29,17 @@ let btnApplySecondaryLanguage = document.getElementById('btnApplySecondaryLangua
 let isAlwaysLeadingZero = document.getElementById('isAlwaysLeadingZero')
 let btnApplyLeadingZero = document.getElementById('btnApplyLeadingZero')
 
+let courseType = document.getElementById('CourseType');
+let btnApplyCourseType = document.getElementById('btnApplyCourseType')
+
+chrome.storage.sync.get('courseType', function(data) {
+	courseType.value = data.courseType !== undefined ? data.courseType : 'Latest'
+})
+
+chrome.storage.sync.get('isAlwaysLeadingZero', function(data) {
+	isAlwaysLeadingZero.value = data.secondaryLanguage !== undefined ? data.isAlwaysLeadingZero : 'false'
+})
+
 chrome.storage.sync.get('isAlwaysLeadingZero', function(data) {
 	isAlwaysLeadingZero.value = data.secondaryLanguage !== undefined ? data.isAlwaysLeadingZero : 'false'
 })
@@ -65,6 +76,10 @@ chrome.storage.sync.get('maxDuration', function(data) {
 chrome.storage.sync.get('AddedCourseCount', function(data) {
 	addedCourseCntLabel.innerHTML = data.AddedCourseCount
 })
+
+btnApplyCourseType.onclick = function() {
+	chrome.storage.sync.set({ courseType: courseType.value }, undefined)
+}
 
 btnApplyLeadingZero.onclick = function() {
 	chrome.storage.sync.set({ isAlwaysLeadingZero: isAlwaysLeadingZero.value }, undefined)
