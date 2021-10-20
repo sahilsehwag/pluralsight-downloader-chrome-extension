@@ -11,7 +11,6 @@ const EXTENSION = 'mp4'
 const EXTENSION_SUBS = 'vtt'
 
 const qualities = ['1280x720', '1024x768']
-const DEFAULT_QUALITY = qualities[0]
 
 const DOWNLOAD_TIMEOUT = 3000
 let DURATION_PERCENT = 10 // percent max 100
@@ -119,6 +118,8 @@ const readIsLeadingZeroAlways = () => {
 	return false;
 }
 
+const readCourseType = () => readSharedValue('courseType')
+
 const log = (message, type = 'STATUS') => console.log(`[${APPNAME}]:[${type}]: ${message}`)
 
 const replaceQuotesWithSquareBrackets = name => {
@@ -169,6 +170,11 @@ const getCurrentVideoId = () => {
 // END:UTILITIES
 // ====================================================================
 
+const getQuality = async () => {
+	const courseType = await readCourseType();
+	return courseType === "Old" ? qualities[1] : qualities[0];
+}
+
 const getDirectoryName = (sectionIndex, sectionName, bPadding = false) => {
 	let padIndex = `${sectionIndex + 1}`
 	if (bPadding) {
@@ -187,6 +193,7 @@ const getFileName = (videoIndex, videoName, bPadding = false) => {
 
 const getVideoURL = async videoId => {
 	try {
+		const quality = await getQuality();
 		const response = await fetch(viewclipURL, {
 			method: 'POST',
 			headers: {
@@ -195,7 +202,7 @@ const getVideoURL = async videoId => {
 			body: JSON.stringify({
 				clipId: videoId,
 				mediaType: EXTENSION,
-				quality: DEFAULT_QUALITY,
+				quality: quality,
 				online: true,
 				boundedContext: 'course',
 				versionId: '',
