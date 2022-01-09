@@ -528,8 +528,13 @@ const downloadCourse = async (courseJSON, startingVideoId) => {
 				let maxDuration = await readMaxDuration()
 				// Sleep for minimum duration btw the time with percent and the max duration time
 				if (maxDuration != 0) {
-					CURRENT_INTERVAL = updateWaitStats(Math.min(duration * 10 * speed, maxDuration * 1000))
-					CURRENT_SLEEP = sleep(Math.min(duration * 10 * speed, maxDuration * 1000))
+					log(`maxDuration: ${maxDuration} duration: ${duration} speed: ${speed}`, "INFO")
+          maxDuration = Math.floor(Math.random() * (maxDuration - Number(speed)) + Number(speed))
+					CURRENT_INTERVAL = updateWaitStats(maxDuration * 1000)
+					CURRENT_SLEEP = sleep(maxDuration * 1000)
+					// CURRENT_INTERVAL = updateWaitStats(Math.min(duration * 10 * speed, maxDuration * 1000))
+					// CURRENT_SLEEP = sleep(Math.min(duration * 10 * speed, maxDuration * 1000))
+					log(`Sleeping for ${maxDuration} seconds...`, "INFO")
 					await CURRENT_SLEEP
 					CURRENT_INTERVAL.abort()
 				}
