@@ -15,7 +15,7 @@ The old extension stopped working because it was not being maintained, so I rewr
 
 ## Installation
 
-You can clone this repository, or download [**zip/tar.gz/.crx(chrome extension)**](https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension/releases/tag/v0.3-alpha), and follow one of the ways mentioned below to install the extension.
+You can clone this repository, or download [**zip/tar.gz/.crx(chrome extension)**](https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension/releases), and follow one of the ways mentioned below to install the extension.
 
 _**NOTE**_: This README.md is the latest code in repository. The links mentioned above refers to the latest release. Since this extension is in BETA phase, therefore the API changes a lot.
 
