@@ -1,28 +1,48 @@
 {
-	"name": "pluralsight-downloader-chrome-extension",
+	"name": "temp_extension",
 	"version": "0.1.0",
-	"description": "Chrome Extension to download Pluralsight courses (_**BETA**_).",
-	"main": "script.js",
+	"private": true,
+	"dependencies": {
+		"@testing-library/jest-dom": "^5.11.4",
+		"@testing-library/react": "^11.1.0",
+		"@testing-library/user-event": "^12.1.10",
+		"jquery": "^3.6.0",
+		"ramda": "^0.28.0",
+		"react": "^17.0.2",
+		"react-browser-extension-scripts": "4.0.10",
+		"react-dom": "^17.0.2",
+		"web-vitals": "^1.0.1"
+	},
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "react-scripts start",
+		"build": "react-scripts build",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject",
 		"prettify": "sh ./scripts/prettify.sh"
 	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension.git"
+	"eslintConfig": {
+		"extends": [
+			"react-app",
+			"react-app/jest"
+		]
 	},
-	"keywords": [
-		"chrome-extension",
-		"pluralsight-downloader"
-	],
-	"author": "Sahil Sehwag",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension/issues"
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
 	},
-	"homepage": "https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension#readme",
-	"dependencies": {},
 	"devDependencies": {
-		"prettier": "^2.3.2"
+		"autoprefixer": "^10.4.2",
+		"postcss": "^8.4.6",
+		"prettier": "^2.5.1",
+		"sass": "^1.49.7",
+		"tailwindcss": "^3.0.18"
 	}
 }

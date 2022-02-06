@@ -1,3 +1,44 @@
+.App {
+	text-align: center;
+}
+
+.App-logo {
+	height: 40vmin;
+	pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.App-logo {
+		animation: App-logo-spin infinite 20s linear;
+	}
+}
+
+.App-header {
+	background-color: #282c34;
+	min-height: 150px;
+	min-width: 150px;
+	padding: 30px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	font-size: calc(10px + 2vmin);
+	color: white;
+}
+
+.App-link {
+	color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
 :root {
 	--psBreakpointsXSmall: 640px;
 	--psBreakpointsSmall: 768px;
@@ -275,8 +316,10 @@ label > span {
 	flex-grow: 1;
 }
 
-.coursetype {}
-.coursetype > section {}
+.coursetype {
+}
+.coursetype > section {
+}
 .coursetype > section:not(:last-child) {
 	border-bottom: 1px solid var(--psColorsBorderHighOnDark);
 	padding-bottom: var(--psLayoutSpacingSmall);
@@ -288,15 +331,15 @@ label > span {
 	background: var(--psColorsBackgroundDark3);
 	padding: var(--psLayoutSpacingXXSmall) var(--psLayoutSpacingSmall);
 	border-radius: var(--psLayoutSpacingXXSmall);
- }
- .CourseType__submit {
+}
+.CourseType__submit {
 	margin-left: 2%;
 	padding: var(--psLayoutSpacingXXSmall) var(--psLayoutSpacingMedium);
 	border: none;
 	background-color: var(--psColorsBlueBase);
 	color: var(--psColorsBone);
 	border-radius: var(--psLayoutSpacingXXSmall);
- }
+}
 
 .status {
 	align-items: center;
@@ -342,17 +385,23 @@ label > span {
 .controls label {
 	margin-bottom: var(--psLayoutSpacingXXSmall);
 }
-.time {}
-.time > section { }
+.time {
+}
+.time > section {
+}
 .time > section:not(:last-child) {
 	border-bottom: 1px solid var(--psColorsBorderHighOnDark);
 	padding-bottom: var(--psLayoutSpacingSmall);
 	margin-bottom: var(--psLayoutSpacingSmall);
 }
-.delay { }
-.delay__label {}
-.max-duration__label { }
-.max-duration { }
+.delay {
+}
+.delay__label {
+}
+.max-duration__label {
+}
+.max-duration {
+}
 .max-duration__input {
 	background: var(--psColorsBackgroundDark3);
 	color: var(--psColorsBone);
@@ -368,8 +417,10 @@ label > span {
 	border-radius: var(--psLayoutSpacingXXSmall);
 }
 
-.leadingzero {}
-.leadingzero > section {}
+.leadingzero {
+}
+.leadingzero > section {
+}
 .leadingzero > section:not(:last-child) {
 	border-bottom: 1px solid var(--psColorsBorderHighOnDark);
 	padding-bottom: var(--psLayoutSpacingSmall);
@@ -380,22 +431,25 @@ label > span {
 	color: var(--psColorsBone);
 	background: var(--psColorsBackgroundDark3);
 	padding: var(--psLayoutSpacingXXSmall) var(--psLayoutSpacingSmall);
-	border-radius: var(--psLayoutSpacingXXSmall)
- }
+	border-radius: var(--psLayoutSpacingXXSmall);
+}
 .leading-zero {
 	width: 80%;
- }
- .leading-zero__submit {
+}
+.leading-zero__submit {
 	padding: var(--psLayoutSpacingXXSmall) var(--psLayoutSpacingMedium);
 	border: none;
 	background-color: var(--psColorsBlueBase);
 	color: var(--psColorsBone);
 	border-radius: var(--psLayoutSpacingXXSmall);
- }
-.leading-zero__label { }
+}
+.leading-zero__label {
+}
 
-.subtitle { }
-.subtitle > section { }
+.subtitle {
+}
+.subtitle > section {
+}
 .subtitle > section:not(:last-child) {
 	border-bottom: 1px solid var(--psColorsBorderHighOnDark);
 	padding-bottom: var(--psLayoutSpacingSmall);
@@ -406,7 +460,7 @@ label > span {
 	color: var(--psColorsBone);
 	background: var(--psColorsBackgroundDark3);
 	padding: var(--psLayoutSpacingXXSmall) var(--psLayoutSpacingSmall);
-	border-radius: var(--psLayoutSpacingXXSmall)
+	border-radius: var(--psLayoutSpacingXXSmall);
 }
 .primary-subtitle {
 	width: 80%;
@@ -459,7 +513,7 @@ label > span {
 .links__pluralsight {
 	width: 16px;
 	height: 16px;
-	background: url('./icons/pluralsight.png');
+	//background: url('./icons/pluralsight.png');
 	background-repeat: none;
 }
 .links__github svg {

@@ -11,7 +11,7 @@ This chrome extension is a clone of project [**Pluralsight Course Downloader**](
 The old extension stopped working because it was not being maintained, so I rewrote the extension. I will be **maintaining** this repository and will be adding more **features**. Currently this extension is in _**BETA**_ stage, so please any report issue that you find. It will help me and other people too.
 
 ## Screenshots
-![Screenshot-1](./images/screenshot-1.png)
+![Screenshot-1](./public/img/screenshot-1.png)
 
 ## Installation
 
