@@ -198,6 +198,7 @@ const getVideoURL = async videoId => {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				'x-team': 'video-services',
 			},
 			body: JSON.stringify({
 				clipId: videoId,

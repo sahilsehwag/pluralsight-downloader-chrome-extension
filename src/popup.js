@@ -37,11 +37,7 @@ chrome.storage.sync.get('courseType', function(data) {
 })
 
 chrome.storage.sync.get('isAlwaysLeadingZero', function(data) {
-	isAlwaysLeadingZero.value = data.secondaryLanguage !== undefined ? data.isAlwaysLeadingZero : 'false'
-})
-
-chrome.storage.sync.get('isAlwaysLeadingZero', function(data) {
-	isAlwaysLeadingZero.value = data.secondaryLanguage !== undefined ? data.isAlwaysLeadingZero : 'false'
+	isAlwaysLeadingZero.value = data.isAlwaysLeadingZero !== undefined ? data.isAlwaysLeadingZero : 'false'
 })
 
 chrome.storage.sync.get('secondaryLanguage', function(data) {
