@@ -1,3 +1,5 @@
 specification.txt
 node_modules/
 *.env
+dev/
+yarn-error.log
