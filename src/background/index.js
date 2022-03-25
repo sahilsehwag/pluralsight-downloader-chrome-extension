@@ -1,12 +1,10 @@
 /*global chrome*/
-// If your extension doesn't need a background script, just leave this file empty
+
+import { set } from 'utils'
 
 main()
-
-//// This needs to be an export due to typescript implementation limitation of needing '--isolatedModules' tsconfig
+// This needs to be an export due to typescript implementation limitation of needing '--isolatedModules' tsconfig
 export function main() {
-	//console.log('I can run your javascript like any other code in your project')
-	//console.log('just do not forget, I cannot render anything !')
 	let flag = false
 	let filePath = ''
 	let listenerInstance = undefined
@@ -66,17 +64,17 @@ export function main() {
 	})
 
 	chrome.runtime.onInstalled.addListener(function () {
-		chrome.storage.sync.set({ Status: 'Ready' }, undefined)
-		chrome.storage.sync.set({ CourseTitle: '' }, undefined)
-		chrome.storage.sync.set({ speedPercent: '80' }, undefined)
-		chrome.storage.sync.set({ Completion_Module: [0, 0] }, undefined)
-		chrome.storage.sync.set({ Completion_Video: [0, 0] }, undefined)
-		chrome.storage.sync.set({ maxDuration: '0' }, undefined)
-		chrome.storage.sync.set({ btnStop: false }, undefined)
-		chrome.storage.sync.set({ btnSkip: false }, undefined)
-		chrome.storage.sync.set({ btnDwnAll: false }, undefined)
-		chrome.storage.sync.set({ btnDwnCur: false }, undefined)
-		chrome.storage.sync.set({ AddedCourseCount: '0' }, undefined)
+		set({ extensionStatus: 'Ready' }, undefined)
+		set({ courseTitle: '' }, undefined)
+		set({ speedPercent: '80' }, undefined)
+		set({ modulesCompleted: [0, 0] }, undefined)
+		set({ videosCompleted: [0, 0] }, undefined)
+		set({ maxDuration: '0' }, undefined)
+		set({ btnStop: false }, undefined)
+		set({ btnSkip: false }, undefined)
+		set({ btnDwnAll: false }, undefined)
+		set({ btnDwnCur: false }, undefined)
+		set({ noOfCoursesAdded: '0' }, undefined)
 
 		chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
 			chrome.declarativeContent.onPageChanged.addRules([

@@ -1,5 +1,5 @@
 import logo from './logo.svg'
-import './Options.css'
+import './Options.scss'
 
 function Options() {
 	return (

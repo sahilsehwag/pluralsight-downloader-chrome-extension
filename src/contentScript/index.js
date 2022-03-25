@@ -5,6 +5,7 @@
 // Don't forget to change `matches` in manifest.json if you want to only change specific webpages
 
 import $ from 'jquery'
+import { get, sendMessage, sleep } from 'utils'
 
 main()
 
@@ -47,23 +48,6 @@ export function main() {
 	// const sleep = ms =>
 	// 	new Promise((resolve) => setTimeout(resolve, ms));
 
-	const sleep = (millis, throwOnAborted = false) => {
-		let timeout_id
-		let rejector
-		const prom = new Promise((resolve, reject) => {
-			rejector = throwOnAborted ? reject : () => resolve()
-
-			timeout_id = setTimeout(() => {
-				resolve()
-			}, millis)
-		})
-		prom.abort = () => {
-			clearTimeout(timeout_id)
-			rejector('aborted')
-		}
-		return prom
-	}
-
 	const updateWaitStats = timeStat => {
 		try {
 			return asyncInterval(writeTimeStat, timeStat)
@@ -72,7 +56,7 @@ export function main() {
 
 	const writeTimeStat = msStat => {
 		let toSec = new Date(msStat).toISOString().slice(14, -5)
-		chrome.runtime.sendMessage({ Status: `Waiting... ${toSec}` })
+		sendMessage({ extensionStatus: `Waiting... ${toSec}` })
 	}
 
 	const asyncInterval = (callback, msClear, msInterval = 1000) => {
@@ -99,7 +83,7 @@ export function main() {
 
 	const downloadFile = (link, filePath) => {
 		return new Promise(resolve => {
-			chrome.runtime.sendMessage(
+			sendMessage(
 				{
 					action: 'download-sync',
 					link: link,
@@ -111,7 +95,7 @@ export function main() {
 	}
 
 	const readSharedValue = async name =>
-		new Promise(resolve => chrome.storage.sync.get(name, data => (data == null ? resolve() : resolve(data[name]))))
+		new Promise(resolve => get(name, data => (data == null ? resolve() : resolve(data[name]))))
 
 	const readSpeed = () => readSharedValue('speedPercent')
 
@@ -361,7 +345,7 @@ export function main() {
 				}
 			}
 
-			chrome.runtime.sendMessage({
+			sendMessage({
 				action: 'badge',
 				text: `${video_to_download.length}`,
 			})
@@ -415,7 +399,7 @@ export function main() {
 			await downloadPlaylistText(playlistText, playlistPath)
 		} catch (error) {
 			log(error, 'ERROR')
-			chrome.runtime.sendMessage({ Status: 'Stopped' })
+			sendMessage({ extensionStatus: 'Stopped' })
 			return error
 		}
 	}
@@ -435,7 +419,7 @@ export function main() {
 		var idx = video_to_download.indexOf(item)
 		video_to_download.splice(idx, 1)
 
-		chrome.runtime.sendMessage({
+		sendMessage({
 			action: 'badge',
 			text: `${video_to_download.length}`,
 		})
@@ -457,7 +441,7 @@ export function main() {
 			let to_download_again = []
 			await getCourseStats(courseJSON, startingVideoId)
 
-			chrome.runtime.sendMessage({ CourseTitle: courseName })
+			sendMessage({ courseTitle: courseName })
 
 			for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
 				const { title: sectionName, contentItems: sectionItems } = sections[sectionIndex]
@@ -512,7 +496,7 @@ export function main() {
 					const filePathNoExt_subs = filePath_subs.substring(0, extensionIndex)
 
 					log(`Downloading... "${videoName}"`, 'DOWNLOAD')
-					chrome.runtime.sendMessage({ Status: 'Downloading...' })
+					sendMessage({ extensionStatus: 'Downloading...' })
 
 					let exceptionId = 0
 					try {
@@ -552,10 +536,10 @@ export function main() {
 					}
 
 					// Progress Informaton Update on Storage
-					chrome.runtime.sendMessage({
-						Completion_Module: [sectionIndex + 1, sections.length],
-						Completion_Video: [videoIndex + 1, sectionItems.length],
-						Status: 'Downloading...',
+					sendMessage({
+						modulesCompleted: [sectionIndex + 1, sections.length],
+						videosCompleted: [videoIndex + 1, sectionItems.length],
+						extensionStatus: 'Downloading...',
 					})
 					removeDownloadItem(videoId)
 
@@ -564,7 +548,7 @@ export function main() {
 						continue
 					}
 
-					chrome.runtime.sendMessage({ Status: 'Waiting...' })
+					sendMessage({ extensionStatus: 'Waiting...' })
 
 					let speed = await readSpeed()
 					let maxDuration = await readMaxDuration()
@@ -590,9 +574,9 @@ export function main() {
 				}
 			}
 
-			chrome.runtime.sendMessage({ Status: 'Retry...' })
+			sendMessage({ extensionStatus: 'Retry...' })
 			for (let i = to_download_again.length - 1; i >= 0; i--) {
-				chrome.runtime.sendMessage({
+				sendMessage({
 					action: 'badge',
 					text: `${to_download_again.length}`,
 				})
@@ -627,17 +611,17 @@ export function main() {
 			}
 		} catch (error) {
 			log(error, 'ERROR')
-			chrome.runtime.sendMessage({ Status: 'Errored' })
+			sendMessage({ extensionStatus: 'Errored' })
 			return error
 		} finally {
-			if (CONTINUE_DOWNLOAD) chrome.runtime.sendMessage({ Status: 'Finished' })
-			else chrome.runtime.sendMessage({ Status: 'Cancelled' })
+			if (CONTINUE_DOWNLOAD) sendMessage({ extensionStatus: 'Finished' })
+			else sendMessage({ extensionStatus: 'Cancelled' })
 
 			log('Downloading finished!!!')
 			//confirm("Downloading finished");
 
 			video_to_download = []
-			chrome.runtime.sendMessage({ action: 'badge', text: `` })
+			sendMessage({ action: 'badge', text: `` })
 
 			CONTINUE_DOWNLOAD = false
 		}
@@ -648,30 +632,30 @@ export function main() {
 			return false
 		}
 
-		if (message.btnCmd) {
+		if (message.action) {
 			var e = $.Event('keypress')
 			EXTENSION_ENABLED = true
 
-			if (message.btnCmd.cmd === 'DwnAll') {
+			if (message.action.cmd === 'downloadAll') {
 				if (CONTINUE_DOWNLOAD) return
 
 				EXTENSION_ENABLED = true
 				e.which = 99 // Character 'a'
-			} else if (message.btnCmd.cmd === 'DwnCur') {
+			} else if (message.action.cmd === 'downloadCurrent') {
 				if (CONTINUE_DOWNLOAD) return
 
 				EXTENSION_ENABLED = true
 				e.which = 86 // Character 'a'
-			} else if (message.btnCmd.cmd === 'AddCourse') {
+			} else if (message.action.cmd === 'addCourse') {
 				// must be in downlonding state in advance
 				// if (!CONTINUE_DOWNLOAD)
 				// 	return;
 
 				e.which = 96 // Character 'a'
-			} else if (message.btnCmd.cmd === 'Skip') {
+			} else if (message.action.cmd === 'skip') {
 				CURRENT_SLEEP?.abort()
 				return
-			} else if (message.btnCmd.cmd === 'Stop') {
+			} else if (message.action.cmd === 'stop') {
 				CONTINUE_DOWNLOAD = false
 				e.which = 115 // Character 's'
 			}
@@ -730,11 +714,11 @@ export function main() {
 				CONTINUE_DOWNLOAD = false
 				CURRENT_SLEEP?.abort()
 
-				chrome.runtime.sendMessage({
-					CourseTitle: '',
-					Completion_Module: [0, 0],
-					Completion_Video: [0, 0],
-					Status: 'Ready...',
+				sendMessage({
+					courseTitle: '',
+					modulesCompleted: [0, 0],
+					videosCompleted: [0, 0],
+					extensionStatus: 'Ready...',
 				})
 
 				return
@@ -755,7 +739,7 @@ export function main() {
 						addedCourses.push(courseJSON)
 						chrome.storage.local.set({ addedCourses: addedCourses })
 
-						chrome.runtime.sendMessage({ AddedCourseCount: addedCourses.length })
+						sendMessage({ noOfCoursesAdded: addedCourses.length })
 					})
 					return
 				}
@@ -767,7 +751,7 @@ export function main() {
 					CONTINUE_DOWNLOAD = true
 					let startingVideoId = cmdDownloadFromNowOn ? getCurrentVideoId() : null
 					if (!cmdDownloadFromNowOn) {
-						chrome.runtime.sendMessage({ Status: 'Downloading...' })
+						sendMessage({ extensionStatus: 'Downloading...' })
 						await downloadPlaylist(courseJSON)
 						// you can skip the waiting for exercise download to complete
 						CURRENT_SLEEP = downloadExerciseFiles(courseJSON)
@@ -785,15 +769,15 @@ export function main() {
 									let dwnCourse = courses.shift()
 									chrome.storage.local.set({ addedCourses: courses })
 
-									chrome.runtime.sendMessage({
-										AddedCourseCount: courses.length,
+									sendMessage({
+										noOfCoursesAdded: courses.length,
 									})
 									resolve(dwnCourse)
 								}
 							}),
 						)
 						if (!nextCourse) {
-							chrome.runtime.sendMessage({ AddedCourseCount: 0 })
+							sendMessage({ noOfCoursesAdded: 0 })
 							break
 						}
 
@@ -808,13 +792,13 @@ export function main() {
 					}
 				} else {
 					if (cmdPlaylist) {
-						chrome.runtime.sendMessage({ Status: 'Downloading...' })
+						sendMessage({ extensionStatus: 'Downloading...' })
 						await downloadPlaylist(courseJSON)
 						return
 					}
 
 					if (cmdExerciseFiles) {
-						chrome.runtime.sendMessage({ Status: 'Downloading...' })
+						sendMessage({ extensionStatus: 'Downloading...' })
 
 						CURRENT_SLEEP = downloadExerciseFiles(courseJSON)
 						await CURRENT_SLEEP
