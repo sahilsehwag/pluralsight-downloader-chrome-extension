@@ -110,8 +110,9 @@ const readAddedCourses = () => readSharedValue('AddedCourses')
 
 const readSecondaryLanguageCode = () => readSharedValue('secondaryLanguage')
 
-const readIsLeadingZeroAlways = () => {
-	let isAlwaysLeadingZero = readSharedValue('isAlwaysLeadingZero')
+const readIsLeadingZeroAlways = async () => {
+	//fix: isAlwaysLeadingZero is a awaitable function
+	let isAlwaysLeadingZero = await readSharedValue('isAlwaysLeadingZero')
 	if (isAlwaysLeadingZero === 'true') {
 		return true;
 	}
