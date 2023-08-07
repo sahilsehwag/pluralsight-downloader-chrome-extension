@@ -62,13 +62,14 @@ export const Status = () => {
 				<label className="status__label">
 					STATUS:
 					<span id="label_Status" className="status__value">
-						{extensionStatus}
+						{extensionStatus}{' '}
 					</span>
 				</label>
 				<svg className="status__active disabled">
 					<circle cx="8" cy="8" r="8" stroke="none" strokeWidth="3" />
 				</svg>
 			</div>
+			<hr />
 			<div className="download-status">
 				<label className="course-name">
 					Course: <span id="label_Title">{courseStatus}</span>
@@ -83,7 +84,7 @@ export const Status = () => {
 					Added Courses: <span id="label_AddedCourseCnt">{addedCoursesStatus}</span>
 				</label>
 				<div className="courseType">
-					<label className="coursetype__label">Course Type:</label>
+					<label className="coursetype__label">Course Type: </label>
 					<select
 						id="CourseType"
 						name="Course Type"

@@ -1,4 +1,3 @@
-/*global chrome*/
 // If your extension doesn't need a content script, just leave this file empty
 
 // This is an example of a script that will run on every page. This can alter pages
@@ -51,7 +50,9 @@ export function main() {
 	const updateWaitStats = timeStat => {
 		try {
 			return asyncInterval(writeTimeStat, timeStat)
-		} catch (e) {}
+		} catch (e) {
+			console.log(e)
+		}
 	}
 
 	const writeTimeStat = msStat => {
@@ -761,6 +762,7 @@ export function main() {
 
 					await downloadCourse(courseJSON, startingVideoId)
 
+					// eslint-disable-next-line
 					while (true) {
 						let nextCourse = await new Promise(resolve =>
 							chrome.storage.local.get('addedCourses', data => {

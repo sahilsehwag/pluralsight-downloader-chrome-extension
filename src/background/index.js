@@ -1,5 +1,3 @@
-/*global chrome*/
-
 import { set } from 'utils'
 
 main()

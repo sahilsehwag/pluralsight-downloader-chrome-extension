@@ -1,14 +1,12 @@
-import { curry } from 'ramda'
-
 export * from './chrome'
 
-export const sleep = curry((ms, throwOnAbort = false) => {
+export const sleep = (timeInMs, throwOnAbort = false) => {
 	let timeoutId
 	let abortHandler
 
 	const promise = new Promise((resolve, reject) => {
 		abortHandler = throwOnAbort ? reject : () => resolve()
-		timeoutId = setTimeout(() => resolve(), ms)
+		timeoutId = setTimeout(() => resolve(), timeInMs)
 	})
 
 	promise.abort = () => {
@@ -16,4 +14,4 @@ export const sleep = curry((ms, throwOnAbort = false) => {
 		abortHandler('aborted')
 	}
 	return promise
-})
+}

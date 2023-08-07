@@ -10,19 +10,19 @@ const handleDownloadAll = () => sendAction('downloadAll')
 export const Actions = () => (
 	<div className="controls">
 		<button id="btnDwnAll" className="download__all" title="Download All" onClick={handleDownloadAll}>
-			<DownloadAllIcon />
+			Download All
 		</button>
 		<button id="btnDwnCur" className="download__current" title="Download Current" onClick={handleDownload}>
-			<DownloadIcon />
+			Download Current
 		</button>
 		<button id="btnAddCourse" className="download__add-course" title="Add Course" onClick={handleAdd}>
-			<AddIcon />
+			Add course
 		</button>
 		<button id="btnSkip" className="download__skip-video" title="Skip" onClick={handleSkip}>
-			<SkipIcon />
+			Skip
 		</button>
 		<button id="btnStop" className="download__stop" title="Stop" onClick={handleStop}>
-			<StopIcon />
+			Stop
 		</button>
 	</div>
 )
