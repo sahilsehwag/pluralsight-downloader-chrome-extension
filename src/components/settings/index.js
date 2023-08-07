@@ -116,7 +116,7 @@ export const Settings = () => {
 
 	useEffect(() => {
 		get('isAlwaysLeadingZero', function (data) {
-			setIsAlwaysLeadingZero(data.secondaryLanguage !== undefined ? data.isAlwaysLeadingZero : 'false')
+			setIsAlwaysLeadingZero(data.isAlwaysLeadingZero !== undefined ? data.isAlwaysLeadingZero : 'false')
 		})
 
 		get('secondaryLanguage', function (data) {

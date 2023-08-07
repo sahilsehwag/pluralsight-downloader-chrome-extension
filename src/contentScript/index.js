@@ -192,6 +192,7 @@ export function main() {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+					'x-team': 'video-services',
 				},
 				body: JSON.stringify({
 					clipId: videoId,

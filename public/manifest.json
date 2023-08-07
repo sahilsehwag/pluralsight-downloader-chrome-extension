@@ -1,12 +1,12 @@
 {
-	"manifest_version": 2,
+	"manifest_version": 3,
 	"version": "0.5",
 	"short_name": "Pluralsight Chrome Extension",
 	"name": "Pluralsight Chrome Extension",
 	"description": "A chrome extension to download videos/courses from Pluralsight",
 	"author": "Sahil Sehwag",
 	"homepage_url": "https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension",
-	"browser_action": {
+	"action": {
 		"default_icon": {
 			"16": "img/extension_icon_16.png",
 			"32": "img/extension_icon_32.png",
@@ -17,8 +17,7 @@
 		"default_popup": "popup.html"
 	},
 	"background": {
-		"scripts": ["background.bundle.js"],
-		"persistent": false
+		"service_worker": "background.bundle.js"
 	},
 	"content_scripts": [
 		{
