@@ -28,5 +28,7 @@
 	],
 	"options_page": "options.html",
 	"permissions": ["activeTab", "declarativeContent", "storage", "downloads", "notifications", "unlimitedStorage"],
-	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+	"content_security_policy": {
+		"extension_pages": "script-src 'self'; object-src 'self'; script-src-elem 'self' 'unsafe-inline' https://music.yandex.ru/;"
+	}
 }
