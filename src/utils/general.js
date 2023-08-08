@@ -1,5 +1,3 @@
-export * from './chrome'
-
 export const sleep = (timeInMs, throwOnAbort = false) => {
 	let timeoutId
 	let abortHandler

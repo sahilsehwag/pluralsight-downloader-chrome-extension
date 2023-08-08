@@ -1,4 +1,5 @@
+export * from './general'
 export * from './labels'
-export * from './messages'
 export * from './urls'
 export * from './locales'
+export * from './configs'

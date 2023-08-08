@@ -13,13 +13,21 @@ export function main() {
 	var onChangeFactory =
 		responseCb =>
 		({ state }) => {
-			if (state && state.current === 'complete' && state.previous === 'in_progress') {
+			if (
+				state &&
+				state.current === 'complete' &&
+				state.previous === 'in_progress'
+			) {
 				chrome.downloads.onChanged.removeListener(listenerInstance)
 				responseCb({ actionStatus: 'File downloaded successfully' })
 			}
 		}
 
-	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+	chrome.runtime.onMessage.addListener(function (
+		request,
+		sender,
+		sendResponse,
+	) {
 		if (request.action === 'download' || request.action === 'download-sync') {
 			filePath = request.filePath
 

@@ -4,7 +4,7 @@
 // Don't forget to change `matches` in manifest.json if you want to only change specific webpages
 
 import $ from 'jquery'
-import { get, sendMessage, sleep } from 'utils'
+import { getAll, sendMessage, sleep } from 'utils'
 
 main()
 
@@ -96,7 +96,9 @@ export function main() {
 	}
 
 	const readSharedValue = async name =>
-		new Promise(resolve => get(name, data => (data == null ? resolve() : resolve(data[name]))))
+		new Promise(resolve =>
+			getAll(name, data => (data == null ? resolve() : resolve(data[name]))),
+		)
 
 	const readSpeed = () => readSharedValue('speedPercent')
 
@@ -116,7 +118,8 @@ export function main() {
 
 	const readCourseType = () => readSharedValue('courseType')
 
-	const log = (message, type = 'STATUS') => console.log(`[${APPNAME}]:[${type}]: ${message}`)
+	const log = (message, type = 'STATUS') =>
+		console.log(`[${APPNAME}]:[${type}]: ${message}`)
 
 	const replaceQuotesWithSquareBrackets = name => {
 		let isFirstQuote = true
@@ -152,7 +155,9 @@ export function main() {
 
 	const removeInvalidCharacters = name => {
 		let clearedName = replaceQuotesWithSquareBrackets(name)
-		clearedName = replaceColonsWithHyphen(clearedName).replace(INVALID_CHARACTERS, '').trim()
+		clearedName = replaceColonsWithHyphen(clearedName)
+			.replace(INVALID_CHARACTERS, '')
+			.trim()
 		return clearedName
 	}
 
@@ -236,9 +241,14 @@ export function main() {
 		try {
 			const rootDirectory = ROOT_DIRECTORY
 			const courseDirectory =
-				authorName !== undefined ? `${courseName} By ${authorName}`.trim() : `${courseName}`.trim()
+				authorName !== undefined
+					? `${courseName} By ${authorName}`.trim()
+					: `${courseName}`.trim()
 
-			return `${rootDirectory}\\${courseDirectory}`.replace(/(\r\n|\n|\r)/gm, '')
+			return `${rootDirectory}\\${courseDirectory}`.replace(
+				/(\r\n|\n|\r)/gm,
+				'',
+			)
 		} catch (error) {
 			return error
 		}
@@ -256,7 +266,11 @@ export function main() {
 		forPlaylist = false,
 	) => {
 		try {
-			const sectionDirectory = getDirectoryName(sectionIndex, sectionName, addPadding)
+			const sectionDirectory = getDirectoryName(
+				sectionIndex,
+				sectionName,
+				addPadding,
+			)
 			const fileName = getFileName(videoIndex, videoName, addPadding)
 
 			let filePath = `${sectionDirectory}\\${fileName}.${extension}`
@@ -292,9 +306,15 @@ export function main() {
 	const printTimeStats = async (courseJSON, startingVideoId) => {
 		let stat = await getCourseStats(courseJSON, startingVideoId)
 
-		let friendlyTtl = new Date(stat.timeTotal * 1000).toISOString().substr(11, 8)
-		let friendlyTfn = new Date(stat.timeFromNow * 1000).toISOString().substr(11, 8)
-		let friendlyTfnDl = new Date(stat.timeDownloading * 1000).toISOString().substr(11, 8)
+		let friendlyTtl = new Date(stat.timeTotal * 1000)
+			.toISOString()
+			.substr(11, 8)
+		let friendlyTfn = new Date(stat.timeFromNow * 1000)
+			.toISOString()
+			.substr(11, 8)
+		let friendlyTfnDl = new Date(stat.timeDownloading * 1000)
+			.toISOString()
+			.substr(11, 8)
 
 		console.log(`Total course time: ${friendlyTtl}`)
 		console.log(`Time remaining: ${friendlyTfn}`)
@@ -309,7 +329,10 @@ export function main() {
 		try {
 			const { authors, modules: sections } = courseJSON
 
-			let authorName = authors[0].displayName != null ? authors[0].displayName : authors[0].authorHandle
+			let authorName =
+				authors[0].displayName != null
+					? authors[0].displayName
+					: authors[0].authorHandle
 			if (authorName == null) authorName = 'noName'
 
 			// download all videos when no startid was given
@@ -317,10 +340,18 @@ export function main() {
 
 			video_to_download = []
 
-			for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+			for (
+				let sectionIndex = 0;
+				sectionIndex < sections.length;
+				sectionIndex++
+			) {
 				const { contentItems: sectionItems } = sections[sectionIndex]
 
-				for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
+				for (
+					let videoIndex = 0;
+					videoIndex < sectionItems.length;
+					videoIndex++
+				) {
 					if (!CONTINUE_DOWNLOAD) {
 						CONTINUE_DOWNLOAD = false
 						log('Downloading stopped!!!')
@@ -369,13 +400,25 @@ export function main() {
 
 			let playlistLines = []
 
-			let authorName = authors[0].displayName != null ? authors[0].displayName : authors[0].authorHandle
+			let authorName =
+				authors[0].displayName != null
+					? authors[0].displayName
+					: authors[0].authorHandle
 			if (authorName == null) authorName = 'noName'
 
-			for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
-				const { title: sectionName, contentItems: sectionItems } = sections[sectionIndex]
+			for (
+				let sectionIndex = 0;
+				sectionIndex < sections.length;
+				sectionIndex++
+			) {
+				const { title: sectionName, contentItems: sectionItems } =
+					sections[sectionIndex]
 
-				for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
+				for (
+					let videoIndex = 0;
+					videoIndex < sectionItems.length;
+					videoIndex++
+				) {
 					const { title: videoName } = sectionItems[videoIndex]
 
 					const isLeadingZeroAlways = await readIsLeadingZeroAlways()
@@ -396,7 +439,10 @@ export function main() {
 			}
 
 			let playlistText = playlistLines.join('\n')
-			let playlistPath = getPlaylistPath(removeInvalidCharacters(courseName), removeInvalidCharacters(authorName))
+			let playlistPath = getPlaylistPath(
+				removeInvalidCharacters(courseName),
+				removeInvalidCharacters(authorName),
+			)
 
 			await downloadPlaylistText(playlistText, playlistPath)
 		} catch (error) {
@@ -431,13 +477,19 @@ export function main() {
 		try {
 			const { title: courseName, authors, modules: sections } = courseJSON
 
-			let authorName = authors[0].displayName != null ? authors[0].displayName : authors[0].authorHandle
+			let authorName =
+				authors[0].displayName != null
+					? authors[0].displayName
+					: authors[0].authorHandle
 			if (authorName == null) authorName = 'noName'
 
 			// download all videos when no startid was given
 			let startToggle = startingVideoId == null || startingVideoId === ''
 
-			log(`#################### "${courseName} By ${authorName}" ####################`, 'INFO')
+			log(
+				`#################### "${courseName} By ${authorName}" ####################`,
+				'INFO',
+			)
 
 			// store the download failed file information to try again after done
 			let to_download_again = []
@@ -445,18 +497,35 @@ export function main() {
 
 			sendMessage({ courseTitle: courseName })
 
-			for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
-				const { title: sectionName, contentItems: sectionItems } = sections[sectionIndex]
+			for (
+				let sectionIndex = 0;
+				sectionIndex < sections.length;
+				sectionIndex++
+			) {
+				const { title: sectionName, contentItems: sectionItems } =
+					sections[sectionIndex]
 
-				log(`==================== "${sectionName}" ====================`, 'INFO')
+				log(
+					`==================== "${sectionName}" ====================`,
+					'INFO',
+				)
 
-				for (let videoIndex = 0; videoIndex < sectionItems.length; videoIndex++) {
+				for (
+					let videoIndex = 0;
+					videoIndex < sectionItems.length;
+					videoIndex++
+				) {
 					if (!CONTINUE_DOWNLOAD) {
 						log('Downloading stopped!!!')
 						return
 					}
 
-					const { id: videoId, title: videoName, version: versionId, duration } = sectionItems[videoIndex]
+					const {
+						id: videoId,
+						title: videoName,
+						version: versionId,
+						duration,
+					} = sectionItems[videoIndex]
 
 					if (!startToggle) {
 						if (videoId === startingVideoId) {
@@ -513,7 +582,11 @@ export function main() {
 								secondaryLangCode !== '' &&
 								secondaryLangCode !== 'none'
 							) {
-								const langSubsUrl = await getSubtitleURL(videoId, versionId, secondaryLangCode)
+								const langSubsUrl = await getSubtitleURL(
+									videoId,
+									versionId,
+									secondaryLangCode,
+								)
 								const filePath_subsLang = `${filePathNoExt_subs}.${secondaryLangCode}.vtt`
 								await downloadSubs(langSubsUrl, filePath_subsLang)
 							}
@@ -556,8 +629,13 @@ export function main() {
 					let maxDuration = await readMaxDuration()
 					// Sleep for minimum duration btw the time with percent and the max duration time
 					if (maxDuration !== 0) {
-						log(`maxDuration: ${maxDuration} duration: ${duration} speed: ${speed}`, 'INFO')
-						maxDuration = Math.floor(Math.random() * (maxDuration - Number(speed)) + Number(speed))
+						log(
+							`maxDuration: ${maxDuration} duration: ${duration} speed: ${speed}`,
+							'INFO',
+						)
+						maxDuration = Math.floor(
+							Math.random() * (maxDuration - Number(speed)) + Number(speed),
+						)
 						CURRENT_INTERVAL = updateWaitStats(maxDuration * 1000)
 						CURRENT_SLEEP = sleep(maxDuration * 1000)
 						// CURRENT_INTERVAL = updateWaitStats(Math.min(duration * 10 * speed, maxDuration * 1000))
@@ -568,8 +646,12 @@ export function main() {
 					}
 					// Sleep for duration based on a constant updated by speedPercent from extesion browser
 					else {
-						CURRENT_INTERVAL = updateWaitStats(Math.max(duration * 10 * speed, DOWNLOAD_TIMEOUT))
-						CURRENT_SLEEP = sleep(Math.max(duration * 10 * speed, DOWNLOAD_TIMEOUT))
+						CURRENT_INTERVAL = updateWaitStats(
+							Math.max(duration * 10 * speed, DOWNLOAD_TIMEOUT),
+						)
+						CURRENT_SLEEP = sleep(
+							Math.max(duration * 10 * speed, DOWNLOAD_TIMEOUT),
+						)
 						await CURRENT_SLEEP
 						CURRENT_INTERVAL.abort()
 					}
@@ -588,8 +670,13 @@ export function main() {
 					const subsURL = await getSubtitleURL(fileInfo.videoId, fileInfo.verId)
 					await downloadSubs(subsURL, fileInfo.filePath_subs)
 					// Secondary language logic
-					const extensionIndex = fileInfo.filePath_subs.lastIndexOf(`.${EXTENSION_SUBS}`)
-					const filePathNoExt_subs = fileInfo.filePath_subs.substring(0, extensionIndex)
+					const extensionIndex = fileInfo.filePath_subs.lastIndexOf(
+						`.${EXTENSION_SUBS}`,
+					)
+					const filePathNoExt_subs = fileInfo.filePath_subs.substring(
+						0,
+						extensionIndex,
+					)
 					const secondaryLangCode = await readSecondaryLanguageCode()
 					if (
 						secondaryLangCode !== null &&
@@ -597,7 +684,11 @@ export function main() {
 						secondaryLangCode !== '' &&
 						secondaryLangCode !== 'none'
 					) {
-						const langSubsUrl = await getSubtitleURL(fileInfo.videoId, fileInfo.versionId, secondaryLangCode)
+						const langSubsUrl = await getSubtitleURL(
+							fileInfo.videoId,
+							fileInfo.versionId,
+							secondaryLangCode,
+						)
 						const filePath_subsLang = `${filePathNoExt_subs}.${secondaryLangCode}.vtt`
 						await downloadSubs(langSubsUrl, filePath_subsLang)
 					}
@@ -606,8 +697,12 @@ export function main() {
 				downloadVideo(videoURL, fileInfo.filePath)
 
 				let speed = await readSpeed()
-				CURRENT_INTERVAL = updateWaitStats(Math.max(fileInfo.duration * 10 * speed, DOWNLOAD_TIMEOUT))
-				CURRENT_SLEEP = sleep(Math.max(fileInfo.duration * 10 * speed, DOWNLOAD_TIMEOUT))
+				CURRENT_INTERVAL = updateWaitStats(
+					Math.max(fileInfo.duration * 10 * speed, DOWNLOAD_TIMEOUT),
+				)
+				CURRENT_SLEEP = sleep(
+					Math.max(fileInfo.duration * 10 * speed, DOWNLOAD_TIMEOUT),
+				)
 				await CURRENT_SLEEP
 				CURRENT_INTERVAL.abort()
 			}
@@ -670,14 +765,22 @@ export function main() {
 		try {
 			const { id: courseId, title: courseName, authors } = courseJSON
 
-			let authorName = authors[0].displayName != null ? authors[0].displayName : authors[0].authorHandle
+			let authorName =
+				authors[0].displayName != null
+					? authors[0].displayName
+					: authors[0].authorHandle
 			if (authorName == null) authorName = 'noName'
 
 			let exerciseLinkJson = await (
-				await fetch(`https://app.pluralsight.com/learner/user/courses/${courseId}/exercise-files-url`)
+				await fetch(
+					`https://app.pluralsight.com/learner/user/courses/${courseId}/exercise-files-url`,
+				)
 			).json()
 
-			let targetPath = getExercisePath(removeInvalidCharacters(courseName), removeInvalidCharacters(authorName))
+			let targetPath = getExercisePath(
+				removeInvalidCharacters(courseName),
+				removeInvalidCharacters(authorName),
+			)
 
 			await downloadFile(exerciseLinkJson.exerciseFilesUrl, targetPath)
 		} catch (error) {
@@ -701,7 +804,9 @@ export function main() {
 
 			if (cmdToggleEnabled) {
 				// Enable/Disabled extension bindings
-				!EXTENSION_ENABLED ? log('Enabled the extension bindings.') : log('Disabled the extension bindings.')
+				!EXTENSION_ENABLED
+					? log('Enabled the extension bindings.')
+					: log('Disabled the extension bindings.')
 				EXTENSION_ENABLED = !EXTENSION_ENABLED
 				return
 			}
@@ -725,17 +830,30 @@ export function main() {
 
 				return
 			}
-			if (cmdExerciseFiles || cmdPlaylist || cmdDownloadAll || cmdDownloadFromNowOn || cmdTime || cmdAddCourse) {
-				log('Downloading course ' + (cmdDownloadAll ? 'from the beginning' : 'from now on') + ' ...')
+			if (
+				cmdExerciseFiles ||
+				cmdPlaylist ||
+				cmdDownloadAll ||
+				cmdDownloadFromNowOn ||
+				cmdTime ||
+				cmdAddCourse
+			) {
+				log(
+					'Downloading course ' +
+						(cmdDownloadAll ? 'from the beginning' : 'from now on') +
+						' ...',
+				)
 				log('Fetching course information...')
 
-				const courseJSON = JSON.parse($(window.__NEXT_DATA__).text()).props.pageProps.tableOfContents
+				const courseJSON = JSON.parse($(window.__NEXT_DATA__).text()).props
+					.pageProps.tableOfContents
 
 				if (cmdAddCourse) {
 					log('Add Course')
 					let addedCourses = []
 					chrome.storage.local.get('addedCourses', data => {
-						if (data.addedCourses) addedCourses.push.apply(addedCourses, data.addedCourses)
+						if (data.addedCourses)
+							addedCourses.push.apply(addedCourses, data.addedCourses)
 
 						courseJSON.startingVideoId = null
 						addedCourses.push(courseJSON)
@@ -747,11 +865,17 @@ export function main() {
 				}
 
 				if (cmdDownloadAll || cmdDownloadFromNowOn) {
-					log('Downloading course ' + (cmdDownloadAll ? 'from the beginning' : 'from now on') + ' ...')
+					log(
+						'Downloading course ' +
+							(cmdDownloadAll ? 'from the beginning' : 'from now on') +
+							' ...',
+					)
 					log('Fetching course information...')
 
 					CONTINUE_DOWNLOAD = true
-					let startingVideoId = cmdDownloadFromNowOn ? getCurrentVideoId() : null
+					let startingVideoId = cmdDownloadFromNowOn
+						? getCurrentVideoId()
+						: null
 					if (!cmdDownloadFromNowOn) {
 						sendMessage({ extensionStatus: 'Downloading...' })
 						await downloadPlaylist(courseJSON)

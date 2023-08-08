@@ -103,4 +103,4 @@ export const LOCALE_X_LANGUAGE = {
 	yi: 'Yiddish',
 	yo: 'Yoruba',
 	zu: 'Zulu',
-}
+} as const

@@ -41,6 +41,7 @@
 		"@testing-library/react": "^11.1.0",
 		"@testing-library/user-event": "^12.1.10",
 		"@types/autoprefixer": "^10.2.0",
+		"@types/chrome": "^0.0.243",
 		"@types/react": "^18.2.18",
 		"@types/react-dom": "^18.2.7",
 		"@typescript-eslint/eslint-plugin": "^6.2.1",
