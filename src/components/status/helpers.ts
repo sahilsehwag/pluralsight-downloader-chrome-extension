@@ -1,5 +1,9 @@
-export const getModuleCompletionStatus = ([modulesCompleted, totalModules]) =>
-	`${modulesCompleted} / ${totalModules}`
+export const getModuleCompletionStatus = ([modulesCompleted, totalModules]: [
+	number,
+	number,
+]): string => `${modulesCompleted} / ${totalModules}`
 
-export const getVideoCompletionStatus = ([videosCompleted, totalVideos]) =>
-	`${videosCompleted} / ${totalVideos}`
+export const getVideoCompletionStatus = ([videosCompleted, totalVideos]: [
+	number,
+	number,
+]) => `${videosCompleted} / ${totalVideos}`

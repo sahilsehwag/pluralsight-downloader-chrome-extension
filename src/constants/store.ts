@@ -15,6 +15,18 @@ export const FIELDS = {
 	MAX_DELAY: 'MAX_DELAY',
 } as const
 
+export const STATUS_FIELDS = [
+  FIELDS.STATUS,
+	FIELDS.COURSES_ADDED,
+]
+
+export const SETTINGS_FIELDS = [
+	FIELDS.LEADING_ZERO,
+	FIELDS.SECONDARY_LANGUAGE,
+	FIELDS.DOWNLOAD_DELAY,
+	FIELDS.MAX_DELAY,
+]
+
 export const ACTIONS = {
 	DOWNLOAD_CURRENT: 'DOWNLOAD_CURRENT',
 	DOWNLOAD_ALL: 'DOWNLOAD_ALL',
@@ -68,4 +80,11 @@ export const ACTION_X_KEY = {
 	[ACTIONS.ADD_COURSE]: 'addCourse',
 	[ACTIONS.SKIP_VIDEO]: 'skip',
 	[ACTIONS.STOP]: 'stop',
+} as const
+
+export const BG_ACTIONS = {
+	DOWNLOAD: 'download',
+	DOWNLOAD_SYNC: 'download-sync',
+	// ...?
+	BADGE: 'badge',
 } as const

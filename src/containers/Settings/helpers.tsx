@@ -1,4 +1,4 @@
-import { pipe } from 'fp-ts/lib/function'
+import { pipe } from 'fp-ts/function'
 import { D } from '@mobily/ts-belt'
 
 import { LOCALE_X_LANGUAGE } from 'constants/index'

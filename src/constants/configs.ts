@@ -1,27 +1,26 @@
 import { D } from '@mobily/ts-belt'
 
-import { ACTIONS, ACTION_X_KEY, FIELDS, FIELD_X_KEY } from './general'
-
+import { ACTIONS, ACTION_X_KEY, FIELDS, FIELD_X_KEY } from './store'
 import { ACTION_X_LABEL, FIELD_X_LABEL } from './labels'
 
-import { sendAction } from 'utils'
+import { ValueOf } from 'types'
 
-const ACTION_X_CLASSNAME = {
-	[ACTIONS.DOWNLOAD_CURRENT]: 'downloa__current',
-	[ACTIONS.DOWNLOAD_ALL]: 'download__all',
-	[ACTIONS.ADD_COURSE]: 'download__add-course',
-	[ACTIONS.SKIP_VIDEO]: 'download__skip-video',
-	[ACTIONS.STOP]: 'download__stop',
-} as const
+export type ActionConfig = {
+	key: ValueOf<typeof ACTION_X_KEY>
+	label: ValueOf<typeof ACTION_X_LABEL>
+}
 
 export const ACTION_X_CONFIG = D.map(ACTIONS, action => ({
 	key: ACTION_X_KEY[action],
 	label: ACTION_X_LABEL[action],
-	class: ACTION_X_CLASSNAME[action],
-	handleClick: () => sendAction(ACTION_X_KEY[action]),
 }))
 
-export const FIELD_X_CONFIG = D.map(FIELDS, action => ({
-	key: FIELD_X_KEY[action],
-	label: FIELD_X_LABEL[action],
+export type FieldConfig = {
+	key: ValueOf<typeof FIELD_X_KEY>
+	label: ValueOf<typeof FIELD_X_LABEL>
+}
+
+export const FIELD_X_CONFIG = D.map(FIELDS, field => ({
+	key: FIELD_X_KEY[field],
+	label: FIELD_X_LABEL[field],
 }))

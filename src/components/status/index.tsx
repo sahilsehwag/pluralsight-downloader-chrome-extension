@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { flow, pipe } from 'fp-ts/lib/function'
 
 import { get, set } from 'utils/chrome'
 import { getModuleCompletionStatus, getVideoCompletionStatus } from './helpers'
@@ -10,6 +9,7 @@ import {
 	FIELD_X_KEY as KEYS,
 	STATUS_X_LABEL,
 	COURSE_TYPES,
+	STATUSES,
 } from 'constants/index'
 
 const {
@@ -22,22 +22,20 @@ const {
 } = KEYS
 
 export const Status = () => {
-	const [status, setStatus] = useState(STATUS_X_LABEL.READY)
-	const [courseTitle, setCourseTitle] = useState('-')
+	const [status, setStatus] = useState(STATUSES.READY)
+	const [courseTitle, setCourseTitle] = useState('NA')
 	const [coursesAdded, setCoursesAdded] = useState(0)
 	const [courseType, setCourseType] = useState(COURSE_TYPES.NEW)
-	const [modulesStatus, setModulesStatus] = useState('-')
-	const [videosStatus, setVideosStatus] = useState('-')
+	const [modulesStatus, setModulesStatus] = useState<[number, number]>()
+	const [videosStatus, setVideosStatus] = useState<[number, number]>()
 
 	useEffect(() => {
 		get(STATUS).then(setStatus)
 		get(COURSE_TITLE).then(setCourseTitle)
 		get(COURSES_ADDED).then(setCoursesAdded)
 		get(COURSE_TYPE).then(setCourseType)
-		get(MODULES_COMPLETED).then(
-			flow(getModuleCompletionStatus, setModulesStatus),
-		)
-		get(VIDEOS_COMPLETED).then(flow(getVideoCompletionStatus, setVideosStatus))
+		get(MODULES_COMPLETED).then(setModulesStatus)
+		get(VIDEOS_COMPLETED).then(setVideosStatus)
 	}, [])
 
 	useEffect(() => {
@@ -70,12 +68,12 @@ export const Status = () => {
 
 			if (modulesCompleted) {
 				set(MODULES_COMPLETED, modulesCompleted)
-				pipe(modulesCompleted, getModuleCompletionStatus, setModulesStatus)
+				setModulesStatus(modulesCompleted)
 			}
 
 			if (videosCompleted) {
 				set(VIDEOS_COMPLETED, videosCompleted)
-				pipe(videosCompleted, getVideoCompletionStatus, setVideosStatus)
+				setVideosStatus(videosCompleted)
 			}
 		})
 	}, [])
@@ -91,7 +89,7 @@ export const Status = () => {
 				<label className="status__label">
 					{FIELD_X_LABEL.STATUS}:
 					<span id="label_Status" className="status__value">
-						{status}{' '}
+						{STATUS_X_LABEL[status]}{' '}
 					</span>
 				</label>
 				<svg className="status__active disabled">
@@ -106,11 +104,15 @@ export const Status = () => {
 				</label>
 				<label className="completed-modules">
 					{FIELD_X_LABEL.MODULES_COMPLETED}:{' '}
-					<span id="label_Module">{modulesStatus}</span>
+					<span id="label_Module">
+						{getModuleCompletionStatus(modulesStatus ?? [0, 0])}
+					</span>
 				</label>
 				<label className="completed-videos">
 					{FIELD_X_LABEL.VIDEOS_COMPLETED}:{' '}
-					<span id="label_Video">{videosStatus}</span>
+					<span id="label_Video">
+						{getVideoCompletionStatus(videosStatus ?? [0, 0])}
+					</span>
 				</label>
 				<label className="added-courses">
 					{FIELD_X_LABEL.COURSES_ADDED}:{' '}

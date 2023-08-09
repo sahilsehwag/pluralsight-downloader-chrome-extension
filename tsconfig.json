@@ -1,31 +1,45 @@
 {
-	"typeAcquisition": {
-		"include": ["chrome"]
-	},
-	"compilerOptions": {
-		"target": "es5",
-		"module": "esnext",
-		"jsx": "react-jsx",
-		"allowJs": true,
-		"baseUrl": "./src",
-		"outDir": "./dist",
-		"declaration": false,
-		"declarationMap": false,
-		"sourceMap": true,
-		"removeComments": true,
-		"strict": true,
-		"esModuleInterop": true,
-		"lib": ["dom", "dom.iterable", "esnext"],
-		"skipLibCheck": true,
-		"allowSyntheticDefaultImports": true,
-		"noImplicitAny": false,
-		"forceConsistentCasingInFileNames": true,
-		"noFallthroughCasesInSwitch": true,
-		"moduleResolution": "node",
-		"resolveJsonModule": true,
-		"isolatedModules": true,
-		"noEmit": true
-	},
-	"include": ["src/**/*"],
-	"exclude": ["node_modules", "lib", "**/*.test.ts", "dev", "build"]
+  "typeAcquisition": {
+    "include": [
+      "chrome"
+    ]
+  },
+  "compilerOptions": {
+    "target": "es5",
+    "module": "esnext",
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "baseUrl": ".",
+    "outDir": "./dist",
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": true,
+    "removeComments": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": false,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "lib",
+    "**/*.test.ts",
+    "dev",
+    "build"
+  ]
 }

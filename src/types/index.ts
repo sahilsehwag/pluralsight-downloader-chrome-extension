@@ -1,23 +1,57 @@
-import {
-	COURSE_TYPES,
-	FIELD_X_KEY,
-	LEADING_ZERO_OPTIONS,
-	STATUSES,
-	LOCALE_X_LANGUAGE,
-} from 'constants/index'
-import { ValueOf } from './utils'
-
 export * from './utils'
 
-export type Store = {
-	[FIELD_X_KEY.STATUS]: ValueOf<typeof STATUSES>
-	[FIELD_X_KEY.COURSE_TITLE]: string
-	[FIELD_X_KEY.COURSE_TYPE]: ValueOf<typeof COURSE_TYPES>
-	[FIELD_X_KEY.COURSES_ADDED]: number
-	[FIELD_X_KEY.MODULES_COMPLETED]: number
-	[FIELD_X_KEY.VIDEOS_COMPLETED]: number
-	[FIELD_X_KEY.LEADING_ZERO]: ValueOf<typeof LEADING_ZERO_OPTIONS>
-	[FIELD_X_KEY.DOWNLOAD_DELAY]: number
-	[FIELD_X_KEY.MAX_DELAY]: number
-	[FIELD_X_KEY.SECONDARY_LANGUAGE]: ValueOf<typeof LOCALE_X_LANGUAGE>
+type CommonDownloadItem = {
+  courseId: string;
+  sectionId: string;
+  videoId: string;
+  url: string;
+  filename: string;
 }
+
+export type PendingItem = {
+  status: 'PENDING';
+};
+
+export type QueuedItem = {
+  status: 'QUEUED';
+};
+
+export type DownloadingItem = {
+  status: 'DOWLOADING';
+  downloadId: string;
+  progress: number;
+};
+
+export type PausedItem = {
+  status: 'PAUSED';
+  downloadId: string;
+  progress: number;
+};
+
+export type CompletedItem = {
+  status: 'COMPLETED';
+  downloadId: string;
+};
+
+export type FailedItem = {
+  status: 'FAILED';
+  downloadId: string;
+  progress: number;
+  error: string;
+};
+
+export type CancelledItem = {
+  status: 'CANCELLED';
+  downloadId: string;
+  progress: number;
+};
+
+export type DownloadItem = CommonDownloadItem & (
+  | PendingItem
+  | QueuedItem
+  | DownloadingItem
+  | PausedItem
+  | CompletedItem
+  | FailedItem
+  | CancelledItem
+)

@@ -5,11 +5,11 @@ import reportWebVitals from './reportWebVitals'
 
 import './index.css'
 
-import { App } from 'containers/App'
+import { Popup } from 'pages/Popup'
 
 ReactDOM.render(
 	<React.StrictMode>
-		<App />
+		<Popup />
 	</React.StrictMode>,
 	document.getElementById('root'),
 )

@@ -5,7 +5,7 @@ import {
 	COURSE_TYPES,
 	LINKS,
 	LEADING_ZERO_OPTIONS,
-} from './general'
+} from './store'
 
 export const FIELD_X_LABEL = {
 	[FIELDS.STATUS]: 'Status',
