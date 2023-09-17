@@ -3,16 +3,16 @@ import * as A from 'fp-ts/Array'
 import * as RA from 'fp-ts/ReadonlyArray'
 import * as TE from 'fp-ts/TaskEither'
 
-import { buildDownloadItem, downloadFile } from 'utils'
+import { buildDownloadItem, downloadFile } from '~/utils'
 
-import { addDownloadItemsToQueue } from 'helpers/store'
-import { fetchExcerciseFilesURL, fetchVideoURL, getSubtitleURL } from 'helpers/api'
+import { addDownloadItemsToQueue } from '~/helpers/store'
+import { fetchExcerciseFilesURL, fetchVideoURL, getSubtitleURL } from '~/helpers/api'
 import {
   buildExercisesPath,
   buildPlaylistFilePath,
   buildVideoPath,
   buildSubtitlePath,
-} from 'helpers/path'
+} from '~/helpers/path'
 
 import {
   CourseEntity as CE,
@@ -20,9 +20,7 @@ import {
   VideoEntity as VE,
   Course,
   Section,
-} from 'entities'
-
-import { DownloadItem } from 'types'
+} from '~/entities'
 
 const getPlaylistFileContent = ({ course }: { course: Course }) => pipe(
   CE.getSections(course),
@@ -30,7 +28,7 @@ const getPlaylistFileContent = ({ course }: { course: Course }) => pipe(
     pipe(
       SE.getVideos(section),
       A.mapWithIndex((videoIdx, video) =>
-        buildVideoPath({ course, sectionIdx, videoIdx }),
+        buildVideoPath({ course, sectionIdx, videoIdx, video }),
       ),
     )),
   A.flatten,
@@ -115,14 +113,14 @@ export const downloadCourse = flow(
 
 export const downloadRemainingVideos = () => {}
 
-export const cancelVideoDownload = (item: DownloadItem) => {}
-export const cancelSectionDownload = (item: DownloadItem) => {}
-export const cancelCourseDownload = (item: DownloadItem) => {}
+//export const cancelVideoDownload = (item: DownloadItem) => {}
+//export const cancelSectionDownload = (item: DownloadItem) => {}
+//export const cancelCourseDownload = (item: DownloadItem) => {}
 
-export const pauseVideoDownload = (item: DownloadItem) => {}
-export const pauseSectionDownload = (item: DownloadItem) => {}
-export const pauseCourseDownload = (item: DownloadItem) => {}
+//export const pauseVideoDownload = (item: DownloadItem) => {}
+//export const pauseSectionDownload = (item: DownloadItem) => {}
+//export const pauseCourseDownload = (item: DownloadItem) => {}
 
-export const resumeVideoDownload = (item: DownloadItem) => {}
-export const resumeSectionDownload = (item: DownloadItem) => {}
-export const resumeCourseDownload = (item: DownloadItem) => {}
+//export const resumeVideoDownload = (item: DownloadItem) => {}
+//export const resumeSectionDownload = (item: DownloadItem) => {}
+//export const resumeCourseDownload = (item: DownloadItem) => {}

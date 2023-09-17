@@ -1,4 +1,4 @@
-import { pipe, flow } from 'fp-ts/function'
+import { pipe } from 'fp-ts/function'
 import * as O from 'fp-ts/Option'
 import { S } from '@mobily/ts-belt'
 
@@ -8,13 +8,13 @@ import {
 	SectionEntity as SE,
 	VideoEntity as VE,
     Video,
-} from 'entities'
+} from '~/entities'
 
-import { DELIMITERS, ROOT_DIRECTORY, SUBTITLE_EXTENSIONS, VIDEO_EXTENSIONS } from 'constants/index'
-import { removeInvalidCharacters } from 'utils'
+import { DELIMITERS, ROOT_DIRECTORY, SUBTITLE_EXTENSIONS, VIDEO_EXTENSIONS } from '~/constants/index'
+import { removeInvalidCharacters } from '~/utils'
 
 // TODO:
-export const getZerosToPad = ({ idx, size }) => 1+idx <= 9 ? 1 : 0
+export const getZerosToPad = ({ idx }) => 1+idx <= 9 ? 1 : 0
 
 const buildSectionFilename = ({
 	sectionIdx,
@@ -24,7 +24,7 @@ const buildSectionFilename = ({
 }) =>
 	pipe(
 		`${sectionIdx + 1}`,
-		idx => 1 + sectionIdx <= 9 ? idx.padStart(1, '0') : idx,
+		idx => 1 + sectionIdx <= 9 ? idx.padStart(zerosToPad, '0') : idx,
 		idx => `${idx}${delimiter} ${sectionName}`,
 		removeInvalidCharacters,
 	)
@@ -38,7 +38,7 @@ const buildVideoFilename = ({
 }) =>
 	pipe(
 		`${videoIdx + 1}`,
-		idx => 1 + videoIdx <= 9 ? idx.padStart(1, '0') : idx,
+		idx => 1 + videoIdx <= 9 ? idx.padStart(zerosToPad, '0') : idx,
 		idx => `${idx}${delimiter} ${videoName}.${extension}`,
 		removeInvalidCharacters,
 	)

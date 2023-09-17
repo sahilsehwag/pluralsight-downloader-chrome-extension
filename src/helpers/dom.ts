@@ -1,7 +1,7 @@
 import { pipe } from 'fp-ts/function'
 import * as E from 'fp-ts/Either'
 
-import ERRORS from 'constants/errors'
+import ERRORS from '~/constants/errors'
 
 import { adaptCourse } from './adapters'
 

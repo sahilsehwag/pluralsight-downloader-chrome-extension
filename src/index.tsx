@@ -5,7 +5,7 @@ import reportWebVitals from './reportWebVitals'
 
 import './index.css'
 
-import { Popup } from 'pages/Popup'
+import { Popup } from '~/pages/Popup'
 
 ReactDOM.render(
 	<React.StrictMode>

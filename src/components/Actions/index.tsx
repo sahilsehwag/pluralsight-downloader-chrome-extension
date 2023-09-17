@@ -1,9 +1,9 @@
 import { pipe } from 'fp-ts/function'
 import { D } from '@mobily/ts-belt'
 
-import { ACTIONS, ACTION_X_KEY } from 'constants/store'
-import { ACTION_X_CONFIG, ActionConfig } from 'constants/configs'
-import { sendAction } from 'utils'
+import { ACTIONS, ACTION_X_KEY } from '~/constants/store'
+import { ACTION_X_CONFIG, ActionConfig } from '~/constants/configs'
+import { sendAction } from '~/utils'
 
 const ACTION_X_CLASSNAME = {
 	[ACTIONS.DOWNLOAD_CURRENT]: 'download__current',

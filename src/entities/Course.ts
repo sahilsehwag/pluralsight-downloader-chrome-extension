@@ -1,5 +1,4 @@
 import { flow } from 'fp-ts/function'
-import { D } from '@mobily/ts-belt'
 import { get, all, findBy } from 'shades'
 
 export type Author = string

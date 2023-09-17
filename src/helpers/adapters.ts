@@ -1,7 +1,7 @@
 import { pipe } from 'fp-ts/function'
 import * as A from 'fp-ts/Array'
 
-import { Course, Video, Author, Section } from 'entities'
+import { Course, Video, Author, Section } from '~/entities'
 
 const isVideo = item => item.type === 'clip'
 

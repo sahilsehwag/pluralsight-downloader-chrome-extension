@@ -9,9 +9,9 @@ import {
 	Section,
 	VideoEntity as VE,
 	Video,
-} from 'entities'
-import { DownloadItem } from 'types'
-import { buildVideoPath } from 'helpers/path'
+} from '~/entities'
+import { DownloadItem } from '~/types'
+import { buildVideoPath } from '~/helpers/path'
 
 type SequenceWithDelay = <V>
 	(delay: number) =>

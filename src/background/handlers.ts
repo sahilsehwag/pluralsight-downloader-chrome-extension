@@ -1,8 +1,8 @@
 import { pipe } from 'fp-ts/function'
-import { set, updateBadge } from 'utils'
+import { set, updateBadge } from '~/utils'
 
-import { STATUSES, BG_ACTIONS, FIELD_X_KEY } from 'constants/index'
-import messages from 'constants/messages'
+import { STATUSES, BG_ACTIONS, FIELD_X_KEY } from '~/constants/store'
+import messages from '~/constants/messages'
 
 const {
 	STATUS,

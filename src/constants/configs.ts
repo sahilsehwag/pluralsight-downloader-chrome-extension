@@ -3,7 +3,7 @@ import { D } from '@mobily/ts-belt'
 import { ACTIONS, ACTION_X_KEY, FIELDS, FIELD_X_KEY } from './store'
 import { ACTION_X_LABEL, FIELD_X_LABEL } from './labels'
 
-import { ValueOf } from 'types'
+import { ValueOf } from '~/types'
 
 export type ActionConfig = {
 	key: ValueOf<typeof ACTION_X_KEY>

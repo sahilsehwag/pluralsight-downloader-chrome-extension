@@ -1,17 +1,17 @@
 import { pipe } from 'fp-ts/function'
 import * as TE from 'fp-ts/TaskEither'
 
-import { fetch } from 'utils/api'
-import { get } from 'utils'
+import { fetch } from '~/utils/api'
+import { get } from '~/utils/chrome'
 
-import ERRORS from 'constants/errors'
+import ERRORS from '~/constants/errors'
 import {
 	VIDEO_QUALITIES,
 	COURSE_TYPES,
-	RESOURCE_URLS,
 	FIELD_X_KEY,
 	VIDEO_EXTENSIONS,
-} from 'constants/index'
+  RESOURCE_URLS,
+} from '~/constants'
 
 const getVideoQuality = () =>
 	get(FIELD_X_KEY.COURSE_TYPE).then(courseType =>

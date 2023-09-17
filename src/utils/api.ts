@@ -1,7 +1,7 @@
 import { pipe } from 'fp-ts/function'
 import * as TE from 'fp-ts/TaskEither'
 
-import ERRORS from 'constants/errors'
+import ERRORS from '~/constants/errors'
 
 export const fetch = (url, opts = {}) => pipe(
 	TE.tryCatch(

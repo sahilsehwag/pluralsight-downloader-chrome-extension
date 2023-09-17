@@ -1,10 +1,10 @@
 import {
 	STATUSES,
 	LOCALE_X_LANGUAGE,
-} from 'constants/index'
+} from '~/constants/index'
 
 import { Course } from './Course'
-import { DownloadItem, KeyOf, ValueOf } from 'types'
+import { DownloadItem, KeyOf, ValueOf } from '~/types'
 
 export type Store = {
   // state

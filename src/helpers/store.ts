@@ -3,10 +3,10 @@ import * as A from 'fp-ts/Array'
 import * as T from 'fp-ts/Task'
 import { D } from '@mobily/ts-belt'
 
-import { get, set } from 'utils'
+import { get, set } from '~/utils'
 
-import { FIELD_X_KEY } from 'constants/store'
-import { DownloadItem } from 'types'
+import { FIELD_X_KEY } from '~/constants/store'
+import { DownloadItem } from '~/types'
 
 export const getStore = () =>
 	pipe(FIELD_X_KEY, D.values, chrome.storage.sync.get)

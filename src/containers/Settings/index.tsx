@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-import { get, set } from 'utils/chrome'
+import { get, set } from '~/utils/chrome'
 
 import { LABELS } from './constants'
 import {
@@ -9,7 +9,7 @@ import {
 	LEADING_ZERO_OPTIONS,
 	LEADING_ZERO_OPTIONS_X_LABEL,
 	LOCALE_X_LANGUAGE,
-} from 'constants/index'
+} from '~/constants/index'
 
 import { renderLanguageOptions } from './helpers'
 
@@ -17,16 +17,16 @@ const { LEADING_ZERO, SECONDARY_LANGUAGE, DOWNLOAD_DELAY, MAX_DELAY } = KEYS
 
 export const Settings = () => {
 	// eslint-disable-next-line no-unused-vars
-	const [shouldAddLeadingZero, setShouldAddLeadingZero] = useState(
+	const [, setShouldAddLeadingZero] = useState(
 		LEADING_ZERO_OPTIONS.TEN_OR_MORE,
 	)
 	// eslint-disable-next-line no-unused-vars
-	const [secondaryLanguage, setSecondaryLanguage] = useState(
+	const [, setSecondaryLanguage] = useState(
 		LOCALE_X_LANGUAGE.none,
 	)
 	const [downloadDelay, setsDownloadDelay] = useState()
 	// eslint-disable-next-line no-unused-vars
-	const [maxDelay, setMaxDelay] = useState()
+	const [, setMaxDelay] = useState()
 
 	useEffect(() => {
 		get(LEADING_ZERO).then(setShouldAddLeadingZero)

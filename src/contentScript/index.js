@@ -1,29 +1,25 @@
-import $ from 'jquery'
-
-import { get, sleep, removeInvalidCharacters, log } from 'utils'
-
-import {
-	parseCurrentVideoId,
-	fetchVideoURL,
-	downloadVideo,
-	getFilePath,
-	downloadSubs,
-	fetchSubtitleURL,
-	downloadPlaylist,
-	downloadExerciseFiles,
-} from 'helpers'
-
-import {
-	VIDEO_EXTENSIONS,
-	SUBTITLE_EXTENSIONS,
-	DOWNLOAD_TIMEOUT,
-	ACTION_X_KEY,
-	FIELD_X_KEY,
-	BG_ACTIONS,
-} from 'constants/index'
-
-const EXTENSION = VIDEO_EXTENSIONS[0]
-const EXTENSION_SUBS = SUBTITLE_EXTENSIONS[0]
+//import $ from 'jquery'
+//
+//import { get, sleep, removeInvalidCharacters, log } from '~/utils'
+//
+//import {
+//  parseCurrentVideoId,
+//  fetchVideoURL,
+//  downloadVideo,
+//  getFilePath,
+//  downloadSubs,
+//  fetchSubtitleURL,
+//  downloadPlaylist,
+//  downloadExerciseFiles,
+//} from '~/helpers'
+//
+//import {
+//  VIDEO_EXTENSIONS,
+//  SUBTITLE_EXTENSIONS,
+//} from '~/constants/index'
+//
+//const EXTENSION = VIDEO_EXTENSIONS[0]
+//const EXTENSION_SUBS = SUBTITLE_EXTENSIONS[0]
 
 main()
 

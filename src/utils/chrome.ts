@@ -1,5 +1,5 @@
 import * as T from 'fp-ts/Task'
-import { BG_ACTIONS } from 'constants/store'
+import { BG_ACTIONS } from '~/constants/store'
 
 type ColorArray = chrome.browserAction.ColorArray
 type Tab = chrome.tabs.Tab

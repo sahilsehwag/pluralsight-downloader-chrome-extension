@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { get, set } from 'utils/chrome'
+import { get, set } from '~/utils/chrome'
 import { getModuleCompletionStatus, getVideoCompletionStatus } from './helpers'
 
 import {
@@ -10,7 +10,7 @@ import {
 	STATUS_X_LABEL,
 	COURSE_TYPES,
 	STATUSES,
-} from 'constants/index'
+} from '~/constants/index'
 
 const {
 	MODULES_COMPLETED,
