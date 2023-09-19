@@ -1,4 +1,4 @@
-import { LINK_X_URL, LINK_X_LABEL } from '~/constants/index'
+import { LINK_X_URL, LINK_X_LABEL } from '~/constants'
 import { openInNewTab } from '~/utils'
 
 const openPluralsight = () => openInNewTab(LINK_X_URL.PLURALSIGHT)
