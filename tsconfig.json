@@ -9,7 +9,7 @@
     "module": "esnext",
     "jsx": "react-jsx",
     "allowJs": true,
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "outDir": "./dist",
     "declaration": false,
     "declarationMap": false,
@@ -32,8 +32,8 @@
     "isolatedModules": true,
     "noEmit": true,
     "paths": {
-      "~/*": "src/*",
-      "@/*": "src/*"
+      "~/*": ["src/*"],
+      "@/*": ["src/*"]
     }
   },
   "include": [

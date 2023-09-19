@@ -1,15 +1,19 @@
-import './index.scss'
+import React from 'react'
+import ReactDOM from 'react-dom'
 
-import { Status } from '~/components/Status'
-import { Settings } from '~/containers/Settings'
-import { Actions } from '~/components/Actions'
-import { Links } from '~/components/Links'
+import '~/globals.css'
+import reportWebVitals from '~/reportWebVitals'
 
-export const Popup = () => (
-	<div className="app">
-		<Status />
-		<Settings />
-		<Actions />
-		<Links />
-	</div>
+import { Layout } from './Layout'
+
+ReactDOM.render(
+	<React.StrictMode>
+    <Layout />
+	</React.StrictMode>,
+	document.getElementById('root'),
 )
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals()

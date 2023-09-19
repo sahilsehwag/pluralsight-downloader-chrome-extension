@@ -1,8 +1,8 @@
 import { pipe } from 'fp-ts/function'
 import { D } from '@mobily/ts-belt'
+import { ValueOf } from 'type-fest'
 
-import { LOCALE_X_LANGUAGE } from '~/constants/index'
-import { ValueOf } from '~/types'
+import { LOCALE_X_LANGUAGE } from '~/constants/locales'
 
 const renderOption = (
 	locale: keyof typeof LOCALE_X_LANGUAGE,
@@ -14,4 +14,8 @@ const renderOption = (
 )
 
 export const renderLanguageOptions = () =>
-	pipe(LOCALE_X_LANGUAGE, D.mapWithKey(renderOption), D.values)
+	pipe(
+		LOCALE_X_LANGUAGE,
+		D.mapWithKey(renderOption),
+		D.values
+	)

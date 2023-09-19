@@ -1,0 +1,7 @@
+export const idL = 'id'
+export const nameL = 'name'
+export const authorsL = 'authors'
+export const sectionsL = 'sections'
+export const videosL = 'videos'
+export const versionIdL = 'versionId'
+export const statusL = 'status'

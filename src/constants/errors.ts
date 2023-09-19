@@ -1,16 +1,15 @@
-export default {
+export const ERRORS = {
 	// network errors
-	requestFailed: 'Request failed.',
+	serverError: 'Server error: Looks like pluralsight messed up',
+	notFound: 'Not found: Looks like hitting up the wrong url',
+	badRequest: 'Bad request: Looks like I messed up.',
+	unknown: 'Something went wrong, not sure what',
+	unauthorized: 'Unauthorized: Make sure you are logged in',
+	forbidden: 'Forbidden: You don\'t have permission to do that',
+  tooManyRequests: 'Too many requests, You have hitted the rate limit for today. Next time increase the downoad delay in extension settings',
 
 	// parsing errors
 	parsingJsonFailed: 'Failed to parse JSON.',
-	parsingVideoUrlFailed: 'Failed to parse video URL.',
-	parsingExcerciseFilesUrlFailed: 'Failed to parse exercise files URL.',
-
-	noVideoId:
-		'Failed to get video ID in current page, make sure you are on the video player page.',
-	noCourseJson:
-		'Failed to get course details in current page, make sure you are on the video player page.',
-  videoNotFound:
-		"Failed to get current video's details from course details",
 }
+
+export default ERRORS

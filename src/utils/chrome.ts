@@ -1,58 +1,45 @@
+import { pipe } from 'fp-ts/function'
+import * as TO from 'fp-ts/TaskOption'
+import * as A from 'fp-ts/Array'
 import * as T from 'fp-ts/Task'
-import { BG_ACTIONS } from '~/constants/store'
 
-type ColorArray = chrome.browserAction.ColorArray
-type Tab = chrome.tabs.Tab
+// message
+type Message = {
+  action: string;
+  payload?: Record<string, unknown>;
+}
 
-//tabs
+export const sendMessageR = (message: Message): T.Task<void> =>
+	() => chrome.runtime.sendMessage(message)
+
+export const sendMessageT =
+	(tabId: number) => (message: Message): T.Task<void> =>
+		() => chrome.tabs.sendMessage(tabId, message)
+
+
+// tabs
 export const openInNewTab = (url: string) =>
 	chrome.tabs.create({ url })
 
-//storage
-//export const getAll = chrome.storage.sync.get
-//export const setAll = chrome.storage.sync.set
+const getActiveTab = pipe(
+	() => chrome.tabs.query({ active: true, currentWindow: true }),
+  T.map(A.head),
+)
 
-export const get = (key: string) =>
-	chrome.storage.sync
-		.get(key)
-		.then(store => store[key])
+export const sendAction = (action: string) => pipe(
+	getActiveTab,
+  TO.flatMapTask(tab =>
+		sendMessageT
+			(tab.id as number)
+			({ action })
+	),
+)
 
-export const set = (key: string, value: any) =>
-	chrome.storage.sync.set({
-		[key]: value,
-	})
-
-export const getActiveTab = () =>
-	chrome.tabs
-		.query({
-			active: true,
-			currentWindow: true,
-		})
-		.then(tabs => tabs[0])
-
-export const sendAction = (cmd: string) =>
-	getActiveTab().then((tab: Tab) =>
-		chrome.tabs.sendMessage(tab.id as number, {
-			action: {
-				cmd,
-				state: true,
-			},
-		}),
-	)
-
+// badge
 export const updateBadge = ({
 	text,
-	color = [122, 186, 122, 255] as ColorArray,
+	color = [122, 186, 122, 255] as chrome.browserAction.ColorArray,
 }) => {
 	chrome.browserAction.setBadgeBackgroundColor({ color })
 	chrome.browserAction.setBadgeText({ text })
 }
-
-export const downloadFile = ({ url, filename }): T.Task<void> => () =>
-	chrome.runtime.sendMessage({
-		action: BG_ACTIONS.DOWNLOAD_SYNC,
-		payload: {
-			url,
-			filename,
-		},
-	})

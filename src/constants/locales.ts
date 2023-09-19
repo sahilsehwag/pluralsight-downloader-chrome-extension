@@ -17,6 +17,7 @@ export const LOCALE_X_LANGUAGE = {
 	'zh-TW': 'Chinese (Traditional)',
 	co: 'Corsican',
 	hr: 'Croatian',
+	en: 'English',
 	cs: 'Czech',
 	da: 'Danish',
 	nl: 'Dutch',

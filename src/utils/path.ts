@@ -1,7 +1,7 @@
 import { flow } from 'fp-ts/function'
 import { replace, trim } from 'fp-ts/string'
 
-import { INVALID_CHARACTERS } from '~/constants/index'
+const INVALID_CHARACTERS = /[/*?<>|']/g
 
 const replaceQuotesWithSquareBrackets = flow(
 	replace('"', '['),
