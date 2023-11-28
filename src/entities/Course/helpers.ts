@@ -1,7 +1,6 @@
 import { pipe } from 'fp-ts/function'
 import * as A from 'fp-ts/Array'
-// FIX: 
-//import { guard } from 'fp-ts-std/Function'
+import { guard } from 'fp-ts-std/Function'
 
 import { CourseEntity as CE, Course } from '~/entities/Course'
 import { DownloadStatus } from '~/entities/Store'

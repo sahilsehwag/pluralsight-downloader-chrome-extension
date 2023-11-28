@@ -3,7 +3,7 @@ import { updateBadge } from '~/utils/chrome'
 
 import { BACKGROUND_ACTIONS, MESSAGES } from '~/constants/actions'
 import messages from '~/constants/messages'
-import { downloadNextInQueue } from '~/modules/queue'
+import { startDownload } from '~/modules/queue'
 import { noop } from '~/utils'
 
 type DownloadDelta = chrome.downloads.DownloadDelta
@@ -94,7 +94,8 @@ const handleQueueChange = queue => {
 	const { newValue: next, oldValue: prev } = queue
 
 	if (prev.length === 0 && next.length !== 0) {
-		//downloadNextInQueue()
+    // TODO:
+    //startDownload()
 	}
 }
 

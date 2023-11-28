@@ -12,7 +12,7 @@
     "baseUrl": ".",
     "outDir": "./dist",
     "declaration": false,
-    "declarationMap": false,
+    "declarationMap": true,
     "sourceMap": true,
     "removeComments": true,
     "strict": true,
