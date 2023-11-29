@@ -18,6 +18,7 @@ let DURATION_PERCENT = 10 // percent max 100
 // videoURL to get the actual video URL
 const viewclipURL = 'https://app.pluralsight.com/video/clips/v3/viewclip'
 const subsURL = 'https://app.pluralsight.com/transcript/api/v1/caption/webvtt'
+const courseURL = 'https://app.pluralsight.com/course-player/api/v1/table-of-contents/clip/';
 
 // STATE variables
 let EXTENSION_ENABLED = false
@@ -735,9 +736,24 @@ $(() => {
 		if (cmdExerciseFiles || cmdPlaylist || cmdDownloadAll || cmdDownloadFromNowOn || cmdTime || cmdAddCourse) {
 			log('Downloading course ' + (cmdDownloadAll ? 'from the beginning' : 'from now on') + ' ...')
 			log('Fetching course information...')
+			
+			// Fetch the current tab URL to extract courseId
+			let url = window.location.href;
+			let courseId = null;
 
-			const courseJSON = JSON.parse($(window.__NEXT_DATA__).text()).props.pageProps.tableOfContents
+			// Extract courseId from the URL
+			let courseIdMatch = url.match(/(?<=clips\/)([a-z0-9-]+)/gm);
+			if (courseIdMatch && courseIdMatch.length > 0) {
+				courseId = courseIdMatch[0];
+			} else {
+				console.error('Could not extract courseId from URL');
+				return;
+			}
 
+			// Fetching course information using API call
+			let response = await fetch(courseURL + courseId);
+			let courseJSON = await response.json();
+			
 			if (cmdAddCourse) {
 				log('Add Course')
 				let addedCourses = []
