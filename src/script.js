@@ -164,8 +164,8 @@ const removeInvalidCharacters = name => {
 }
 
 const getCurrentVideoId = () => {
-	const vIdMatch = location.search.match('clipId=?([0-9a-f-]*)')
-	return vIdMatch ? vIdMatch[1] : null
+    const pathParts = location.pathname.split('/');
+    return pathParts[pathParts.length - 1];
 }
 
 // ====================================================================
