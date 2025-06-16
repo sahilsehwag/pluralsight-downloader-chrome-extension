@@ -1,5 +1,10 @@
-import React from 'react'
+import { Tree } from '../ui/tree'
+import { Course as CourseType } from '~/entities/Course'
 
-export const Course = () => {
-	return <div>Course</div>
+interface CourseProps {
+	course: CourseType
+}
+
+export const Course = ({ course }: CourseProps) => {
+	return <Tree data={course}></Tree>
 }

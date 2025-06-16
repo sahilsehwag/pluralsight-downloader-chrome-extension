@@ -7,6 +7,7 @@ import { sendAction } from '~/utils/chrome'
 import { addCourseToQueue } from '~/modules/download'
 import { startDownload } from '~/modules/queue'
 import { Course as CourseType } from '~/entities/Course'
+import { Course } from '~/components/Course'
 
 interface CourseData {
 	id: string
@@ -14,36 +15,46 @@ interface CourseData {
 	children?: CourseData[]
 }
 
-const data: CourseData[] = [
-	{ id: '1', name: 'Unread' },
-	{ id: '2', name: 'Threads' },
-	{
-		id: '3',
-		name: 'Chat Rooms',
-		children: [
-			{ id: 'c1', name: 'General' },
-			{ id: 'c2', name: 'Random' },
-			{ id: 'c3', name: 'Open Source Projects' },
-		],
-	},
-	{
-		id: '4',
-		name: 'Direct Messages',
-		children: [
-			{
-				id: 'd1',
-				name: 'Alice',
-				children: [
-					{ id: 'd1', name: 'Alice2' },
-					{ id: 'd2', name: 'Bob2' },
-					{ id: 'd3', name: 'Charlie2' },
-				],
-			},
-			{ id: 'd2', name: 'Bob' },
-			{ id: 'd3', name: 'Charlie' },
-		],
-	},
-]
+export const sampleCourseTreeData: CourseType = {
+	id: '1',
+	name: 'Sample Course',
+	authors: ['John Doe', 'Jane Doe'],
+	sections: [
+		{
+			id: '1',
+			name: 'Section 1',
+			videos: [
+				{
+					id: '1',
+					name: 'Video 1',
+					versionId: '1',
+					status: 'PENDING',
+				},
+				{
+					id: '2',
+					name: 'Video 2',
+					versionId: '1',
+					status: 'PENDING',
+				},
+			],
+			status: 'PENDING',
+		},
+		{
+			id: '2',
+			name: 'Section 2',
+			videos: [
+				{
+					id: '3',
+					name: 'Video 3',
+					versionId: '1',
+					status: 'PENDING',
+				},
+			],
+			status: 'PENDING',
+		},
+	],
+	status: 'PENDING',
+}
 
 export const Dashboard = () => {
 	const [course] = useStorage<'course', CourseType>({ key: 'course' })
@@ -51,11 +62,14 @@ export const Dashboard = () => {
 	return (
 		<div className="h-full flex items-center justify-center gap-2">
 			{!course ? (
-				<Button onClick={sendAction(MESSAGES.PARSE_COURSE)}>Load course</Button>
+				<Button variant="secondary" onClick={sendAction(MESSAGES.PARSE_COURSE)}>
+					Load course
+				</Button>
 			) : (
 				<Button onClick={addCourseToQueue(course)}>Download course</Button>
 			)}
 			<Button onClick={startDownload()}>Download next in queue</Button>
+			{/* <Course course={sampleCourseTreeData} /> */}
 		</div>
 	)
 }
