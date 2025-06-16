@@ -15,6 +15,7 @@ const Link = ({ href, icon, tooltip }: LinkProps) => (
 		tooltip={tooltip}
 		size="icon"
 		variant="icon"
+		className="hover:text-[hsl(var(--primary))]"
 		onClick={() => openInNewTab(href)}
 	>
 		{icon}

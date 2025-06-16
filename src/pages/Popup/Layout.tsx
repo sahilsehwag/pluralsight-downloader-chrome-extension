@@ -4,7 +4,7 @@ import { ThemeProvider } from '@/contexts/theme'
 import { ThemeSwitcher } from '~/components/ThemeSwitcher'
 
 export const Layout = () => (
-	<div className="bg-background text-foreground dark h-[600px] overflow-hidden p-5 pb-16">
+	<div className="bg-background text-foreground h-[600px] overflow-hidden p-5 pb-16">
 		<ThemeProvider>
 			<ThemeSwitcher />
 		</ThemeProvider>

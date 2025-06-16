@@ -22,16 +22,17 @@ interface ThemeProviderProps {
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
 	const [theme, setThemeState] = useState<'light' | 'dark'>(() => {
 		if (typeof window !== 'undefined') {
-			return (localStorage.getItem('theme') as 'light' | 'dark') || 'light'
+			const systemPrefersDark = window.matchMedia(
+				'(prefers-color-scheme: dark)',
+			).matches
+			return systemPrefersDark ? 'dark' : 'light'
 		}
 		return 'light'
 	})
 
 	useEffect(() => {
-		document.documentElement.classList.remove(
-			theme === 'light' ? 'dark' : 'light',
-		)
-		document.documentElement.classList.add(theme)
+		document.body.classList.remove(theme === 'light' ? 'dark' : 'light')
+		document.body.classList.add(theme)
 		localStorage.setItem('theme', theme)
 	}, [theme])
 
