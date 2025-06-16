@@ -1,16 +1,15 @@
 import React from 'react'
-import L from 'react-on-lambda'
+import { ChevronRight, Folder, FolderPlus } from 'lucide-react'
+import { Course } from '~/entities/Course'
 
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
 import { cn } from '@/lib/utils'
-import { ChevronRight, Folder, FolderPlus } from 'lucide-react'
-import { Course } from '~/entities/Course'
 
 interface TreeProps {
 	data: Course
 }
 
-export const Tree = L(({ data }: TreeProps) => {
+export const Tree = ({ data }: TreeProps) => {
 	return (
 		<ul role="list" className="space-y-1">
 			<li key={data.id}>
@@ -52,7 +51,7 @@ export const Tree = L(({ data }: TreeProps) => {
 			</li>
 		</ul>
 	)
-})
+}
 
 interface LeafProps {
 	name: string

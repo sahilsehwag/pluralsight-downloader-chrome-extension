@@ -1,12 +1,5 @@
-import L from 'react-on-lambda'
+import React from 'react'
 
-import { Tree } from '~/components/ui/tree'
-import { Course as CourseType } from '~/entities/Course'
-
-interface CourseProps {
-	data: CourseType
+export const Course = () => {
+	return <div>Course</div>
 }
-
-export const Course = L(({ data }: CourseProps) => {
-	return L.div(Tree({ data }))
-})

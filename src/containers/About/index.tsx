@@ -1,5 +1,5 @@
-import L from 'react-on-lambda'
+import React from 'react'
 
-export const About = L(() => {
-	return L.div('About!!!')
-})
+export const About = () => {
+	return <div>About!!!</div>
+}

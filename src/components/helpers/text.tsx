@@ -1,4 +1,9 @@
-import L from 'react-on-lambda'
+import React from 'react'
 
-export const primaryText = L.span({ className: 'text-primary' })
-export const mutedText   = L.span({ className: 'text-muted-foreground' })
+export function primaryText(text: string) {
+	return <span className="font-semibold text-primary">{text}</span>
+}
+
+export const mutedText = (text: string) => (
+	<span className="text-muted-foreground">{text}</span>
+)

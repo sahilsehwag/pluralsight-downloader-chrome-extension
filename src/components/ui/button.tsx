@@ -1,9 +1,6 @@
-import * as React from 'react'
-import L from 'react-on-lambda'
-
+import React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
-
 import { cn } from '@/lib/utils'
 import { Tooltip } from './tooltip'
 
@@ -61,6 +58,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = 'Button'
 
-const LButton = L(Button)
-
-export { LButton as Button, buttonVariants }
+export { Button, buttonVariants }

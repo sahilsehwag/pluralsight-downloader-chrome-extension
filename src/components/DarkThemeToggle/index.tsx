@@ -1,6 +1,5 @@
-import L from 'react-on-lambda'
+import React from 'react'
 
-export const Course = L(() => {
-	return L.div('Course')
-})
-
+export const DarkThemeToggle = () => {
+	return <div>DarkThemeToggle</div>
+}

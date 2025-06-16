@@ -1,9 +1,8 @@
-import L from 'react-on-lambda'
+import React from 'react'
+import { useStorage } from '~/hooks/useStorage'
 
-import { useStorage } from '~/hooks/useStorage';
+export const Queue = () => {
+	const [queue] = useStorage({ key: 'queue', initial: [] })
 
-export const Queue = L(() => {
-  const [queue] = useStorage({ key: 'queue', initial: [] })
-
-	return L.div('Queue!!!')
-})
+	return <div>Queue!!!</div>
+}

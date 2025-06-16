@@ -5,8 +5,9 @@ export const ERRORS = {
 	badRequest: 'Bad request: Looks like I messed up.',
 	unknown: 'Something went wrong, not sure what',
 	unauthorized: 'Unauthorized: Make sure you are logged in',
-	forbidden: 'Forbidden: You don\'t have permission to do that',
-  tooManyRequests: 'Too many requests, You have hitted the rate limit for today. Next time increase the downoad delay in extension settings',
+	forbidden: "Forbidden: You don't have permission to do that",
+	tooManyRequests:
+		'Too many requests, You have hitted the rate limit for today. Next time increase the downoad delay in extension settings',
 
 	// parsing errors
 	parsingJsonFailed: 'Failed to parse JSON.',

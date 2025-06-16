@@ -1,15 +1,8 @@
-import { useEffect } from 'react'
-import L from 'react-on-lambda'
+import React from 'react'
 
 import { Button } from '~/components/ui/button'
-
-import { Course } from '~/components/Course'
-import { EmptyPage } from '~/components/EmtpyPage'
-
 import { useStorage } from '~/hooks/useStorage'
-
 import { MESSAGES } from '~/constants/actions'
-
 import { sendAction } from '~/utils/chrome'
 import { addCourseToQueue } from '~/modules/download'
 import { startDownload } from '~/modules/queue'
@@ -52,25 +45,17 @@ const data: CourseData[] = [
 	},
 ]
 
-const wrapper = L.div({
-	className: 'h-full flex items-center justify-center gap-2',
-})
-
-const loadCourseBtn = Button({ onClick: sendAction(MESSAGES.PARSE_COURSE) })(
-	'Load course',
-)
-
-const downloadCourseBtn = (course: CourseType) =>
-	Button({ onClick: addCourseToQueue(course) })('Download course')
-
-const downloadNextInQueueBtn = (course: CourseType | undefined) =>
-	Button({ onClick: startDownload() })('Download next in queue')
-
-export const Dashboard = L(() => {
+export const Dashboard = () => {
 	const [course] = useStorage<'course', CourseType>({ key: 'course' })
 
-	return wrapper(
-		!course ? loadCourseBtn : downloadCourseBtn(course),
-		downloadNextInQueueBtn(course),
+	return (
+		<div className="h-full flex items-center justify-center gap-2">
+			{!course ? (
+				<Button onClick={sendAction(MESSAGES.PARSE_COURSE)}>Load course</Button>
+			) : (
+				<Button onClick={addCourseToQueue(course)}>Download course</Button>
+			)}
+			<Button onClick={startDownload()}>Download next in queue</Button>
+		</div>
 	)
-})
+}

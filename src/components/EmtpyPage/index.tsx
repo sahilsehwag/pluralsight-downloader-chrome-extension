@@ -1,5 +1,7 @@
-import L from 'react-on-lambda'
+import React from 'react'
 
-export const EmptyPage = L.div({
-	className: 'flex justify-center items-center h-full text-md',
-})
+export const EmptyPage = ({ children }) => (
+	<div className="flex justify-center items-center h-full text-md">
+		{children}
+	</div>
+)

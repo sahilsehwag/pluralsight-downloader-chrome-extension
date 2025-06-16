@@ -1,5 +1,5 @@
-import L from 'react-on-lambda'
+import React from 'react'
 
-export const History = L(() => {
-	return L.div('History!!!')
-})
+export const History = () => {
+	return <div>History!!!</div>
+}
