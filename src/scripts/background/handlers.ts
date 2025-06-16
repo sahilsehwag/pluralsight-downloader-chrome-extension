@@ -2,7 +2,7 @@ import { pipe } from 'fp-ts/function'
 import { updateBadge } from '~/utils/chrome'
 
 import { BACKGROUND_ACTIONS, MESSAGES } from '~/constants/actions'
-import messages from '~/constants/messages'
+import { messages } from '~/constants/messages'
 import { startDownload } from '~/modules/queue'
 import { noop } from '~/utils'
 
@@ -66,8 +66,9 @@ const downloadFile = ({ action, payload, sendResponse }) => {
 				actionStatus: `${filename} DOWNLOADED!!!`,
 			})
 		}
-	} catch (err: unknown) {
-		throw `Exception at download url ${(err as Error).message}`
+	} catch (error) {
+		const err = error instanceof Error ? error : new Error(String(error))
+		throw new Error(`Exception at download url: ${err.message}`)
 	}
 }
 

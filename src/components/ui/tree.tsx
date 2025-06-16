@@ -4,56 +4,78 @@ import L from 'react-on-lambda'
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
 import { cn } from '@/lib/utils'
 import { ChevronRight, Folder, FolderPlus } from 'lucide-react'
+import { Course } from '~/entities/Course'
 
-export const Tree = L(({ data }: { data: any[] | any }) => {
+interface TreeProps {
+	data: Course
+}
+
+export const Tree = L(({ data }: TreeProps) => {
 	return (
 		<ul role="list" className="space-y-1">
-			{data instanceof Array ? (
-				data.map(item => (
-					<li key={item.id}>
-						{item.children ? (
-							<a href="#">
-								<AccordionPrimitive.Root type="single" collapsible>
-									<AccordionPrimitive.Item value="item-1">
-										<AccordionTrigger>
-											<FolderPlus
-												className="h-6 w-6 shrink-0 mr-5"
-												aria-hidden="true"
-											/>
-											{item.name}
-										</AccordionTrigger>
-										<AccordionContent className="pl-4">
-											<Tree data={item.children ? item.children : item.name} />
-										</AccordionContent>
-									</AccordionPrimitive.Item>
-								</AccordionPrimitive.Root>
-							</a>
-						) : (
-							<Leaf name={item.name} />
-						)}
-					</li>
-				))
-			) : (
-				<li>
-					<Leaf name={data.name} />
-				</li>
-			)}
+			<li key={data.id}>
+				<a href="#">
+					<AccordionPrimitive.Root type="single" collapsible>
+						<AccordionPrimitive.Item value={data.id}>
+							<AccordionTrigger>
+								<FolderPlus
+									className="h-6 w-6 shrink-0 mr-5"
+									aria-hidden="true"
+								/>
+								{data.name}
+							</AccordionTrigger>
+							<AccordionContent className="pl-4">
+								{data.sections.map(section => (
+									<div key={section.id}>
+										<AccordionPrimitive.Root type="single" collapsible>
+											<AccordionPrimitive.Item value={section.id}>
+												<AccordionTrigger>
+													<FolderPlus
+														className="h-6 w-6 shrink-0 mr-5"
+														aria-hidden="true"
+													/>
+													{section.name}
+												</AccordionTrigger>
+												<AccordionContent className="pl-4">
+													{section.videos.map(video => (
+														<Leaf key={video.id} name={video.name} />
+													))}
+												</AccordionContent>
+											</AccordionPrimitive.Item>
+										</AccordionPrimitive.Root>
+									</div>
+								))}
+							</AccordionContent>
+						</AccordionPrimitive.Item>
+					</AccordionPrimitive.Root>
+				</a>
+			</li>
 		</ul>
 	)
 })
 
-function Leaf({ name }: { name: string }) {
+interface LeafProps {
+	name: string
+}
+
+function Leaf({ name }: LeafProps) {
 	return (
-		<a href="#" className={'flex flex-1 items-center py-4 font-medium'}>
+		<a href="#" className="flex flex-1 items-center py-4 font-medium">
 			<ChevronRight className="h-4 w-4 shrink-0 opacity-0" />
 			<Folder className="h-6 w-6 shrink-0 mr-5" aria-hidden="true" />
 			{name}
 		</a>
 	)
 }
+
+interface AccordionTriggerProps
+	extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> {
+	children: React.ReactNode
+}
+
 const AccordionTrigger = React.forwardRef<
 	React.ElementRef<typeof AccordionPrimitive.Trigger>,
-	React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
+	AccordionTriggerProps
 >(({ className, children, ...props }, ref) => (
 	<AccordionPrimitive.Header className="flex">
 		<AccordionPrimitive.Trigger
@@ -71,9 +93,14 @@ const AccordionTrigger = React.forwardRef<
 ))
 AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName
 
+interface AccordionContentProps
+	extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content> {
+	children: React.ReactNode
+}
+
 const AccordionContent = React.forwardRef<
 	React.ElementRef<typeof AccordionPrimitive.Content>,
-	React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
+	AccordionContentProps
 >(({ className, children, ...props }, ref) => (
 	<AccordionPrimitive.Content
 		ref={ref}

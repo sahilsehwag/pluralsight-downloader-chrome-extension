@@ -3,7 +3,7 @@ import { Queue } from '~/containers/Queue'
 import { History } from '~/containers/History'
 import { Settings } from '~/containers/Settings'
 import { Logs } from '~/containers/Logs'
-import { Links } from '~/components/Links'
+import { Links } from '~/components/links'
 
 export const TABS = {
   DASHBOARD: {

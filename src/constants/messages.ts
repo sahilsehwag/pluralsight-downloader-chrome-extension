@@ -1,3 +1,3 @@
-export default {
+export const messages = {
 	fileDownloadedSuccessfully: 'File downloaded successfully',
 }

@@ -1,4 +1,4 @@
-export default {
+const ERRORS = {
 	// parsing errors
 	parsingVideoUrlFailed: 'Failed to parse video URL.',
 	parsingExcerciseFilesUrlFailed: 'Failed to parse exercise files URL.',
@@ -10,3 +10,5 @@ export default {
   videoNotFound:
 		"Failed to get current video's details from course details",
 }
+
+export default ERRORS;
