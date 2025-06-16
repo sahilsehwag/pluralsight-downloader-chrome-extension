@@ -12,7 +12,7 @@ export const TooltipContent = React.forwardRef<
 	<TooltipPrimitive.Content
 		ref={ref}
 		className={cn(
-			'z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95',
+			'z-50 overflow-hidden rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--popover))] px-3 py-1.5 text-sm text-[hsl(var(--popover-foreground))] shadow-md animate-in fade-in-0 zoom-in-95',
 			className,
 		)}
 		{...props}

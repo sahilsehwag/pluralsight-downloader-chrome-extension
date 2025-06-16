@@ -4,25 +4,34 @@ import { KeyOf } from '~/types'
 import { Store } from '~/entities'
 
 // storage
-type Get = <K extends KeyOf<Store>>(key: K)                                        => T.Task<Store[K]>
-type Set = <K extends KeyOf<Store>>(key: K) => (value: Store[K])                   => T.Task<void>
-type Map = <K extends KeyOf<Store>>(key: K) => (fn: (value: Store[K]) => Store[K]) => T.Task<void>
+type Get = <K extends KeyOf<Store>>(key: K) => T.Task<Store[K]>
+type Set = <K extends KeyOf<Store>>(key: K) => (value: Store[K]) => T.Task<void>
+type Map = <K extends KeyOf<Store>>(
+	key: K,
+) => (fn: (value: Store[K]) => Store[K]) => T.Task<void>
 
-export const get: Get = key => pipe(
-  () => chrome.storage.local.get(key),
-	T.map(_ => _[key]),
-)
+export const get: Get = key =>
+	pipe(
+		() => chrome.storage.local.get(key),
+		T.map(_ => _[key]),
+	)
 
-export const set: Set =
-	key => value =>
-		() => chrome.storage.local.set({
-			[key]: value,
-		})
+export const set: Set = key => value => () =>
+	chrome.storage.local.set({
+		[key]: value,
+	})
 
-export const map: Map =
-	key => fn => pipe(
+/**
+ * Maps over the value of the given key in the store.
+ *
+ * @example
+ * const addOne = (n: number) => n + 1
+ * map('key')(addOne) // sets the value of 'key' to the result of addOne(value)
+ */
+export const map: Map = key => fn =>
+	pipe(
 		// @ts-ignore
-    get(key),
-    T.map(fn),
-    T.flatMap(set(key)),
+		get(key),
+		T.map(fn),
+		T.flatMap(set(key)),
 	)

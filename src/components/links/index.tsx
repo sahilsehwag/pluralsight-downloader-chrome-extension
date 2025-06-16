@@ -1,17 +1,16 @@
-import React from 'react'
-
-import { CoffeeIcon, FlagIcon, GithubIcon, PlayCircleIcon } from 'lucide-react'
+import { Coffee, Flag, Github, PlayCircle } from 'lucide-react'
 
 import { openInNewTab } from '~/utils/chrome'
 import { Button } from '~/components/ui/button'
+import { LINKS } from '~/constants/urls'
 
-const pluralsight = 'https://app.pluralsight.com'
-const repository =
-	'https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension'
-const issues =
-	'https://github.com/sahilsehwag/pluralsight-downloader-chrome-extension/issues'
+type LinkProps = {
+	href: string
+	icon: JSX.Element
+	tooltip: string
+}
 
-const link = ({ href, icon, tooltip }) => (
+const Link = ({ href, icon, tooltip }: LinkProps) => (
 	<Button
 		tooltip={tooltip}
 		size="icon"
@@ -24,18 +23,18 @@ const link = ({ href, icon, tooltip }) => (
 
 export const Links = () => (
 	<div className="h-full flex justify-center items-end">
-		{link({
-			tooltip: 'Open Pluralsight',
-			href: pluralsight,
-			icon: <PlayCircleIcon />,
-		})}
-		{link({ tooltip: 'Open Github', href: repository, icon: <GithubIcon /> })}
-		{link({ tooltip: 'Report an issue', href: issues, icon: <FlagIcon /> })}
-		{link({
-			tooltip: 'Buy me a coffee',
-			href: issues,
-			icon: <CoffeeIcon />,
-		})}{' '}
+		<Link
+			tooltip="Open Pluralsight"
+			href={LINKS.PLURALSIGHT}
+			icon={<PlayCircle />}
+		/>
+		<Link tooltip="Open Github" href={LINKS.REPOSITORY} icon={<Github />} />
+		<Link tooltip="Report an issue" href={LINKS.ISSUES} icon={<Flag />} />
+		<Link
+			tooltip="Buy me a coffee"
+			href={LINKS.BUY_ME_A_COFFEE}
+			icon={<Coffee />}
+		/>{' '}
 		{/* TODO: */}
 	</div>
 )

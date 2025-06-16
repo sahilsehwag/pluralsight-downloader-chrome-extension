@@ -5,11 +5,7 @@ import * as TO from 'fp-ts/TaskOption'
 import { Predicate } from 'fp-ts/Predicate'
 
 import { DownloadItem, Queue } from '~/entities/Store'
-import {
-  CourseEntity as CE,
-  Course,
-  updateStatus,
-} from '~/entities/Course'
+import { CourseEntity as CE, Course, updateStatus } from '~/entities/Course'
 
 import { get, map } from '~/modules/store'
 
@@ -26,19 +22,19 @@ export const buildDownloadItem = ({
 	pathBuilder,
 	type,
 }: {
-	course: Course;
-	videoIdx: number;
-	sectionIdx: number;
-	url: string;
-	pathBuilder: Fn1<any, string>;
-	type: DownloadItem['type'];
+	course: Course
+	videoIdx: number
+	sectionIdx: number
+	url: string
+	pathBuilder: Fn1<any, string>
+	type: DownloadItem['type']
 }): DownloadItem => ({
 	status: 'QUEUED',
 	sectionIdx,
 	videoIdx,
 	type,
 
-	courseId:  CE.getId(course),
+	courseId: CE.getId(course),
 
 	url: url,
 	filename: pathBuilder({ course, sectionIdx, videoIdx }),
@@ -46,29 +42,24 @@ export const buildDownloadItem = ({
 
 // ==========================================
 
-export const addToQueue = (items: Queue) =>
+export const addToQueue = (items: DownloadItem[]) =>
 	map('queue')(A.concat(items))
 
-const filterQueue = (fn: Predicate<DownloadItem>) =>
-	map('queue')(A.filter(fn))
+const filterQueue = (fn: Predicate<DownloadItem>) => map('queue')(A.filter(fn))
 
 const mapItemInQueue = (item: DownloadItem) => fn =>
 	map('queue')(
-		A.map(
-			other => item.videoIdx === other.videoIdx ? fn(other) : other
-		)
+		A.map(other => (item.videoIdx === other.videoIdx ? fn(other) : other)),
 	)
 
-const findInQueue = (fn: Predicate<DownloadItem>) => pipe(
-	get('queue'),
-	T.map(A.findFirst(fn)),
-)
+const findInQueue = (fn: Predicate<DownloadItem>) =>
+	pipe(get('queue'), T.map(A.findFirst(fn)))
 
 // ==========================================
 
 // FIX: instead of index use id
 const removeItemFromQueue = (item: DownloadItem) =>
-  filterQueue(other => {
+	filterQueue(other => {
 		return !(
 			item.videoIdx === other.videoIdx &&
 			item.sectionIdx === other.sectionIdx &&
@@ -77,20 +68,20 @@ const removeItemFromQueue = (item: DownloadItem) =>
 		)
 	})
 
-const findNextInQueue =
-	findInQueue(item => item.status === 'QUEUED')
+const findNextInQueue = findInQueue(item => item.status === 'QUEUED')
 
-const updateCourseStatus = status => ({ courseId, ...item }: DownloadItem) =>
-	mapCourse(courseId)(
-    updateStatus({ ...item, status })
-	)
+const updateCourseStatus =
+	status =>
+	({ courseId, ...item }: DownloadItem) =>
+		mapCourse(courseId)(updateStatus({ ...item, status }))
 
 // handlers
-const onComplete = (item: DownloadItem) => pipe(
-  T.of(item),
-  T.tap(removeItemFromQueue),
-  T.tap(updateCourseStatus('COMPLETED')),
-)
+const onComplete = (item: DownloadItem) =>
+	pipe(
+		T.of(item),
+		T.tap(removeItemFromQueue),
+		T.tap(updateCourseStatus('COMPLETED')),
+	)
 
 // TODO:
 //const onFailed = (item: DownloadItem) => {}
@@ -101,14 +92,14 @@ const onComplete = (item: DownloadItem) => pipe(
 const downloadNextInQueue = pipe(
 	findNextInQueue,
 	TO.tapTask(downloadFile as any),
-  TO.tapTask(onComplete),
+	TO.tapTask(onComplete),
 )
 
 // FIX:
-export function startDownload () {
+export function startDownload() {
 	return pipe(
 		downloadNextInQueue,
 		T.delay(10000),
-    TO.flatMap(() => startDownload())
+		TO.flatMap(() => startDownload()),
 	)
 }
