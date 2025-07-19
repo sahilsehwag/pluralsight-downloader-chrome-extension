@@ -79,7 +79,7 @@ const actionHandlers = {
 }
 
 export const handleTabUpdate = (tabId, changeInfo, tab) => {
-  // handlePagePage
+	// handlePagePage
 	if (changeInfo.status === 'complete' || changeInfo.url) {
 		chrome.tabs.sendMessage(tabId, {
 			action: MESSAGES.PARSE_COURSE,
@@ -93,20 +93,25 @@ export const handleTabUpdate = (tabId, changeInfo, tab) => {
 // TODO: remove listeners on unmount ???
 const handleQueueChange = queue => {
 	const { newValue: next, oldValue: prev } = queue
-
-	if (prev.length === 0 && next.length !== 0) {
-    // TODO:
-    //startDownload()
+	if (prev?.length === 0 && next?.length !== 0) {
+		// TODO:
+		startDownload()
 	}
 }
 
 const handleCourseChange = noop
+const handleHistoryChange = noop
+const handleLogsChange = noop
+const handleSettingsChange = noop
 
 export const handleStorageChange = delta => {
-  const { queue, course, history, logs, settings } = delta
+	const { queue, course, history, logs, settings } = delta
 
-  queue  && handleQueueChange(queue)
-  course && handleCourseChange(course)
+	queue && handleQueueChange(queue)
+	history && handleHistoryChange(history)
+	course && handleCourseChange(course)
+	logs && handleLogsChange(course)
+	settings && handleSettingsChange(course)
 }
 
 export const handleInstall = () => {

@@ -27,8 +27,19 @@
 		}
 	],
 	"options_page": "options.html",
-	"permissions": ["activeTab", "declarativeContent", "storage", "downloads", "notifications", "unlimitedStorage", "tabs"],
+	"permissions": [
+		"activeTab",
+		"declarativeContent",
+		"storage",
+		"downloads",
+		"notifications",
+		"unlimitedStorage",
+		"tabs"
+	],
 	"content_security_policy": {
-		"extension_pages": "script-src 'self'; object-src 'self'; script-src-elem 'self' 'unsafe-inline' https://music.yandex.ru/;"
+		"extension_pages": "script-src 'self'; object-src 'self';"
+	},
+	"externally_connectable": {
+		"matches": ["*://*.pluralsight.com/*"]
 	}
 }

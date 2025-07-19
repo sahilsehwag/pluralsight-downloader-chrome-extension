@@ -2,6 +2,7 @@ import { pipe } from 'fp-ts/function'
 import * as E from 'fp-ts/Either'
 import * as TE from 'fp-ts/TaskEither'
 import * as Json from 'fp-ts/Json'
+import * as Console from 'fp-ts/Console'
 
 import { fetch } from '~/utils/api'
 
@@ -13,23 +14,21 @@ import { get } from 'shades'
 
 export const getCourse = () =>
 	pipe(
-		(window as any).__NEXT_DATA__?.textContent,
-		Json.parse,
-		E.flatMapNullable(
-			(v: any) => v?.props?.pageProps?.tableOfContents,
-			() => new Error(ERRORS.noCourseJson),
+		TE.fromEither(getVideoId()),
+		TE.chain(id =>
+			fetch(
+				`https://app.pluralsight.com/course-player/api/v1/table-of-contents/clip/${id}`,
+			),
 		),
-		E.map(adaptCourse),
+		TE.tapIO(Console.log),
+		TE.map(adaptCourse),
+		TE.tapIO(Console.log),
 	)
 
 export const getVideoId = () =>
 	pipe(
-		(window as any).__NEXT_DATA__?.textContent,
-		Json.parse,
-		E.flatMapNullable(
-			(v: any) => v?.query?.clipId,
-			() => new Error(ERRORS.noVideoId),
-		),
+		window.location.pathname.split('/').at(-1),
+		E.fromNullable(new Error(ERRORS.noVideoId)),
 	)
 
 // TODO:

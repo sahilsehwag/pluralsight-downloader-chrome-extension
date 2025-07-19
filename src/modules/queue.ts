@@ -4,7 +4,7 @@ import * as T from 'fp-ts/Task'
 import * as TO from 'fp-ts/TaskOption'
 import { Predicate } from 'fp-ts/Predicate'
 
-import { DownloadItem, Queue } from '~/entities/Store'
+import { DownloadItem } from '~/entities/Store'
 import { CourseEntity as CE, Course, updateStatus } from '~/entities/Course'
 
 import { get, map } from '~/modules/store'
@@ -71,7 +71,7 @@ const removeItemFromQueue = (item: DownloadItem) =>
 const findNextInQueue = findInQueue(item => item.status === 'QUEUED')
 
 const updateCourseStatus =
-	status =>
+	(status: Course['status']) =>
 	({ courseId, ...item }: DownloadItem) =>
 		mapCourse(courseId)(updateStatus({ ...item, status }))
 

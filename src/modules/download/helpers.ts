@@ -16,7 +16,7 @@ import { removeInvalidCharacters } from '~/utils'
 const DELIMITERS = { DOT: '.' }
 
 // TODO:
-export const getZerosToPad = ({ idx }) => 1+idx <= 9 ? 1 : 0
+export const getZerosToPad = ({ idx }) => (1 + idx <= 9 ? 1 : 0)
 
 const buildSectionFilename = ({
 	sectionIdx,
@@ -26,37 +26,38 @@ const buildSectionFilename = ({
 }) =>
 	pipe(
 		`${sectionIdx + 1}`,
-		idx => 1 + sectionIdx <= 9 ? idx.padStart(zerosToPad, '0') : idx,
+		idx => (1 + sectionIdx <= 9 ? idx.padStart(zerosToPad, '0') : idx),
 		idx => `${idx}${delimiter} ${sectionName}`,
 		removeInvalidCharacters,
 	)
 
 const buildVideoFilename = ({
 	videoIdx,
-	videoName,
+	videoTitle,
 	zerosToPad = 0,
 	extension = 'mp4',
 	delimiter = DELIMITERS.DOT,
 }) =>
 	pipe(
 		`${videoIdx + 1}`,
-		idx => 1 + videoIdx <= 9 ? idx.padStart(zerosToPad, '0') : idx,
-		idx => `${idx}${delimiter} ${videoName}.${extension}`,
+		idx => (1 + videoIdx <= 9 ? idx.padStart(zerosToPad, '0') : idx),
+		idx => `${idx}${delimiter} ${videoTitle}.${extension}`,
 		removeInvalidCharacters,
 	)
 
-const buildSubtitleFilename = (args) => buildVideoFilename({
-	...args,
-	extension: 'vtt',
-})
+const buildSubtitleFilename = args =>
+	buildVideoFilename({
+		...args,
+		extension: 'vtt',
+	})
 
-const buildCourseFilename = ({ courseName, authors }) =>
+const buildCourseFilename = ({ courseTitle, authors }) =>
 	pipe(
 		authors,
 		O.fromPredicate(S.isNotEmpty),
 		O.match(
-			() => courseName,
-			authors => `${courseName} By ${authors}`,
+			() => courseTitle,
+			authors => `${courseTitle} By ${authors}`,
 		),
 		removeInvalidCharacters,
 	)
@@ -65,32 +66,29 @@ const buildPlaylistFilename = () => 'playlist.m3u8'
 
 const buildExcercisesFilename = () => 'excercise.zip'
 
-export const buildCoursePath = ({ course }) => pipe(
-	buildCourseFilename({
-		courseName: CE.getName(course),
-		authors: CE.getAuthorsStr(course),
-	}),
-	S.prepend(`${ROOT_DIRECTORY}\\`),
-)
+export const buildCoursePath = ({ course }) =>
+	pipe(
+		buildCourseFilename({
+			courseTitle: CE.getTitle(course),
+			authors: CE.getAuthorsStr(course),
+		}),
+		S.prepend(`${ROOT_DIRECTORY}\\`),
+	)
 
 export const buildSectionPath = ({
 	course,
 	sectionIdx,
 }: {
-	course: Course,
-	sectionIdx: number;
+	course: Course
+	sectionIdx: number
 }) =>
 	pipe(
-    buildCoursePath({ course }),
+		buildCoursePath({ course }),
 		S.append('\\'),
 		S.append(
 			buildSectionFilename({
 				sectionIdx,
-        sectionName: pipe(
-          course,
-					CE.getSection(sectionIdx),
-          SE.getName,
-				)
+				sectionName: pipe(course, CE.getSection(sectionIdx), SE.getTitle),
 			}),
 		),
 	)
@@ -99,24 +97,20 @@ export const buildVideoPath = ({
 	course,
 	sectionIdx,
 	videoIdx,
-	video = pipe(
-		course,
-		CE.getSection(sectionIdx),
-		SE.getVideo(videoIdx),
-	),
+	video = pipe(course, CE.getSection(sectionIdx), SE.getVideo(videoIdx)),
 }: {
-	course: Course,
-	sectionIdx: number;
-	videoIdx: number;
-	video?: Video;
+	course: Course
+	sectionIdx: number
+	videoIdx: number
+	video?: Video
 }) =>
 	pipe(
-    buildSectionPath({ course, sectionIdx }),
+		buildSectionPath({ course, sectionIdx }),
 		S.append('\\'),
 		S.append(
 			buildVideoFilename({
 				videoIdx,
-        videoName: VE.getName(video),
+				videoTitle: VE.getTitle(video),
 			}),
 		),
 	)
@@ -126,40 +120,36 @@ export const buildSubtitlePath = ({
 	sectionIdx,
 	videoIdx,
 }: {
-	course: Course,
-	sectionIdx: number;
-	videoIdx: number;
+	course: Course
+	sectionIdx: number
+	videoIdx: number
 }) =>
 	pipe(
-    buildSectionPath({ course, sectionIdx }),
+		buildSectionPath({ course, sectionIdx }),
 		S.append('\\'),
 		S.append(
 			buildSubtitleFilename({
 				videoIdx,
-        videoName: pipe(
-          course,
+				videoName: pipe(
+					course,
 					CE.getSection(sectionIdx),
-          SE.getVideo(videoIdx),
-					VE.getName,
-        )
+					SE.getVideo(videoIdx),
+					VE.getTitle,
+				),
 			}),
 		),
 	)
 
 export const buildPlaylistFilePath = ({ course }): string =>
 	pipe(
-    buildCoursePath({ course }),
-    S.append('\\'),
-    S.append(
-			buildPlaylistFilename(),
-		),
+		buildCoursePath({ course }),
+		S.append('\\'),
+		S.append(buildPlaylistFilename()),
 	)
 
 export const buildExercisesPath = ({ course }): string =>
 	pipe(
-    buildCoursePath({ course }),
-    S.append('\\'),
-    S.append(
-			buildExcercisesFilename(),
-		),
+		buildCoursePath({ course }),
+		S.append('\\'),
+		S.append(buildExcercisesFilename()),
 	)

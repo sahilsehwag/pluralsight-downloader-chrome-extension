@@ -3,7 +3,7 @@ import {
 	handleInstall,
 	handleMessage,
 	handleTabUpdate,
-  handleStorageChange,
+	handleStorageChange,
 } from './handlers'
 
 main()
@@ -12,7 +12,8 @@ main()
 export function main() {
 	chrome.runtime.onInstalled.addListener(handleInstall)
 	chrome.runtime.onMessage.addListener(handleMessage)
+	chrome.runtime.onMessageExternal.addListener(handleMessage)
 	chrome.storage.onChanged.addListener(handleStorageChange)
-	chrome.tabs.onUpdated.addListener(handleTabUpdate);
+	chrome.tabs.onUpdated.addListener(handleTabUpdate)
 	chrome.downloads.onDeterminingFilename.addListener(handleDeterminingFilename)
 }

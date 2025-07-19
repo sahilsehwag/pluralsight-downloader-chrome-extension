@@ -1,12 +1,12 @@
-import { get, findBy } from 'shades'
+import { get } from 'shades'
 
-import { idL, nameL, statusL, videosL } from '~/entities/Course/lenses'
+import { idL, titleL, statusL, videosL } from '~/entities/Course/lenses'
 
 export const SectionEntity = {
-  getId: get(idL),
-  getName: get(nameL),
-  getVideos: get(videosL),
-  getStatus: get(statusL),
+	getId: get(idL),
+	getTitle: get(titleL),
+	getVideos: get(videosL),
+	getStatus: get(statusL),
 
-  getVideo: idx => get(videosL, idx),
+	getVideo: idx => get(videosL, idx),
 }

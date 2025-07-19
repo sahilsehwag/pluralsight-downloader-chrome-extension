@@ -15,7 +15,7 @@ export const useStorage = <K extends KeyOf<Store>, V extends Store[K]>({
 	key,
 	initial,
 }: UseStorageProps<K>) => {
-	const [state, setState] = useState<V>()
+	const [state, setState] = useState<V>(initial as V)
 
 	useEffect(() => {
 		map(key)(value => {
@@ -45,5 +45,5 @@ export const useStorage = <K extends KeyOf<Store>, V extends Store[K]>({
 		setState(value)
 	}
 
-	return [state, updateState] as [V | undefined, Dispatch<SetStateAction<V>>]
+	return [state, updateState] as [V, Dispatch<SetStateAction<V>>]
 }

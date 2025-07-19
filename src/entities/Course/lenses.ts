@@ -1,5 +1,5 @@
 export const idL = 'id'
-export const nameL = 'name'
+export const titleL = 'title'
 export const authorsL = 'authors'
 export const sectionsL = 'sections'
 export const videosL = 'videos'

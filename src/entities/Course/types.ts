@@ -4,14 +4,14 @@ export type Author = string
 
 export type Video = {
 	id: string
-	name: string
+	title: string
 	versionId: string
 	status: DownloadStatus
 }
 
 export type Section = {
 	id: string
-	name: string
+	title: string
 	// TODO: instead of array use map
 	videos: Video[]
 	status: DownloadStatus
@@ -19,7 +19,7 @@ export type Section = {
 
 export type Course = {
 	id: string
-	name: string
+	title: string
 	authors: Author[]
 	// TODO: instead of array use map
 	sections: Section[]
